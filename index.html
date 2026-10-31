@@ -64,15 +64,17 @@
     border-bottom: 2px solid var(--cyan);
   }
   .brand-title {
-    font-size: 20px;
+    font-size: 17.5px;
     font-weight: 900;
-    letter-spacing: 0.6px;
+    letter-spacing: 0.4px;
     color: var(--cyan);
+    white-space: nowrap;
   }
   .top-right-group {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    flex-shrink: 0;
   }
   .voice-btn {
     background: #000000;
@@ -80,9 +82,10 @@
     border: 2px solid var(--emerald);
     border-radius: 7px;
     padding: 3px 9px;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 900;
     cursor: pointer;
+    white-space: nowrap;
   }
   .voice-btn.listening {
     background: rgba(0, 255, 157, 0.22);
@@ -202,11 +205,11 @@
   .face-crop-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
   }
   #extracted-face-canvas {
-    width: 76px;
-    height: 76px;
+    width: 66px;
+    height: 66px;
     border-radius: 8px;
     border: 2px solid var(--emerald);
     background: #000000;
@@ -219,12 +222,13 @@
     overflow: hidden;
   }
   .face-crop-label {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 900;
     color: var(--emerald);
+    white-space: nowrap;
   }
   .face-crop-vec {
-    font-size: 13px;
+    font-size: 11.5px;
     font-weight: 800;
     color: #FFFFFF;
     white-space: nowrap;
@@ -267,15 +271,15 @@
   .photo-source-row {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 6px;
     background: rgba(0, 255, 157, 0.14);
     border: 1.5px solid var(--emerald);
     border-radius: 7px;
-    padding: 4px 5px;
+    padding: 3px 5px;
   }
   .photo-source-thumb {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     border-radius: 5px;
     object-fit: cover;
     object-position: center top;
@@ -288,7 +292,7 @@
     overflow: hidden;
   }
   .photo-source-title {
-    font-size: 12.5px;
+    font-size: 11.5px;
     font-weight: 900;
     color: #FFFFFF;
     white-space: nowrap;
@@ -296,9 +300,10 @@
     text-overflow: ellipsis;
   }
   .photo-source-pct {
-    font-size: 13.5px;
+    font-size: 12.5px;
     font-weight: 900;
     color: var(--emerald);
+    white-space: nowrap;
   }
   .panel-pill {
     font-size: 14.5px;
@@ -419,7 +424,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 15px;
+    font-size: 13.5px;
     font-weight: 900;
     color: var(--emerald);
     white-space: nowrap;
@@ -436,8 +441,8 @@
   <div class="top-bar">
     <div class="brand-title">M.A.Y.A. // MON ASSISTANTE Y ARRIVE</div>
     <div class="top-right-group">
-      <button type="button" class="voice-btn listening" id="btn-voice-cmd" onclick="startOrPromptVoiceCommand(event)" onpointerup="startOrPromptVoiceCommand(event)">🎙️ COMMANDE VOCALE</button>
-      <div class="clock-label" id="maya-clock">00:02</div>
+      <button type="button" class="voice-btn listening" id="btn-voice-cmd" onclick="startOrPromptVoiceCommand(event)" onpointerup="startOrPromptVoiceCommand(event)">🎙️ VOIX ACTIVE</button>
+      <div class="clock-label" id="maya-clock">00:08</div>
     </div>
   </div>
 
@@ -805,7 +810,7 @@
       const pctEl = document.getElementById("src-pct-" + (i + 1));
       if (thumbEl && thumbEl.getAttribute("src") !== s.url) thumbEl.src = s.url;
       if (lblEl) lblEl.textContent = s.label;
-      if (pctEl) pctEl.textContent = "SIMILARITÉ " + s.score + " ✓";
+      if (pctEl) pctEl.textContent = "MATCH " + s.score + " ✓";
     }
 
     drawExtractedFaceCrop(true);
