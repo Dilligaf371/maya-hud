@@ -6,7 +6,7 @@
 <meta name="application-name" content="MAYA">
 <meta name="theme-color" content="#00E5FF">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<title>MAYA · Mon Assistante Y Arrive // E.D.I.T.H. (600×600)</title>
+<title>MAYA · Mon Assistante Y Arrive // M.A.Y.A. (600×600)</title>
 <style>
   :root {
     --bg-black: #000000;
@@ -57,7 +57,7 @@
     border-radius: 18px;
     position: relative;
   }
-  /* Stark E.D.I.T.H. Corner Reticle Brackets */
+  /* Stark M.A.Y.A. Corner Reticle Brackets */
   .edith-corner {
     position: absolute;
     width: 22px;
@@ -71,7 +71,7 @@
   .edith-corner.tr { top: 4px; right: 4px; border-width: 3px 3px 0 0; border-top-right-radius: 8px; }
   .edith-corner.bl { bottom: 4px; left: 4px; border-width: 0 0 3px 3px; border-bottom-left-radius: 8px; }
   .edith-corner.br { bottom: 4px; right: 4px; border-width: 0 3px 3px 0; border-bottom-right-radius: 8px; }
-  /* Marvel Spider-Man: Far From Home E.D.I.T.H. Movie-Accurate Holographic Triptych Armor */
+  /* Aleria Spider-Man: Far From Home M.A.Y.A. Movie-Accurate Holographic Triptych Armor */
   .edith-movie-stage {
     position: relative;
     display: flex;
@@ -322,7 +322,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  /* Top Bar: E.D.I.T.H. Banner + Clock + Model Pills + 4 Neural Band Tabs */
+  /* Top Bar: M.A.Y.A. Banner + Clock + Model Pills + 4 Neural Band Tabs */
   .hud-header {
     display: flex;
     flex-direction: column;
@@ -518,7 +518,7 @@
     border: 3px solid var(--hud-emerald);
     color: var(--hud-emerald);
   }
-  /* Quick Actions & E.D.I.T.H. Agents View */
+  /* Quick Actions & M.A.Y.A. Agents View */
   .action-item {
     padding: 9px 12px;
     border-radius: 10px;
@@ -577,7 +577,7 @@
   <div class="edith-corner br"></div>
   <div class="hud-header">
     <div class="edith-banner">
-      <span>M.A.Y.A. // MON ASSISTANTE Y ARRIVE · E.D.I.T.H.</span>
+      <span>M.A.Y.A. // MON ASSISTANTE Y ARRIVE · ALERIA</span>
       <span id="maya-install-btn" style="cursor:pointer;color:#00FF9D;" onclick="installMayaOnGlasses()">VOIX: ALERIA FR</span>
     </div>
     <div class="hud-status-row">
@@ -597,7 +597,7 @@
     </div>
   </div>
 
-  <!-- Marvel Spider-Man: Far From Home E.D.I.T.H. Movie-Accurate Holographic Triptych -->
+  <!-- Aleria Spider-Man: Far From Home M.A.Y.A. Movie-Accurate Holographic Triptych -->
   <div class="edith-movie-stage" onclick="triggerTriptychIdentify()">
     <div class="edith-triptych" id="edith-triptych">
       <!-- Left Wing: 042 RETINA SCAN + Green Lock Squares + Red Zoom Callout + 02·SOURCES (Instagram/LinkedIn/X) -->
@@ -613,7 +613,7 @@
         <div class="wing-leds">• • • • • • • • • •</div>
         <div class="wing-dials">◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎</div>
       </div>
-      <div class="center-id-caption" id="triptych-bottom-caption">// E.D.I.T.H. BIOMETRIC LOCK · 96% //</div>
+      <div class="center-id-caption" id="triptych-bottom-caption">// M.A.Y.A. BIOMETRIC LOCK · 96% //</div>
       <div class="wing-knobs">
         <div class="wing-leds">• • • • • • • • • •</div>
         <div class="wing-dials">◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎ ◎</div>
@@ -624,7 +624,7 @@
   <!-- Screen 0: 00·VUE 3D (Briefing & Radar Tactique) -->
   <div class="hud-screen active" id="screen-0"></div>
 
-  <!-- Screen 1: 01·SOCMINT (Harvester 6-Sources & Agents E.D.I.T.H.) -->
+  <!-- Screen 1: 01·SOCMINT (Harvester 6-Sources & Agents M.A.Y.A.) -->
   <div class="hud-screen" id="screen-1"></div>
 
   <!-- Screen 2: 02·VISAGE (Biométrie 12MP & Prompteur Exécutif) -->
@@ -636,7 +636,7 @@
     <div class="prompteur-points" id="prompteur-points"></div>
   </div>
 
-  <!-- Screen 3: 03·IDENTITÉ (Dossier Cible & 4 Méta-Actions E.D.I.T.H.) -->
+  <!-- Screen 3: 03·IDENTITÉ (Dossier Cible & 4 Méta-Actions M.A.Y.A.) -->
   <div class="hud-screen" id="screen-3"></div>
 
   <div class="hud-footer" id="hud-footer">
@@ -657,7 +657,7 @@
   ];
   let currentScreen = 0;
   let selectedIndex = [0, 0, 0, 0];
-  let hudState = {"osintProviders":{"facecheckID":false,"duckDuckGoSocialHarvester":true,"githubTechGraph":true,"wikidataSocialGraph":true,"peopleDataLabs":false,"googleCloudVisionWeb":false,"serpApiGoogleLens":false,"appleVisionBiometrics":true},"briefingCards":[{"line1":"Une décision t'attend.","line3":"Aleria CRM · Décisions · Ta décision","tag":"ACCORD REQUIS","hasAction":true,"id":"ahead-crm-decision-dec_23124c44aa34","needsApproval":true,"line2":"URGENT — Le MOU DIAFA est-il signé ?"},{"line1":"Une décision t'attend.","line3":"Aleria CRM · Décisions · Ta décision","tag":"ACCORD REQUIS","hasAction":true,"id":"ahead-crm-decision-dec_blk_ALR-038_20261003","needsApproval":true,"line2":"Bloquant — [Beacon Red] Connexion ETL ver…"},{"line1":"Une décision t'attend.","line3":"Aleria CRM · Décisions · Ta décision","tag":"ACCORD REQUIS","hasAction":true,"id":"ahead-crm-decision-dec_blk_ALR-097_20261003","needsApproval":true,"line2":"Bloquant — Paquets arm64 & runner de build"}],"teleprompter":{"eventSubtitle":"Prochains points clés & décisions","countdownLabel":"PRÊT","eventTitle":"Prompteur Exécutif ICO","talkingPoints":["Une décision t'attend. — URGENT — Le MOU DIAFA est-il signé ?","Une décision t'attend. — Bloquant — [Beacon Red] Connexion ETL vers SharePoint","Une décision t'attend. — Bloquant — Paquets arm64 & runner de build","Anushna Bagchi attend ta réponse. — “Client Case Study Master Tracker | Input Required”"]},"lastEdithSuperpowerReport":"20 Super-Pouvoirs E.D.I.T.H. prêts (Fact-Check · Contrat · Tagalog\/Hindi · Lifelog · Contact · Cyber · Cible · Télémétrie · Salle · Infra · Frappe · Contre-Mesure · Appel Fantôme · War-Game · Shadow Writer · Audio Focus · Sommelier · Famille VIP)","faceRecTriptych":{"identityName":"SYSTÈME E.D.I.T.H. PRÊT","faceCropBase64":"","identityRole":"Reconnaissance Biométrique 12MP","biometricStatus":"SCAN RETINA · 12MP PRÊT","tacticalBrief":"Pincez ou dites « IDENTIFY » pour scanner un visage et valider Instagram, LinkedIn & identité.","identityOrg":"Aleria Sovereign OSINT","instagramHandle":"@aleria.ai","confidencePercent":98,"validatedSources":{"wikidata":"OSINT 6-SOURCES ✓","instagram":"@aleria.ai ✓","linkedin":"in\/aleria-sovereign ✓","contacts":"VIP COFFRE ACTIF ✓"},"updatedAt":1793474516.562674,"sourceCount":6},"clock":"23:21","visualLifelogCount":2,"lastEdithDossierResult":"Aucun dossier cible actif · Demandez « Dossier sur… »","lastEdithScanResult":"En attente de capture caméra 12MP (aleria_vision)…","actions":[{"badge":"META 1","id":"meta_osint","subtitle":"Méta-Investigation : Biométrie 12MP + OSINT + Réseaux + CRM","label":"1 · OSINT (Identify + 6-Sources + Read + Capture)"},{"badge":"META 2","id":"meta_defense","subtitle":"Méta-Défense : Contre-mesure + Fact-Check + Contrat + Infra","label":"2 · DEFENSE (Shield + Coach + Audit + Radar)"},{"badge":"META 3","id":"meta_strike","subtitle":"Méta-Frappe : 3 coups d'avance + Escadron + Brouillons","label":"3 · STRIKE (WarGame + 4 Agents + Ghostwrite)"},{"badge":"META 4","id":"meta_omni","subtitle":"Méta-Vie : Tagalog\/Hindi\/Russe\/Arabe + Audio Focus + Lifelog + Famille","label":"4 · OMNI (Translate + Focus + Recall + Family)"},{"badge":"SWARM","id":"engage_swarm","subtitle":"Engager les 4 agents en parallèle via E.D.I.T.H.","label":"SWARM · Escadron 4 Agents (Claude·Codex·Aleria·Gemini)"},{"badge":"CLAUDE","id":"engage_claude","subtitle":"Lancer Claude Code sur la mission active","label":"Engager Agent Claude"},{"badge":"CODEX","id":"engage_codex","subtitle":"Lancer OpenAI Codex CLI sur la mission active","label":"Engager Agent Codex"},{"badge":"ALERIA","id":"engage_aleria","subtitle":"Lancer Aleria Souverain (glm51) sur la mission","label":"Engager Agent Aleria"},{"badge":"GEMINI","id":"engage_gemini","subtitle":"Lancer Google Gemini CLI sur la mission active","label":"Engager Agent Gemini"},{"badge":"EDITH","id":"edith_boot","subtitle":"Initialiser le HUD tactique et le briefing voix","label":"Protocole E.D.I.T.H. Boot"},{"badge":"RECON","id":"edith_sitrep","subtitle":"Synthèse exécutive immédiate en français","label":"Dossier Tactique E.D.I.T.H."},{"badge":"12MP","id":"edith_scan","subtitle":"Analyser la vue caméra 12MP des lunettes","label":"Scan Vision 12MP (aleria_vision)"},{"badge":"OSINT","id":"edith_osint","subtitle":"Identifier un visage \/ contact + dossier OSINT exécutif","label":"OSINT & Reconnaissance Faciale"},{"badge":"TAGALOG","id":"edith_translate_tagalog","subtitle":"Sous-titrage simultané & phonétique Tagalog (tl-PH)","label":"Traducteur Tagalog \/ Philippin <-> FR"},{"badge":"HINDI","id":"edith_translate_hindi","subtitle":"Sous-titrage simultané & phonétique Hindi (hi-IN)","label":"Traducteur Hindi (Inde) <-> FR"},{"badge":"RUSSE","id":"edith_translate_russian","subtitle":"Sous-titrage simultané & phonétique Russe (ru-RU)","label":"Traducteur Russe <-> FR"},{"badge":"COACH","id":"edith_negotiation","subtitle":"Vérifier un chiffre et obtenir un levier immédiat","label":"COACH · Négociation & Fact-Check"},{"badge":"VOSS","id":"edith_voss","subtitle":"Miroir · Label · Question Calibrée · Ackerman","label":"VOSS · Assistant Négociation Chris Voss"},{"badge":"CONTRAT","id":"edith_contract_xray","subtitle":"Détecter les clauses pièges & verdict signature","label":"Rayon X Contrat & MOU (3s)"},{"badge":"LIFELOG","id":"edith_lifelog","subtitle":"Retrouver un objet, clé, passeport ou slide vu","label":"Mémoire Visuelle & Lifelog 12MP"},{"badge":"CRM","id":"edith_contact_crm","subtitle":"Créer le contact Apple + brouillon de suivi","label":"Carte de Visite -> Contact + Suivi"},{"badge":"DEBUG","id":"edith_cyber_debug","subtitle":"Scanner un écran \/ terminal et corriger via Claude","label":"Cyber Debug par le Regard"},{"badge":"CIBLE","id":"edith_behavioral","subtitle":"Analyser posture, tonalité et réceptivité","label":"Lecture Comportementale Cible"},{"badge":"TRAJET","id":"edith_telemetry","subtitle":"ETA Al Maqam \/ Maison + Uber + Domotique","label":"Télémétrie & Protocole Retour"},{"badge":"SALLE","id":"edith_room_scan","subtitle":"Identifier de gauche à droite + décideur clé","label":"Plan de Table & Scan Multi-Cibles"},{"badge":"INFRA","id":"edith_infra_radar","subtitle":"Santé temps réel OmniVoice · Studio · Cloud · HUD","label":"Radar Infra Stark & Auto-Guérison"},{"badge":"FRAPPE","id":"edith_swarm_strike","subtitle":"Escadron 4 Agents + Email + Mattermost + Trello","label":"Frappe Exécutive Coordonnée"},{"badge":"BOUCLIER","id":"edith_counter_espionage","subtitle":"Détecter caméras, regards indiscrets & pièges","label":"Bouclier Contre-Espionnage"},{"badge":"FANTÔME","id":"edith_ghost_call","subtitle":"Conciergerie vocale autonome + guidage direct","label":"Appel Fantôme & Chuchotement"},{"badge":"WAR-GAME","id":"edith_war_game","subtitle":"Simuler 3 scénarios & verrouiller le coup gagnant","label":"War-Game : 3 Coups d'Avance"},{"badge":"WRITER","id":"edith_shadow_writer","subtitle":"Rédiger en tâche de fond la note promise en réunion","label":"Shadow Ghostwriter Zéro-Mot"},{"badge":"FOCUS","id":"edith_audio_focus","subtitle":"Focus directionnel & sous-titrage milieu bruyant","label":"Super-Audition (Cocktail Party)"},{"badge":"LUXE","id":"edith_sommelier","subtitle":"Millésime, cote AED\/EUR & conseil de connaisseur","label":"Rayon X Grands Crus, Montres & Art"},{"badge":"FAMILLE","id":"edith_family_vip","subtitle":"Mathilde, Nathan, Damian, Ethan, Morgane, Spinn & Sparrow","label":"Overwatch Famille Priorité Absolue"},{"badge":"1-PINCH","id":"morning_routine","subtitle":"Lancer le briefing & les scènes","label":"Routine Matin"},{"badge":"UBER","id":"uber_office","subtitle":"Préparer la course vers Al Maqam","label":"Uber -> Bureau (Al Maqam)"},{"badge":"AUDIO","id":"test_voice","subtitle":"Synthèse OmniVoice dans les lunettes","label":"Test Voix ICO"},{"badge":"12","id":"approve_agent","subtitle":"12 décision(s) en attente","label":"Approuver Action Agent"},{"badge":"185ms","id":"cycle_aleria_model","subtitle":"Pincer pour basculer (aleria-fast \/ glm-5.3 \/ morj)","label":"Modèle Aleria : aleria-fast"},{"badge":"LIVE","id":"test_aleria_inference","subtitle":"Requête directe inference.aleria.com -> HUD 600×600","label":"Tester Inférence Aleria"}],"edithModeEnabled":false,"timestamp":1793474516.562379,"lastDiscoveredSocialAccounts":{},"enrolledFacesCount":1,"activeVisionModel":"aleria_vision","lastEdithAgentReport":"Escadron prêt : Claude · Codex · Aleria · Gemini","nextMeetingCountdown":"AGENDA LIBRE · AUCUN RDV IMMINENT","activeInferenceModel":"aleria-fast","lastEdithOSINTResult":"OSINT & Reconnaissance faciale prêts (I-XRAY · OpenVision · JARVIS)","activeEdithAgents":{"claude":"PRÊT · Claude Code 2.1","codex":"PRÊT · Codex CLI 0.162","gemini":"PRÊT · Gemini CLI 0.65","aleria":"PRÊT · Aleria Souverain (glm51)"}};
+  let hudState = {"osintProviders":{"facecheckID":false,"duckDuckGoSocialHarvester":true,"githubTechGraph":true,"wikidataSocialGraph":true,"peopleDataLabs":false,"googleCloudVisionWeb":false,"serpApiGoogleLens":false,"appleVisionBiometrics":true},"briefingCards":[{"line1":"Une décision t'attend.","line3":"Aleria CRM · Décisions · Ta décision","tag":"ACCORD REQUIS","hasAction":true,"id":"ahead-crm-decision-dec_23124c44aa34","needsApproval":true,"line2":"URGENT — Le MOU DIAFA est-il signé ?"},{"line1":"Une décision t'attend.","line3":"Aleria CRM · Décisions · Ta décision","tag":"ACCORD REQUIS","hasAction":true,"id":"ahead-crm-decision-dec_blk_ALR-038_20261003","needsApproval":true,"line2":"Bloquant — [Beacon Red] Connexion ETL ver…"},{"line1":"Une décision t'attend.","line3":"Aleria CRM · Décisions · Ta décision","tag":"ACCORD REQUIS","hasAction":true,"id":"ahead-crm-decision-dec_blk_ALR-097_20261003","needsApproval":true,"line2":"Bloquant — Paquets arm64 & runner de build"}],"teleprompter":{"eventSubtitle":"Prochains points clés & décisions","countdownLabel":"PRÊT","eventTitle":"Prompteur Exécutif ICO","talkingPoints":["Une décision t'attend. — URGENT — Le MOU DIAFA est-il signé ?","Une décision t'attend. — Bloquant — [Beacon Red] Connexion ETL vers SharePoint","Une décision t'attend. — Bloquant — Paquets arm64 & runner de build","Anushna Bagchi attend ta réponse. — “Client Case Study Master Tracker | Input Required”"]},"lastEdithSuperpowerReport":"20 Super-Pouvoirs M.A.Y.A. prêts (Fact-Check · Contrat · Tagalog\/Hindi · Lifelog · Contact · Cyber · Cible · Télémétrie · Salle · Infra · Frappe · Contre-Mesure · Appel Fantôme · War-Game · Shadow Writer · Audio Focus · Sommelier · Famille VIP)","faceRecTriptych":{"identityName":"SYSTÈME M.A.Y.A. PRÊT","faceCropBase64":"","identityRole":"Reconnaissance Biométrique 12MP","biometricStatus":"SCAN RETINA · 12MP PRÊT","tacticalBrief":"Pincez ou dites « IDENTIFY » pour scanner un visage et valider Instagram, LinkedIn & identité.","identityOrg":"Aleria Sovereign OSINT","instagramHandle":"@aleria.ai","confidencePercent":98,"validatedSources":{"wikidata":"OSINT 6-SOURCES ✓","instagram":"@aleria.ai ✓","linkedin":"in\/aleria-sovereign ✓","contacts":"VIP COFFRE ACTIF ✓"},"updatedAt":1793474516.562674,"sourceCount":6},"clock":"23:21","visualLifelogCount":2,"lastEdithDossierResult":"Aucun dossier cible actif · Demandez « Dossier sur… »","lastEdithScanResult":"En attente de capture caméra 12MP (aleria_vision)…","actions":[{"badge":"META 1","id":"meta_osint","subtitle":"Méta-Investigation : Biométrie 12MP + OSINT + Réseaux + CRM","label":"1 · OSINT (Identify + 6-Sources + Read + Capture)"},{"badge":"META 2","id":"meta_defense","subtitle":"Méta-Défense : Contre-mesure + Fact-Check + Contrat + Infra","label":"2 · DEFENSE (Shield + Coach + Audit + Radar)"},{"badge":"META 3","id":"meta_strike","subtitle":"Méta-Frappe : 3 coups d'avance + Escadron + Brouillons","label":"3 · STRIKE (WarGame + 4 Agents + Ghostwrite)"},{"badge":"META 4","id":"meta_omni","subtitle":"Méta-Vie : Tagalog\/Hindi\/Russe\/Arabe + Audio Focus + Lifelog + Famille","label":"4 · OMNI (Translate + Focus + Recall + Family)"},{"badge":"SWARM","id":"engage_swarm","subtitle":"Engager les 4 agents en parallèle via M.A.Y.A.","label":"SWARM · Escadron 4 Agents (Claude·Codex·Aleria·Gemini)"},{"badge":"CLAUDE","id":"engage_claude","subtitle":"Lancer Claude Code sur la mission active","label":"Engager Agent Claude"},{"badge":"CODEX","id":"engage_codex","subtitle":"Lancer OpenAI Codex CLI sur la mission active","label":"Engager Agent Codex"},{"badge":"ALERIA","id":"engage_aleria","subtitle":"Lancer Aleria Souverain (glm51) sur la mission","label":"Engager Agent Aleria"},{"badge":"GEMINI","id":"engage_gemini","subtitle":"Lancer Google Gemini CLI sur la mission active","label":"Engager Agent Gemini"},{"badge":"EDITH","id":"edith_boot","subtitle":"Initialiser le HUD tactique et le briefing voix","label":"Protocole M.A.Y.A. Boot"},{"badge":"RECON","id":"edith_sitrep","subtitle":"Synthèse exécutive immédiate en français","label":"Dossier Tactique M.A.Y.A."},{"badge":"12MP","id":"edith_scan","subtitle":"Analyser la vue caméra 12MP des lunettes","label":"Scan Vision 12MP (aleria_vision)"},{"badge":"OSINT","id":"edith_osint","subtitle":"Identifier un visage \/ contact + dossier OSINT exécutif","label":"OSINT & Reconnaissance Faciale"},{"badge":"TAGALOG","id":"edith_translate_tagalog","subtitle":"Sous-titrage simultané & phonétique Tagalog (tl-PH)","label":"Traducteur Tagalog \/ Philippin <-> FR"},{"badge":"HINDI","id":"edith_translate_hindi","subtitle":"Sous-titrage simultané & phonétique Hindi (hi-IN)","label":"Traducteur Hindi (Inde) <-> FR"},{"badge":"RUSSE","id":"edith_translate_russian","subtitle":"Sous-titrage simultané & phonétique Russe (ru-RU)","label":"Traducteur Russe <-> FR"},{"badge":"COACH","id":"edith_negotiation","subtitle":"Vérifier un chiffre et obtenir un levier immédiat","label":"COACH · Négociation & Fact-Check"},{"badge":"VOSS","id":"edith_voss","subtitle":"Miroir · Label · Question Calibrée · Ackerman","label":"VOSS · Assistant Négociation Chris Voss"},{"badge":"CONTRAT","id":"edith_contract_xray","subtitle":"Détecter les clauses pièges & verdict signature","label":"Rayon X Contrat & MOU (3s)"},{"badge":"LIFELOG","id":"edith_lifelog","subtitle":"Retrouver un objet, clé, passeport ou slide vu","label":"Mémoire Visuelle & Lifelog 12MP"},{"badge":"CRM","id":"edith_contact_crm","subtitle":"Créer le contact Apple + brouillon de suivi","label":"Carte de Visite -> Contact + Suivi"},{"badge":"DEBUG","id":"edith_cyber_debug","subtitle":"Scanner un écran \/ terminal et corriger via Claude","label":"Cyber Debug par le Regard"},{"badge":"CIBLE","id":"edith_behavioral","subtitle":"Analyser posture, tonalité et réceptivité","label":"Lecture Comportementale Cible"},{"badge":"TRAJET","id":"edith_telemetry","subtitle":"ETA Al Maqam \/ Maison + Uber + Domotique","label":"Télémétrie & Protocole Retour"},{"badge":"SALLE","id":"edith_room_scan","subtitle":"Identifier de gauche à droite + décideur clé","label":"Plan de Table & Scan Multi-Cibles"},{"badge":"INFRA","id":"edith_infra_radar","subtitle":"Santé temps réel OmniVoice · Studio · Cloud · HUD","label":"Radar Infra Stark & Auto-Guérison"},{"badge":"FRAPPE","id":"edith_swarm_strike","subtitle":"Escadron 4 Agents + Email + Mattermost + Trello","label":"Frappe Exécutive Coordonnée"},{"badge":"BOUCLIER","id":"edith_counter_espionage","subtitle":"Détecter caméras, regards indiscrets & pièges","label":"Bouclier Contre-Espionnage"},{"badge":"FANTÔME","id":"edith_ghost_call","subtitle":"Conciergerie vocale autonome + guidage direct","label":"Appel Fantôme & Chuchotement"},{"badge":"WAR-GAME","id":"edith_war_game","subtitle":"Simuler 3 scénarios & verrouiller le coup gagnant","label":"War-Game : 3 Coups d'Avance"},{"badge":"WRITER","id":"edith_shadow_writer","subtitle":"Rédiger en tâche de fond la note promise en réunion","label":"Shadow Ghostwriter Zéro-Mot"},{"badge":"FOCUS","id":"edith_audio_focus","subtitle":"Focus directionnel & sous-titrage milieu bruyant","label":"Super-Audition (Cocktail Party)"},{"badge":"LUXE","id":"edith_sommelier","subtitle":"Millésime, cote AED\/EUR & conseil de connaisseur","label":"Rayon X Grands Crus, Montres & Art"},{"badge":"FAMILLE","id":"edith_family_vip","subtitle":"Mathilde, Nathan, Damian, Ethan, Morgane, Spinn & Sparrow","label":"Overwatch Famille Priorité Absolue"},{"badge":"1-PINCH","id":"morning_routine","subtitle":"Lancer le briefing & les scènes","label":"Routine Matin"},{"badge":"UBER","id":"uber_office","subtitle":"Préparer la course vers Al Maqam","label":"Uber -> Bureau (Al Maqam)"},{"badge":"AUDIO","id":"test_voice","subtitle":"Synthèse OmniVoice dans les lunettes","label":"Test Voix ICO"},{"badge":"12","id":"approve_agent","subtitle":"12 décision(s) en attente","label":"Approuver Action Agent"},{"badge":"185ms","id":"cycle_aleria_model","subtitle":"Pincer pour basculer (aleria-fast \/ glm-5.3 \/ morj)","label":"Modèle Aleria : aleria-fast"},{"badge":"LIVE","id":"test_aleria_inference","subtitle":"Requête directe inference.aleria.com -> HUD 600×600","label":"Tester Inférence Aleria"}],"edithModeEnabled":false,"timestamp":1793474516.562379,"lastDiscoveredSocialAccounts":{},"enrolledFacesCount":1,"activeVisionModel":"aleria_vision","lastEdithAgentReport":"Escadron prêt : Claude · Codex · Aleria · Gemini","nextMeetingCountdown":"AGENDA LIBRE · AUCUN RDV IMMINENT","activeInferenceModel":"aleria-fast","lastEdithOSINTResult":"OSINT & Reconnaissance faciale prêts (I-XRAY · OpenVision · JARVIS)","activeEdithAgents":{"claude":"PRÊT · Claude Code 2.1","codex":"PRÊT · Codex CLI 0.162","gemini":"PRÊT · Gemini CLI 0.65","aleria":"PRÊT · Aleria Souverain (glm51)"}};
 
   function itemCountForScreen(screenIdx) {
     if (!hudState) return 1;
@@ -704,7 +704,7 @@
           ctx.beginPath(); ctx.moveTo(4, gy); ctx.lineTo(w - 4, gy); ctx.stroke();
         }
 
-        // 3D Parametric Point-Cloud & Wireframe Human Head (Marvel E.D.I.T.H. style)
+        // 3D Parametric Point-Cloud & Wireframe Human Head (Aleria M.A.Y.A. style)
         const latSteps = 16;
         const lonSteps = 22;
         for (let i = 0; i <= latSteps; i++) {
@@ -763,7 +763,7 @@
     const igHandle = t.instagramHandle || "@aleria.ai";
     const sources = t.validatedSources || { instagram: igHandle + " ✓", linkedin: "in/aleria ✓", contacts: "VIP ✓" };
     const srcCount = t.sourceCount || Object.keys(sources).length || 3;
-    const idName = t.identityName || "SYSTÈME E.D.I.T.H.";
+    const idName = t.identityName || "SYSTÈME M.A.Y.A.";
     const idRole = t.identityRole || "Reconnaissance Biométrique 12MP";
     const idOrg = t.identityOrg || "Aleria Sovereign OSINT";
     const brief = t.tacticalBrief || "Pincez pour lancer IDENTIFY (Visage + Instagram + Identité).";
@@ -894,7 +894,7 @@
       validatedSources: { instagram: "@aleria.ai ✓", linkedin: "Aleria Sovereign ✓", contacts: "VIP C-Level ✓" },
       sourceCount: 3,
       identityName: "GILLES // ALERIA",
-      identityRole: "Architecte Souverain · E.D.I.T.H.",
+      identityRole: "Architecte Souverain · M.A.Y.A.",
       identityOrg: "Aleria AI · Abu Dhabi",
       tacticalBrief: "Identité souveraine confirmée à 99%. Escadron Claude + Codex + Aleria + Gemini en veille active."
     },
@@ -1000,7 +1000,7 @@
       </div>`;
     }).join("");
 
-    // Screen 1: 2·AGENTS (Escadron E.D.I.T.H. : Claude, Codex, Aleria, Gemini, Swarm, Scan 12MP)
+    // Screen 1: 2·AGENTS (Escadron M.A.Y.A. : Claude, Codex, Aleria, Gemini, Swarm, Scan 12MP)
     const s1 = document.getElementById("screen-1");
     const activeMap = hudState.activeEdithAgents || {};
     if (selectedIndex[1] >= EDITH_AGENT_SLOTS.length) selectedIndex[1] = 0;
@@ -1166,7 +1166,7 @@
         footer.textContent = "INSTALLATION MAYA : " + (e && e.message ? e.message : "PRÊTE");
       }
     } else {
-      speakMayaBrief("M.A.Y.A. en ligne. Visière holographique E.D.I.T.H. opérationnelle.");
+      speakMayaBrief("M.A.Y.A. en ligne. Visière holographique M.A.Y.A. opérationnelle.");
       footer.textContent = "VOIX ALERIA FR ACTIVÉE · MAYA PRÊTE";
     }
   }
@@ -1249,14 +1249,14 @@
 
       document.modelContext.registerTool({
         name: "maya_execute_action",
-        description: "Trigger the currently selected E.D.I.T.H. agent or tactical action in MAYA (Swarm, Claude, Codex, Aleria, Gemini, or 12MP Scan).",
+        description: "Trigger the currently selected M.A.Y.A. agent or tactical action in MAYA (Swarm, Claude, Codex, Aleria, Gemini, or 12MP Scan).",
         inputSchema: {
           type: "object",
           properties: {
             actionId: {
               type: "string",
               enum: ["selected", "engage_swarm", "edith_osint", "engage_claude", "engage_codex", "engage_aleria", "engage_gemini", "edith_scan"],
-              description: "Specific E.D.I.T.H. action ID or 'selected' for current item."
+              description: "Specific M.A.Y.A. action ID or 'selected' for current item."
             }
           }
         },
