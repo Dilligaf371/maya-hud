@@ -776,7 +776,8 @@
         { url: "photos/xavier_2.jpg", label: "Keynote", score: "98.9%" },
         { url: "photos/xavier_3.jpg", label: "Archive", score: "98.4%" }
       ],
-      faceCropBox: [0.18, 0.06, 0.64, 0.64],
+      faceCropBox: [0.32, 0.14, 0.54, 0.54],
+      faceOffsetX: 22,
       instagram: "@xavier75016",
       twitter: "@xavier75",
       linkedin: "in/xavier-niel",
@@ -1435,7 +1436,8 @@
       const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
 
-      const cx = w * 0.5 + wristYaw * 36;
+      const t = MAYA_TARGETS[currentTargetIndex] || {};
+      const cx = w * 0.5 + (t.faceOffsetX || 0) + wristYaw * 36;
       const cy = h * 0.45;
       const speed = scanBoostFrames > 0 ? 0.10 : 0.038;
       if (scanBoostFrames > 0) scanBoostFrames--;
