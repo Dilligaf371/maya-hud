@@ -877,22 +877,22 @@
     <div class="detail-header">
       <div class="detail-headline-group">
         <div class="detail-title" id="detail-title">Prêt pour Identification Live</div>
-        <div class="detail-role-sub" id="detail-role-sub">3 méthodes instantanées pour identifier une personne dans le verre droit :</div>
+        <div class="detail-role-sub" id="detail-role-sub">3 façons instantanées de lancer une identification dans le Display :</div>
       </div>
       <div class="detail-badge" id="detail-badge">Mode Live Actif</div>
     </div>
     <div class="intel-grid">
       <div class="intel-row">
         <span class="intel-tag" id="intel-tag-1">1. Photo Lunettes</span>
-        <span class="intel-val" id="intel-val-1">Appuyez sur le bouton photo des lunettes → MAYA identifie le visage</span>
+        <span class="intel-val" id="intel-val-1">1 clic bouton photo des lunettes → MAYA identifie le visage</span>
       </div>
       <div class="intel-row">
         <span class="intel-tag" id="intel-tag-2">2. Pincer Scanner</span>
-        <span class="intel-val" id="intel-val-2">Pincez « 📸 Scanner Visage » ci-dessous pour analyser la photo 12MP</span>
+        <span class="intel-val" id="intel-val-2">Pincez « Scanner Visage » ci-dessous pour analyser la photo 12MP</span>
       </div>
       <div class="intel-row">
         <span class="intel-tag" id="intel-tag-3">3. Voix ou Nom</span>
-        <span class="intel-val" id="intel-val-3">Pincez « 🎙️ Identifier Voix » ou « 🔎 Chercher Nom » pour tout profil</span>
+        <span class="intel-val" id="intel-val-3">Pincez « Identifier Voix » ou « Chercher Nom » pour tout profil</span>
       </div>
     </div>
   </div>
@@ -902,7 +902,7 @@
     <button type="button" class="dock-btn selected" id="act-0" onclick="triggerLiveFaceScan(event)" onpointerup="triggerLiveFaceScan(event)">
       <div class="dock-top-row">
         <svg class="dock-icon" viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 12h2a2 2 0 0 0 2-2v-2"/><circle cx="12" cy="12" r="3.5"/></svg>
-        <span class="btn-top">📸 Scanner Visage</span>
+        <span class="btn-top">Scanner Visage</span>
       </div>
       <span class="btn-sub">Photo 12MP · Face ID 76p</span>
     </button>
@@ -910,7 +910,7 @@
     <button type="button" class="dock-btn" id="act-1" onclick="triggerVoiceIdentification(event)" onpointerup="triggerVoiceIdentification(event)">
       <div class="dock-top-row">
         <svg class="dock-icon" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-        <span class="btn-top">🎙️ Identifier Voix</span>
+        <span class="btn-top">Identifier Voix</span>
       </div>
       <span class="btn-sub">Dicter un Nom en Direct</span>
     </button>
@@ -918,7 +918,7 @@
     <button type="button" class="dock-btn" id="act-2" onclick="openSearchModal(event)" onpointerup="openSearchModal(event)">
       <div class="dock-top-row">
         <svg class="dock-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <span class="btn-top">🔎 Chercher Nom</span>
+        <span class="btn-top">Chercher Nom</span>
       </div>
       <span class="btn-sub">Recherche OSINT Live</span>
     </button>
@@ -927,7 +927,7 @@
   <!-- 6. Voice Command Bar -->
   <div class="status-footer" id="maya-footer">
     <svg class="footer-wave-icon" viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 7v10M20 10v4"/></svg>
-    <span id="maya-footer-text">Pincez « 📸 Scanner Visage », « 🎙️ Identifier Voix » ou « 🔎 Chercher Nom »</span>
+    <span id="maya-footer-text">Pincez « Scanner Visage », « Identifier Voix » ou « Chercher Nom »</span>
   </div>
 </div>
 
@@ -1096,9 +1096,9 @@
       document.getElementById("right-status-pill").textContent = "En Ligne ✓";
 
       const readySources = [
-        { badge: "01", title: "Photo 12MP Lunettes", pct: "Auto ✓" },
-        { badge: "02", title: "Contacts & Face Vault", pct: "76-Pts ✓" },
-        { badge: "03", title: "Wikipedia & Wikidata", pct: "Live ✓" }
+        { badge: "01", title: "Photo 12MP", pct: "Auto ✓" },
+        { badge: "02", title: "Contacts iOS", pct: "76-Pts ✓" },
+        { badge: "03", title: "Wikipedia Live", pct: "OSINT ✓" }
       ];
       for (let i = 0; i < 3; i++) {
         const bEl = document.getElementById("src-badge-" + (i + 1));
@@ -1129,11 +1129,11 @@
       dRoleSub.textContent = "3 façons instantanées de lancer une identification dans le Display :";
       dBadge.textContent = "Mode Live Actif";
       tag1.textContent = "1. Photo Lunettes";
-      val1.textContent = "1 clic sur le bouton photo des lunettes → MAYA identifie le visage";
+      val1.textContent = "1 clic bouton photo des lunettes → MAYA identifie le visage";
       tag2.textContent = "2. Pincer Scanner";
-      val2.textContent = "Pincez « 📸 Scanner Visage » ci-dessous pour analyser la photo 12MP";
+      val2.textContent = "Pincez « Scanner Visage » ci-dessous pour analyser la photo 12MP";
       tag3.textContent = "3. Voix ou Nom";
-      val3.textContent = "Pincez « 🎙️ Identifier Voix » ou « 🔎 Chercher Nom » pour tout profil";
+      val3.textContent = "Pincez « Identifier Voix » ou « Chercher Nom » pour tout profil";
       return;
     }
 
