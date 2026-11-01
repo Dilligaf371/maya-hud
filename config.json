@@ -1,8 +1,8 @@
 {
-  "https_api": "https://surname-forgotten-sheriff-prix.trycloudflare.com",
-  "wss_bridge": "wss://wayne-backed-newton-leasing.trycloudflare.com/voice",
+  "https_api": "https://sweet-bibliographic-bread-forever.trycloudflare.com",
+  "wss_bridge": "wss://lowest-kijiji-rehabilitation-champion.trycloudflare.com/voice",
   "lan_api": "http://192.168.1.116:8766",
   "tailscale_api": "http://100.78.112.92:8766",
   "lan_ws": "ws://192.168.1.116:8765/voice",
-  "updated_at": 1793546640
+  "updated_at": 1793547050
 }
