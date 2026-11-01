@@ -136,20 +136,32 @@
     display: flex;
   }
 
-  /* VIEW 1: 6-Button Interactive Shortcuts Grid (2x3) */
+  /* VIEW 1: Live Camera Viewfinder + 6-Button Interactive Shortcuts Grid (2x3) */
+  .menu-camera-stage {
+    position: relative;
+    width: 100%;
+    height: 196px;
+    border-radius: 14px;
+    border: 2.5px solid var(--emerald);
+    background: #020509;
+    overflow: hidden;
+    flex-shrink: 0;
+    margin-bottom: 7px;
+  }
   .menu-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: repeat(3, 1fr);
-    gap: 10px;
+    gap: 7px;
     flex: 1;
+    min-height: 0;
   }
   .shortcut-btn {
     appearance: none;
     background: #050c16;
-    border: 2.5px solid #1b3858;
-    border-radius: 16px;
-    padding: 12px 14px;
+    border: 2px solid #1b3858;
+    border-radius: 13px;
+    padding: 6px 11px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -165,7 +177,7 @@
     outline: none;
     background: #0a1b2e;
     border-color: var(--emerald);
-    box-shadow: 0 0 0 4px rgba(0, 255, 157, 0.42), inset 0 0 18px rgba(0, 255, 157, 0.16);
+    box-shadow: 0 0 0 3px rgba(0, 255, 157, 0.42), inset 0 0 14px rgba(0, 255, 157, 0.16);
   }
   .shortcut-btn:active {
     transform: scale(0.98);
@@ -175,29 +187,29 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
   }
   .shortcut-title {
-    font-size: 23px;
+    font-size: 19px;
     font-weight: 900;
     color: var(--white);
     letter-spacing: -0.01em;
-    line-height: 1.15;
+    line-height: 1.1;
   }
   .shortcut-key {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 800;
     color: var(--cyan);
     background: rgba(0, 229, 255, 0.14);
     border: 1.5px solid rgba(0, 229, 255, 0.45);
-    border-radius: 8px;
-    padding: 2px 7px;
+    border-radius: 7px;
+    padding: 1px 6px;
   }
   .shortcut-sub {
-    font-size: 17px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--emerald);
-    line-height: 1.2;
+    line-height: 1.15;
   }
   .shortcut-btn[data-accent="cyan"] .shortcut-sub { color: var(--cyan); }
   .shortcut-btn[data-accent="orange"] .shortcut-sub { color: var(--orange); }
@@ -638,8 +650,18 @@
     </nav>
   </header>
 
-  <!-- VIEW 1: 6-BUTTON INTERACTIVE SHORTCUTS LAUNCHER -->
-  <main id="view-menu" class="view-panel active" aria-label="Raccourcis Hermes Glasses">
+  <!-- VIEW 1: ALWAYS-ON CAMERA VIEWFINDER + 6-BUTTON INTERACTIVE SHORTCUTS LAUNCHER -->
+  <main id="view-menu" class="view-panel active" aria-label="Viseur Caméra & Raccourcis Hermes Glasses">
+    <div class="menu-camera-stage" id="menu-camera-stage">
+      <div class="vf-corner vf-tl"></div>
+      <div class="vf-corner vf-tr"></div>
+      <div class="vf-corner vf-bl"></div>
+      <div class="vf-corner vf-br"></div>
+      <div class="vf-reticle"></div>
+      <span class="hud-cam-pill" id="menu-cam-pill">🟢 VISEUR CAMÉRA 0098 EN DIRECT — CADREZ VOS PHOTOS</span>
+      <button type="button" class="hud-cam-snap-btn" onclick="openLiveViewfinder()">⛶ PLEIN ÉCRAN</button>
+      <img id="menu-camera-img" class="hud-camera-img" src="icon-192.png" alt="Viseur Caméra 0098 en Direct">
+    </div>
     <div class="menu-grid">
       <button type="button" class="shortcut-btn spatial-focus" id="sc-0" data-accent="emerald"
               onclick="triggerHermesAction('scan_face', 'Qui est devant moi ? Identifie cette personne.')">
@@ -822,6 +844,8 @@
   let bridgeSocket = null;
   let activeSpeechRec = null;
   let liveViewfinderInterval = null;
+  let isCapturingPhoto = false;
+  let hasCapturedPhotoOnHud = false;
 
   const QUICK_ACTIONS = [
     { label: "📹 Ouvrir le Viseur Caméra Live", cmd: "start_video_return", query: "Ouvre le retour vidéo en direct des lunettes." },
@@ -844,16 +868,26 @@
     setTimeout(function() { fl.classList.remove("flash"); }, 220);
   }
 
-  function updateCameraImages(srcDataUrl, pillLabel) {
+  function updateCameraImages(srcDataUrl, pillLabel, isCapturedStill) {
     if (!srcDataUrl) return;
+    const menuImg = document.getElementById("menu-camera-img");
     const hudImg = document.getElementById("hud-camera-img");
     const vfImg = document.getElementById("viewfinder-img");
+    const menuPill = document.getElementById("menu-cam-pill");
     const hudPill = document.getElementById("hud-cam-pill");
     const vfText = document.getElementById("vf-status-text");
-    if (hudImg) hudImg.src = srcDataUrl;
+    if (menuImg) menuImg.src = srcDataUrl;
     if (vfImg) vfImg.src = srcDataUrl;
-    if (pillLabel && hudPill) hudPill.textContent = pillLabel;
-    if (pillLabel && vfText) vfText.textContent = pillLabel;
+    if (menuPill && !isCapturedStill) menuPill.textContent = pillLabel || "🟢 VISEUR CAMÉRA 0098 EN DIRECT";
+    if (vfText && !isCapturedStill) vfText.textContent = pillLabel || "🟢 VISEUR CAMÉRA 0098 LIVE";
+    if (isCapturedStill || !hasCapturedPhotoOnHud || isCapturingPhoto) {
+      if (hudImg) hudImg.src = srcDataUrl;
+      if (pillLabel && hudPill) hudPill.textContent = pillLabel;
+    }
+    if (isCapturedStill) {
+      hasCapturedPhotoOnHud = true;
+      isCapturingPhoto = false;
+    }
   }
 
   async function loadDynamicConfig() {
@@ -877,13 +911,10 @@
       if (panel) panel.classList.toggle("active", v === viewName);
       if (nav) nav.classList.toggle("active", v === viewName);
     });
-    if (liveViewfinderInterval && viewName !== "video") {
-      clearInterval(liveViewfinderInterval);
-      liveViewfinderInterval = null;
-    }
     if (viewName === "menu") {
       focusShortcut(focusedShortcutIdx);
-      setFooter("⚡ Choisissez un raccourci Aleria ou 📹 VISEUR pour voir votre caméra");
+      setFooter("🟢 Viseur 0098 actif en haut — Cadrez puis pincez une action");
+      startLiveViewfinderPolling();
     } else if (viewName === "video") {
       focusVfButton(focusedVfBtnIdx);
       setFooter("📹 Viseur Caméra 0098 en direct — Pincez pour prendre la photo");
@@ -904,24 +935,23 @@
   };
 
   window.stopLiveViewfinderAndBack = function() {
-    sendActionToStudio("stop_video_return", "Arrête le retour vidéo en direct");
     switchView("menu");
   };
 
   function startLiveViewfinderPolling() {
-    if (liveViewfinderInterval) clearInterval(liveViewfinderInterval);
+    if (liveViewfinderInterval) return;
     liveViewfinderInterval = setInterval(function() {
-      if (currentView !== "video") return;
+      if (currentView !== "menu" && currentView !== "video" && !isCapturingPhoto) return;
       const base = ENDPOINTS.httpsApi || ENDPOINTS.lanApi;
       if (base) {
         const img = new Image();
         const url = base + "/api/live_frame.jpg?t=" + Date.now();
         img.onload = function() {
-          updateCameraImages(url, "🟢 RETOUR VIDÉO 0098 EN DIRECT");
+          updateCameraImages(url, "🟢 VISEUR CAMÉRA 0098 EN DIRECT", false);
         };
         img.src = url;
       }
-    }, 550);
+    }, 450);
   }
 
   function focusShortcut(idx) {
@@ -1005,7 +1035,7 @@
 
   function applyLiveOsintPayload(osint, responseText, captureB64, captureTs) {
     if (captureB64) {
-      updateCameraImages("data:image/jpeg;base64," + captureB64, "📸 PHOTO PRISE PAR ALERIA (0098)");
+      updateCameraImages("data:image/jpeg;base64," + captureB64, "📸 PHOTO PRISE PAR ALERIA (0098)", true);
     }
     if (!osint && !responseText) return;
     const d = osint || {};
@@ -1082,6 +1112,7 @@
       openLiveViewfinder();
       return;
     }
+    isCapturingPhoto = true;
     flashShutter();
     switchView("hud");
 
@@ -1138,10 +1169,10 @@
         try {
           const msg = JSON.parse(ev.data);
           if (msg.type === "live_frame" && msg.frame_b64) {
-            updateCameraImages("data:image/jpeg;base64," + msg.frame_b64, "🟢 FLUX VIDÉO CAMÉRA 0098 LIVE");
+            updateCameraImages("data:image/jpeg;base64," + msg.frame_b64, "🟢 VISEUR CAMÉRA 0098 EN DIRECT", false);
           } else if (msg.type === "captured_photo" && msg.frame_b64) {
             flashShutter();
-            updateCameraImages("data:image/jpeg;base64," + msg.frame_b64, "📸 PHOTO PRISE PAR ALERIA · ANALYSE…");
+            updateCameraImages("data:image/jpeg;base64," + msg.frame_b64, "📸 PHOTO PRISE PAR ALERIA · ANALYSE…", true);
             const r2Val = document.getElementById("hud-r2-val");
             if (r2Val) r2Val.textContent = "Photo reçue des lunettes 0098 ! Analyse Aleria en cours…";
           } else if (msg.type === "response" && msg.text) {
@@ -1306,7 +1337,7 @@
 
           if (data.capture_b64 && data.capture_ts && Number(data.capture_ts) !== lastCaptureTs) {
             lastCaptureTs = Number(data.capture_ts);
-            updateCameraImages("data:image/jpeg;base64," + data.capture_b64, "📸 PHOTO PRISE PAR ALERIA (0098)");
+            updateCameraImages("data:image/jpeg;base64," + data.capture_b64, "📸 PHOTO PRISE PAR ALERIA (0098)", true);
           }
 
           const st = data.status || "idle";
@@ -1415,6 +1446,8 @@
 
   loadDynamicConfig().then(function() {
     connectWebSocketBridge();
+    startLiveViewfinderPolling();
+    sendActionToStudio("start_video_return", "Active le retour vidéo en direct des lunettes 0098");
     pollStudioState(false);
     setInterval(function() { pollStudioState(false); }, 1800);
   });
