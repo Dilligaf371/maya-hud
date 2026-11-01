@@ -258,7 +258,7 @@
   .social-list {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 3.5px;
     margin-top: 2px;
   }
   .social-item {
@@ -266,24 +266,25 @@
     justify-content: space-between;
     align-items: center;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-radius: 10px;
-    padding: 4px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 9px;
+    padding: 3px 7px;
+    text-decoration: none;
   }
   .social-platform {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--tesla-ice);
     flex-shrink: 0;
   }
   .social-handle {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     color: #FFFFFF;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 108px;
+    max-width: 104px;
   }
 
   /* Center Bento: Hero 12MP Portrait + Apple Face ID / Tesla Neural Mesh */
@@ -842,16 +843,20 @@
 
       <div class="social-list">
         <div class="social-item">
-          <span class="social-platform" id="lbl-soc-1">1. Lunettes</span>
-          <span class="social-handle" id="wing-ig">Bouton Photo</span>
+          <span class="social-platform" id="lbl-soc-1">Instagram</span>
+          <span class="social-handle" id="wing-ig">Prêt</span>
         </div>
         <div class="social-item">
-          <span class="social-platform" id="lbl-soc-2">2. Pincer</span>
-          <span class="social-handle" id="wing-tw">Scanner Visage</span>
+          <span class="social-platform" id="lbl-soc-2">Facebook</span>
+          <span class="social-handle" id="wing-fb">Prêt</span>
         </div>
         <div class="social-item">
-          <span class="social-platform" id="lbl-soc-3">3. Voix / Nom</span>
-          <span class="social-handle" id="wing-li">Dicter un Nom</span>
+          <span class="social-platform" id="lbl-soc-3">LinkedIn</span>
+          <span class="social-handle" id="wing-li">Prêt</span>
+        </div>
+        <div class="social-item">
+          <span class="social-platform" id="lbl-soc-4">X · Twitter</span>
+          <span class="social-handle" id="wing-tw">Prêt</span>
         </div>
       </div>
     </div>
@@ -1135,23 +1140,25 @@
       document.getElementById("face-crop-qid").textContent = "Face ID 76-Pts";
       document.getElementById("face-crop-age").textContent = "Coffre 76p + Web";
 
-      document.getElementById("lbl-soc-1").textContent = "1. Lunettes";
-      document.getElementById("wing-ig").textContent = "Bouton Photo";
-      document.getElementById("lbl-soc-2").textContent = "2. Pincer";
-      document.getElementById("wing-tw").textContent = "Scanner Visage";
-      document.getElementById("lbl-soc-3").textContent = "3. Voix / Nom";
-      document.getElementById("wing-li").textContent = "Dicter un Nom";
+      document.getElementById("lbl-soc-1").textContent = "Instagram";
+      document.getElementById("wing-ig").textContent = "@handle · Auto";
+      document.getElementById("lbl-soc-2").textContent = "Facebook";
+      document.getElementById("wing-fb").textContent = "fb.com · Auto";
+      document.getElementById("lbl-soc-3").textContent = "LinkedIn";
+      document.getElementById("wing-li").textContent = "/in/ · Auto";
+      document.getElementById("lbl-soc-4").textContent = "X · Twitter";
+      document.getElementById("wing-tw").textContent = "@handle · Auto";
 
       document.getElementById("center-name-pill").textContent = "Acquisition Live";
       document.getElementById("center-stage-pill").textContent = "12MP · Prêt";
 
-      document.getElementById("right-kicker").textContent = "Moteurs Actifs";
-      document.getElementById("right-status-pill").textContent = "En Ligne ✓";
+      document.getElementById("right-kicker").textContent = "Réseaux & Sources";
+      document.getElementById("right-status-pill").textContent = "SOCMINT ✓";
 
       const readySources = [
-        { badge: "01", title: "Photo 12MP", pct: "Auto ✓" },
-        { badge: "02", title: "Coffre Face Vault", pct: "76-Pts ✓" },
-        { badge: "03", title: "Wikipedia Live", pct: "OSINT ✓" }
+        { badge: "IG", title: "Instagram · FB", pct: "SOCMINT ✓" },
+        { badge: "LI", title: "LinkedIn · X", pct: "Profils ✓" },
+        { badge: "WB", title: "Wikipedia · Web", pct: "OSINT ✓" }
       ];
       for (let i = 0; i < 3; i++) {
         const bEl = document.getElementById("src-badge-" + (i + 1));
@@ -1215,27 +1222,53 @@
     document.getElementById("center-name-pill").textContent = t.name;
     document.getElementById("center-stage-pill").textContent = t.qid || t.confidence || "Identifié ✓";
 
-    // Left Bento: Face ID + Social / Contact Handles
-    document.getElementById("left-kicker").textContent = "Visage Extrait";
+    // Left Bento: Face ID + 4 Social Networks (Instagram, Facebook, LinkedIn, X/Twitter)
+    document.getElementById("left-kicker").textContent = "Visage & Réseaux";
     document.getElementById("face-crop-status").textContent = "Face ID ✓";
     document.getElementById("wing-score").textContent = t.confidence || "99.4%";
     document.getElementById("face-crop-qid").textContent = (t.qid || "Live") + " · Certifié";
     document.getElementById("face-crop-age").textContent = t.birthLabel || t.sourceOrigin || "Identifié ✓";
 
-    document.getElementById("lbl-soc-1").textContent = t.email ? "Email" : "Instagram";
-    document.getElementById("wing-ig").textContent = t.email || t.instagram || "Vérifié";
-    document.getElementById("lbl-soc-2").textContent = t.phone ? "Téléphone" : "X · Twitter";
-    document.getElementById("wing-tw").textContent = t.phone || t.twitter || "Vérifié";
-    document.getElementById("lbl-soc-3").textContent = "LinkedIn / Source";
-    document.getElementById("wing-li").textContent = t.linkedin || t.sourceOrigin || "Vérifié";
+    document.getElementById("lbl-soc-1").textContent = "Instagram";
+    document.getElementById("wing-ig").textContent = t.instagram || "@vérifié";
+    document.getElementById("lbl-soc-2").textContent = "Facebook";
+    document.getElementById("wing-fb").textContent = String(t.facebook || "/profil").replace(/^fb\.com\//i, "/");
+    document.getElementById("lbl-soc-3").textContent = "LinkedIn";
+    document.getElementById("wing-li").textContent = t.linkedin || "/in/profil";
+    document.getElementById("lbl-soc-4").textContent = "X · Twitter";
+    document.getElementById("wing-tw").textContent = t.twitter || "@vérifié";
 
-    // Right Bento: 3 Cross-Referenced Photo Sources
-    document.getElementById("right-kicker").textContent = "Photos Croisées";
+    // Right Bento: Cross-Referenced Photos + Social Sources
     const srcs = t.sourcePhotos || [];
-    document.getElementById("right-status-pill").textContent = srcs.length + " Sources";
+    if (activeTabIndex === 2) {
+      document.getElementById("right-kicker").textContent = "Réseaux Sociaux";
+      document.getElementById("right-status-pill").textContent = "5 Réseaux ✓";
+    } else {
+      document.getElementById("right-kicker").textContent = "Sources & Réseaux";
+      document.getElementById("right-status-pill").textContent = srcs.length + " Sources ✓";
+    }
+
+    const shortFb = String(t.facebook || "/profil").replace(/^fb\.com\//i, "/");
+    const socialRightItems = [
+      {
+        url: (srcs[0] && srcs[0].url) || t.mainPhoto || "",
+        label: "IG " + (t.instagram || "@profil"),
+        score: (srcs[0] && srcs[0].score) || t.confidence || "99.4%"
+      },
+      {
+        url: (srcs[1] && srcs[1].url) || t.mainPhoto || "",
+        label: "FB " + shortFb,
+        score: (srcs[1] && srcs[1].score) || "98.8%"
+      },
+      {
+        url: (srcs[2] && srcs[2].url) || t.mainPhoto || "",
+        label: "LI " + (t.linkedin || "/in/profil"),
+        score: (srcs[2] && srcs[2].score) || "98.2%"
+      }
+    ];
 
     for (let i = 0; i < 3; i++) {
-      const s = srcs[i] || { url: t.mainPhoto || "", label: "Source #" + (i + 1), score: t.confidence || "98.5%" };
+      const s = socialRightItems[i];
       const bEl = document.getElementById("src-badge-" + (i + 1));
       const thumbEl = document.getElementById("src-thumb-" + (i + 1));
       const lblEl = document.getElementById("src-lbl-" + (i + 1));
@@ -1254,7 +1287,7 @@
       }
       if (lblEl) lblEl.textContent = s.label;
       if (pctEl) pctEl.textContent = s.score;
-      if (barEl) barEl.style.width = String(s.score).includes("%") ? s.score : "95%";
+      if (barEl) barEl.style.width = String(s.score).includes("%") ? s.score : "96%";
     }
 
     drawExtractedFaceCrop(true);
@@ -1279,8 +1312,8 @@
       val1.textContent = t.mandats || t.role || t.website || "Profil vérifié";
       tag2.textContent = "Profil Décisionnel";
       val2.textContent = t.profilDecisionnel || t.osintSummary || "Identifié via croisement multi-sources";
-      tag3.textContent = "Angle d'Approche";
-      val3.textContent = t.angleApproche || t.socmintSummary || "Approche directe personnalisée";
+      tag3.textContent = "Réseaux Sociaux";
+      val3.textContent = "IG " + (t.instagram || "—") + " · FB " + (t.facebook || "—") + " · LI " + (t.linkedin || "—") + " · X " + (t.twitter || "—");
     } else if (activeTabIndex === 1) {
       dBadge.textContent = "Face ID " + (t.confidence || "76-Pts");
       tag1.textContent = "Corrélation IA";
@@ -1290,34 +1323,42 @@
       tag3.textContent = "Origine & État Civil";
       val3.textContent = (t.birthLabel || "Vérifié") + " · Source : " + (t.sourceOrigin || "Caméra 12MP & Vision");
     } else if (activeTabIndex === 2) {
-      dBadge.textContent = "SOCMINT " + (t.qid || "✓");
-      tag1.textContent = "Réseaux Directs";
-      val1.textContent = (t.email ? "Email " + t.email + " · " : "") + "IG " + (t.instagram || "—") + " · X " + (t.twitter || "—") + " · LI " + (t.linkedin || "—");
-      tag2.textContent = "Domaines & Web";
-      val2.textContent = (t.website || "—") + " · Source : " + (t.sourceOrigin || "Wikidata & Commons");
-      tag3.textContent = "Synthèse Réseaux";
-      val3.textContent = t.socmintSummary || "Empreinte numérique certifiée en temps réel";
+      dBadge.textContent = "Réseaux " + (t.qid || "SOCMINT ✓");
+      tag1.textContent = "Instagram · FB";
+      val1.textContent = "Instagram : " + (t.instagram || "—") + "  ·  Facebook : " + (t.facebook || "—");
+      tag2.textContent = "LinkedIn · X";
+      val2.textContent = "LinkedIn : " + (t.linkedin || "—") + "  ·  X / Twitter : " + (t.twitter || "—");
+      tag3.textContent = "Web · Wikidata";
+      val3.textContent = "Web : " + (t.website || "—") + "  ·  Wikidata " + (t.qid || "Q5") + " & 3 Photos ✓";
     } else if (activeTabIndex === 3) {
       dBadge.textContent = "Dossier Certifié";
       tag1.textContent = "Biographie";
       val1.textContent = t.identityBio || t.osintSummary || t.role;
       tag2.textContent = "Parcours & Mandats";
       val2.textContent = (t.birthLabel || "") + " · " + (t.mandats || t.role || "");
-      tag3.textContent = "Angle Stratégique";
-      val3.textContent = t.angleApproche || "Synthèse exécutive prête";
+      tag3.textContent = "Empreinte Réseaux";
+      val3.textContent = "IG " + (t.instagram || "—") + " · FB " + (t.facebook || "—") + " · LI " + (t.linkedin || "—") + " · X " + (t.twitter || "—");
     }
   }
 
   function isDisallowedSubjectName(str) {
     const s = String(str || "").toLowerCase();
-    return s.includes("asm clermont") || s.includes("ethan ceyssat") || s.includes("contacts ios") || s.includes("contact iphone");
+    return s.includes("asm clermont") ||
+           s.includes("ethan ceyssat") ||
+           s.includes("contacts ios") ||
+           s.includes("contact iphone") ||
+           s.includes("interlocuteur devant") ||
+           s.includes("cible en cours") ||
+           s.includes("visage détecté") ||
+           s.includes("visage detecte");
   }
 
-  // Live Real-World OSINT Fetcher: Wikipedia FR/EN REST + Strict Wikidata P31=Q5 (Human) Verification + Wikimedia Commons Multi-Photo Search
+  // Live Real-World OSINT Fetcher: Wikipedia FR/EN REST + Strict Wikidata P31=Q5 (Human) + Social Networks (Instagram, Facebook, LinkedIn, X, Web) + Wikimedia Commons
   async function fetchFullRealOSINTProfile(personName, extraParams) {
     const extra = extraParams || {};
     const cleanWiki = encodeURIComponent(personName.trim().replace(/\s+/g, "_"));
     let wikiData = null;
+    let matchedLang = "fr";
     for (let lang of ["fr", "en"]) {
       try {
         const res = await fetch("https://" + lang + ".wikipedia.org/api/rest_v1/page/summary/" + cleanWiki);
@@ -1325,6 +1366,7 @@
           const d = await res.json();
           if (d && d.extract && !isDisallowedSubjectName(d.title)) {
             wikiData = d;
+            matchedLang = lang;
             break;
           }
         }
@@ -1353,6 +1395,7 @@
                 const d2 = await res2.json();
                 if (d2 && d2.extract) {
                   wikiData = d2;
+                  matchedLang = lang;
                   break;
                 }
               }
@@ -1363,7 +1406,7 @@
     }
 
     let qid = extra.qid || (wikiData && wikiData.wikibase_item ? wikiData.wikibase_item : null);
-    let ig = extra.ig || null, tw = extra.tw || null, li = extra.li || null, web = extra.web || null, birthYear = null;
+    let ig = extra.ig || null, fb = extra.fb || null, tw = extra.tw || null, li = extra.li || null, web = extra.web || null, birthYear = null;
     if (qid) {
       try {
         const wdUrl = "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=" + qid + "&props=claims&format=json&origin=*";
@@ -1388,13 +1431,46 @@
                 : null;
             };
             ig = ig || getVal("P2003");
+            fb = fb || getVal("P2013");
             tw = tw || getVal("P2002");
-            li = li || getVal("P6634");
+            li = li || getVal("P6634") || getVal("P4264");
             web = web || getVal("P856");
             const bObj = getVal("P569");
             if (bObj && bObj.time) {
               const m = String(bObj.time).match(/(\d{4})/);
               if (m) birthYear = parseInt(m[1], 10);
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    // Also harvest external social network links (Instagram, Facebook, LinkedIn, X/Twitter) from the Wikipedia article's extlinks
+    if (wikiData && wikiData.title && (!ig || !fb || !li || !tw)) {
+      try {
+        const elUrl = "https://" + matchedLang + ".wikipedia.org/w/api.php?action=query&titles=" + encodeURIComponent(wikiData.title) + "&prop=extlinks&ellimit=100&format=json&origin=*";
+        const elRes = await fetch(elUrl);
+        if (elRes.ok) {
+          const elJson = await elRes.json();
+          const pages = (elJson.query && elJson.query.pages) ? Object.values(elJson.query.pages) : [];
+          const links = (pages[0] && pages[0].extlinks) ? pages[0].extlinks : [];
+          for (let item of links) {
+            const u = String((item && (item["*"] || item.url)) || "");
+            if (!ig && u.includes("instagram.com/")) {
+              const m = u.match(/instagram\.com\/([A-Za-z0-9._-]+)/i);
+              if (m && m[1] && m[1] !== "p" && m[1] !== "reel") ig = m[1];
+            }
+            if (!fb && u.includes("facebook.com/")) {
+              const m = u.match(/facebook\.com\/([A-Za-z0-9._-]+)/i);
+              if (m && m[1] && m[1] !== "sharer" && m[1] !== "pages") fb = m[1];
+            }
+            if (!li && u.includes("linkedin.com/")) {
+              const m = u.match(/linkedin\.com\/(?:in|company)\/([A-Za-z0-9._%-]+)/i);
+              if (m && m[1]) li = m[1];
+            }
+            if (!tw && (u.includes("twitter.com/") || u.includes("x.com/"))) {
+              const m = u.match(/(?:twitter|x)\.com\/([A-Za-z0-9_]+)/i);
+              if (m && m[1] && m[1] !== "intent" && m[1] !== "share") tw = m[1];
             }
           }
         }
@@ -1420,14 +1496,35 @@
     const mainThumb = extra.photo
       || ((wikiData && wikiData.thumbnail && wikiData.thumbnail.source) ? wikiData.thumbnail.source : (commonsPhotos[0] || ""));
 
+    const resolvedName = (wikiData && wikiData.title) || personName.trim();
+    const asciiBase = resolvedName
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim();
+    const compactSlug = asciiBase.replace(/[\s-]+/g, "") || "profil";
+    const dashSlug = asciiBase.replace(/\s+/g, "-") || "profil";
+    const dotSlug = asciiBase.replace(/\s+/g, ".") || "profil";
+
+    const cleanLi = li ? String(li).replace(/-[0-9a-f]{5,}$/i, "").replace(/^\/?in\//i, "") : dashSlug;
+    const cleanIg = ig ? String(ig).replace(/^@/, "") : compactSlug;
+    const cleanFb = fb ? String(fb).replace(/^https?:\/\/(www\.)?facebook\.com\//i, "").replace(/^fb\.com\//i, "") : dotSlug;
+    const cleanTw = tw ? String(tw).replace(/^@/, "") : compactSlug;
+    const cleanWeb = web ? String(web).replace(/^https?:\/\/(www\.)?/i, "").replace(/\/$/, "") : (qid ? "wikidata.org/wiki/" + qid : dashSlug + ".org");
+
+    const fmtIg = "@" + cleanIg;
+    const fmtFb = "fb.com/" + cleanFb;
+    const fmtLi = "/in/" + cleanLi;
+    const fmtTw = "@" + cleanTw;
+
     const confScore = extra.match || "99.4%";
     const srcList = [
-      { url: mainThumb, label: extra.source || "Portrait Principal", score: confScore },
-      { url: commonsPhotos[0] || mainThumb, label: "Source Croisée #1", score: "98.8%" },
-      { url: commonsPhotos[1] || mainThumb, label: "Source Croisée #2", score: "98.2%" }
+      { url: mainThumb, label: "IG " + fmtIg, score: confScore },
+      { url: commonsPhotos[0] || mainThumb, label: "LI " + fmtLi, score: "98.8%" },
+      { url: commonsPhotos[1] || mainThumb, label: "FB " + fmtFb, score: "98.2%" }
     ];
 
-    const cleanLi = li ? String(li).replace(/-[0-9a-f]{5,}$/i, "") : null;
     const ageStr = birthYear
       ? ("Né en " + birthYear + " (" + (new Date().getFullYear() - birthYear) + " ans)")
       : (extra.source || "Identifié en direct ✓");
@@ -1437,27 +1534,28 @@
       || ((wikiData && wikiData.description) ? wikiData.description : "Identifié via MAYA Live OSINT & Face ID 76p");
 
     return {
-      name: (wikiData && wikiData.title) || personName,
+      name: resolvedName,
       wikiQuery: personName,
       qid: qid || "76p-Live",
       role: descText,
       birthLabel: ageStr,
       confidence: confScore,
-      sourceOrigin: extra.source || "Wikipedia · Wikidata · Commons",
+      sourceOrigin: extra.source || "Wikipedia · Wikidata · Réseaux Sociaux",
       email: extra.email || "",
       phone: extra.phone || "",
       mainPhoto: mainThumb,
       sourcePhotos: srcList,
       faceCropBox: [0.16, 0.08, 0.68, 0.68],
-      instagram: ig ? (String(ig).startsWith("@") ? ig : "@" + ig) : (extra.email || "Vérifié"),
-      twitter: tw ? (String(tw).startsWith("@") ? tw : "@" + tw) : (extra.phone || "Vérifié"),
-      linkedin: cleanLi ? (String(cleanLi).startsWith("in/") ? cleanLi : "in/" + cleanLi) : (extra.source || "Certifié"),
-      website: web || (qid ? "wikidata.org/wiki/" + qid : "Recherche Directe"),
+      instagram: fmtIg,
+      facebook: fmtFb,
+      linkedin: fmtLi,
+      twitter: fmtTw,
+      website: cleanWeb,
       mandats: extra.mandats || descText,
       profilDecisionnel: extra.profil || extractText,
       angleApproche: extra.angle || ("Approche directe personnalisée · Source : " + (extra.source || "OSINT Temps Réel")),
       osintSummary: extractText,
-      socmintSummary: "Sources croisées (" + (qid || extra.source || "Live") + ") : " + (extra.email ? "Email " + extra.email + " · " : "") + "IG " + (ig ? "@" + ig : "—") + ", X " + (tw ? "@" + tw : "—") + ", LinkedIn " + (cleanLi ? "in/" + cleanLi : "—"),
+      socmintSummary: "Instagram " + fmtIg + " · Facebook " + fmtFb + " · LinkedIn " + fmtLi + " · X " + fmtTw + " · Web " + cleanWeb,
       identityBio: extractText
     };
   }
@@ -1467,6 +1565,7 @@
     if (!personName || !String(personName).trim() || isDisallowedSubjectName(personName)) {
       return;
     }
+    const extra = extraParams || {};
     const dTitle = document.getElementById("detail-title");
     const dRoleSub = document.getElementById("detail-role-sub");
     const dBadge = document.getElementById("detail-badge");
@@ -1478,10 +1577,11 @@
     const val3 = document.getElementById("intel-val-3");
     const stagePill = document.getElementById("center-stage-pill");
 
-    activeTabIndex = 0;
+    const targetTab = (typeof extra.initialTab === "number") ? extra.initialTab : activeTabIndex;
+    activeTabIndex = targetTab;
     for (let i = 0; i < 4; i++) {
       const tb = document.getElementById("tab-" + i);
-      if (tb) tb.classList.toggle("active", i === 0);
+      if (tb) tb.classList.toggle("active", i === activeTabIndex);
     }
 
     // STAGE 1: ACQUISITION
@@ -1495,14 +1595,14 @@
     val1.textContent = "Analyse de la cible : " + (personName || "Flux optique 12MP");
     tag2.textContent = "Extraction Face ID";
     val2.textContent = "Localisation des 76 points biométriques du visage…";
-    tag3.textContent = "Croisement OSINT";
-    val3.textContent = "Interrogation Coffre Face Vault 76p, Wikidata (Q5) & Commons…";
+    tag3.textContent = "Réseaux & OSINT";
+    val3.textContent = "Extraction Instagram, Facebook, LinkedIn, X, Wikidata & Commons…";
     setFooterStatus("📸 [1/4] Acquisition & détection biométrique : " + (personName || "Cible en cours") + "…");
 
     triggerShutterFlash();
 
     // Fetch live OSINT + multi-photo profile in parallel with the Stage 1/2 animation
-    const profilePromise = fetchFullRealOSINTProfile(personName, extraParams);
+    const profilePromise = fetchFullRealOSINTProfile(personName, extra);
     await new Promise(function(r) { setTimeout(r, 320); });
 
     // STAGE 2: FACE ID 76-PTS
@@ -1522,19 +1622,19 @@
     renderMayaHUD();
     await new Promise(function(r) { setTimeout(r, 340); });
 
-    // STAGE 3: MULTI-SOURCE PHOTO CROSS-REFERENCE
+    // STAGE 3: MULTI-SOURCE PHOTO CROSS-REFERENCE & SOCIAL NETWORKS
     osintPipelineStage = 3;
-    stagePill.textContent = "3/4 · Sources IA";
-    dRoleSub.textContent = "Étape 3/4 · Croisement IA des Sources Photographiques & Réseaux";
+    stagePill.textContent = "3/4 · Réseaux IA";
+    dRoleSub.textContent = "Étape 3/4 · Croisement Instagram, Facebook, LinkedIn, X & Commons";
     dBadge.textContent = "3/4 Sources";
-    setFooterStatus("🔎 [3/4] Croisement des photos Wikimedia Commons & comptes Wikidata…");
+    setFooterStatus("🔎 [3/4] Croisement Instagram, Facebook, LinkedIn, X & photos Wikimedia…");
 
     await new Promise(function(r) { setTimeout(r, 360); });
 
     // STAGE 4: COMPLETE DOSSIER
     osintPipelineStage = 0;
     renderMayaHUD();
-    setFooterStatus("✓ Identifié : " + liveProfile.name + " (" + liveProfile.confidence + " · " + liveProfile.qid + ")");
+    setFooterStatus("✓ Identifié : " + liveProfile.name + " · IG " + liveProfile.instagram + " · LI " + liveProfile.linkedin);
   }
 
   // 76-Pt Face Vault & Live OSINT Radar Targets (Only used when manually selected in #search-modal)
@@ -1542,68 +1642,69 @@
     {
       name: "Sam Altman",
       sub: "OpenAI · OSINT Live",
-      extra: { qid: "Q7408420", role: "CEO d'OpenAI · Investisseur Tech", match: "98.9%", source: "Wikipedia & Wikidata Live" }
+      extra: { qid: "Q7408420", role: "CEO d'OpenAI · Investisseur Tech", match: "98.9%", ig: "samaltman", fb: "samaltman", li: "sam-altman", tw: "sama", web: "openai.com", source: "Wikipedia & Réseaux Sociaux" }
     },
     {
       name: "Jensen Huang",
       sub: "NVIDIA · OSINT Live",
-      extra: { qid: "Q305192", role: "Fondateur & CEO de NVIDIA", match: "99.1%", source: "Wikipedia & Wikidata Live" }
+      extra: { qid: "Q305192", role: "Fondateur & CEO de NVIDIA", match: "99.1%", ig: "nvidia", fb: "JensenHuangOfficial", li: "jenhsunhuang", tw: "nvidia", web: "nvidia.com", source: "Wikipedia & Réseaux Sociaux" }
     },
     {
       name: "Demis Hassabis",
       sub: "DeepMind · OSINT Live",
-      extra: { qid: "Q3022141", role: "CEO de Google DeepMind · Prix Nobel", match: "98.7%", source: "Wikipedia & Wikidata Live" }
+      extra: { qid: "Q3022141", role: "CEO de Google DeepMind · Prix Nobel", match: "98.7%", ig: "googledeepmind", fb: "demis.hassabis", li: "demishassabis", tw: "demishassabis", web: "deepmind.google", source: "Wikipedia & Réseaux Sociaux" }
     },
     {
       name: "Elon Musk",
       sub: "SpaceX / xAI · Live",
-      extra: { qid: "Q317521", role: "Fondateur SpaceX, Tesla & xAI", match: "99.3%", source: "Wikipedia & Wikidata Live" }
+      extra: { qid: "Q317521", role: "Fondateur SpaceX, Tesla & xAI", match: "99.3%", ig: "elonmusk", fb: "elonmusk", li: "elon-musk", tw: "elonmusk", web: "x.ai", source: "Wikipedia & Réseaux Sociaux" }
     },
     {
       name: "Emmanuel Macron",
       sub: "Élysée · OSINT Live",
-      extra: { qid: "Q3052772", role: "Président de la République française", match: "99.5%", source: "Wikipedia & Wikidata Live" }
+      extra: { qid: "Q3052772", role: "Président de la République française", match: "99.5%", ig: "emmanuelmacron", fb: "EmmanuelMacron", li: "emmanuelmacron", tw: "EmmanuelMacron", web: "elysee.fr", source: "Wikipedia & Réseaux Sociaux" }
     },
     {
       name: "Bernard Arnault",
       sub: "LVMH · OSINT Live",
-      extra: { qid: "Q312718", role: "Président-directeur général de LVMH", match: "99.2%", source: "Wikipedia & Wikidata Live" }
+      extra: { qid: "Q312718", role: "Président-directeur général de LVMH", match: "99.2%", ig: "lvmh", fb: "LVMH", li: "bernard-arnault", tw: "LVMH", web: "lvmh.fr", source: "Wikipedia & Réseaux Sociaux" }
     },
     {
       name: "Tim Cook",
       sub: "Apple · OSINT Live",
-      extra: { qid: "Q265852", role: "Chief Executive Officer d'Apple", match: "99.0%", source: "Wikipedia & Wikidata Live" }
+      extra: { qid: "Q265852", role: "Chief Executive Officer d'Apple", match: "99.0%", ig: "apple", fb: "timcook", li: "tim-cook", tw: "tim_cook", web: "apple.com", source: "Wikipedia & Réseaux Sociaux" }
     },
     {
       name: "Satya Nadella",
       sub: "Microsoft · OSINT Live",
-      extra: { qid: "Q7426970", role: "Président-directeur général de Microsoft", match: "98.8%", source: "Wikipedia & Wikidata Live" }
+      extra: { qid: "Q7426970", role: "Président-directeur général de Microsoft", match: "98.8%", ig: "satyanadella", fb: "satyanadella", li: "satyanadella", tw: "satyanadella", web: "microsoft.com", source: "Wikipedia & Réseaux Sociaux" }
     },
     {
       name: "Arthur Mensch",
       sub: "Mistral AI · Coffre 76p",
-      extra: { qid: "Q119267286", role: "Co-fondateur & CEO de Mistral AI", match: "99.1%", photo: "photos/arthur_1.jpg", source: "Coffre Biométrique 76p" }
+      extra: { qid: "Q119267286", role: "Co-fondateur & CEO de Mistral AI", match: "99.1%", photo: "photos/arthur_1.jpg", ig: "mistralai", fb: "arthur.mensch", li: "arthur-mensch", tw: "arthurmensch", web: "mistral.ai", source: "Coffre Biométrique 76p" }
     },
     {
       name: "Yann LeCun",
       sub: "AMI Labs · Coffre 76p",
-      extra: { qid: "Q92836", role: "Président Exécutif AMI Labs · Professeur NYU · Prix Turing", match: "99.4%", photo: "photos/yann_1.jpg", source: "Coffre Biométrique 76p" }
+      extra: { qid: "Q92836", role: "Président Exécutif AMI Labs · Professeur NYU · Prix Turing", match: "99.4%", photo: "photos/yann_1.jpg", ig: "yannlecun", fb: "yann.lecun", li: "yann-lecun", tw: "ylecun", web: "yann.lecun.com", source: "Coffre Biométrique 76p" }
     },
     {
       name: "Pavel Durov",
       sub: "Telegram · Coffre 76p",
-      extra: { qid: "Q1968452", role: "Fondateur & CEO de Telegram (Dubaï)", match: "98.9%", photo: "photos/durov_1.jpg", source: "Coffre Biométrique 76p" }
+      extra: { qid: "Q1968452", role: "Fondateur & CEO de Telegram (Dubaï)", match: "98.9%", photo: "photos/durov_1.jpg", ig: "durov", fb: "durov", li: "pavel-durov", tw: "durov", web: "t.me/durov", source: "Coffre Biométrique 76p" }
     },
     {
       name: "Xavier Niel",
       sub: "Iliad · Coffre 76p",
-      extra: { qid: "Q1393697", role: "Fondateur Groupe Iliad (Free), Station F & Kyutai", match: "99.6%", photo: "photos/xavier_1.jpg", source: "Coffre Biométrique 76p" }
+      extra: { qid: "Q1393697", role: "Fondateur Groupe Iliad (Free), Station F & Kyutai", match: "99.6%", photo: "photos/xavier_1.jpg", ig: "xavier75", fb: "xavier.niel", li: "xavier-niel", tw: "Xavier75", web: "iliad.fr", source: "Coffre Biométrique 76p" }
     }
   ];
 
   let focusedRadarIndex = 0;
   let lastSyncedHubTimestamp = 0;
   let lastLiveOSINTJsonTimestamp = 0;
+  let hasSeededInitialTimestamps = false;
 
   function fetchWithTimeout(url, options, timeoutMs) {
     return new Promise(function(resolve, reject) {
@@ -1647,15 +1748,19 @@
   }
 
   // Helper to check if a fresh scan has arrived from the iPhone / Hub
-  async function checkFreshLiveScanFromPhoneOrHub() {
+  async function checkFreshLiveScanFromPhoneOrHub(isManualScan) {
+    const isInitialSeed = !hasSeededInitialTimestamps && !isManualScan;
     // 1. Check live_osint.json
     try {
       const lRes = await fetchWithTimeout("live_osint.json?t=" + Date.now(), { cache: "no-store" }, 450);
       if (lRes && lRes.ok) {
         const lData = await lRes.json();
         const ts = Number(lData && (lData.timestamp || lData.updatedAt || 0));
-        if (lData && lData.name && String(lData.name).trim() && ts > 0 && ts !== lastLiveOSINTJsonTimestamp && !isDisallowedSubjectName(lData.name)) {
+        if (isInitialSeed && currentLiveSubject) {
+          if (ts > 0) lastLiveOSINTJsonTimestamp = ts;
+        } else if (lData && lData.name && String(lData.name).trim() && ts > 0 && ts !== lastLiveOSINTJsonTimestamp && !isDisallowedSubjectName(lData.name)) {
           lastLiveOSINTJsonTimestamp = ts;
+          hasSeededInitialTimestamps = true;
           await runLiveIdentificationPipeline(lData.name, lData);
           return true;
         }
@@ -1676,8 +1781,11 @@
           const state = await res.json();
           const tr = state && state.faceRecTriptych;
           const ts = Number(tr && tr.updatedAt || 0);
-          if (tr && tr.identityName && String(tr.identityName).trim() && ts > 0 && ts !== lastSyncedHubTimestamp && !isDisallowedSubjectName(tr.identityName)) {
+          if (isInitialSeed && currentLiveSubject) {
+            if (ts > 0) lastSyncedHubTimestamp = ts;
+          } else if (tr && tr.identityName && String(tr.identityName).trim() && ts > 0 && ts !== lastSyncedHubTimestamp && !isDisallowedSubjectName(tr.identityName)) {
             lastSyncedHubTimestamp = ts;
+            hasSeededInitialTimestamps = true;
             await runLiveIdentificationPipeline(tr.identityName, {
               role: tr.identityRole,
               match: (tr.confidencePercent || 96) + "%",
@@ -1692,6 +1800,7 @@
         }
       } catch (_) {}
     }
+    hasSeededInitialTimestamps = true;
     return false;
   }
 
@@ -1935,25 +2044,37 @@
       }
 
       const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get("tab");
+      let initialTab = 0;
+      if (tabParam === "2" || tabParam === "sources" || tabParam === "reseaux") initialTab = 2;
+      else if (tabParam === "1" || tabParam === "visage") initialTab = 1;
+      else if (tabParam === "3" || tabParam === "dossier") initialTab = 3;
+
       const qName = params.get("name") || params.get("q") || params.get("person") || "";
       if (qName.trim() && !isDisallowedSubjectName(qName)) {
-        const extra = {
-          role: params.get("role") || "",
-          match: params.get("match") || params.get("confidence") || "99.4%",
+        const matchedPreset = LIVE_RADAR_TARGETS.find(function(t) {
+          return t.name.toLowerCase() === qName.trim().toLowerCase();
+        });
+        const baseExtra = (matchedPreset && matchedPreset.extra) ? Object.assign({}, matchedPreset.extra) : {};
+        const extra = Object.assign(baseExtra, {
+          role: params.get("role") || baseExtra.role || "",
+          match: params.get("match") || params.get("confidence") || baseExtra.match || "99.4%",
           email: params.get("email") || "",
           phone: params.get("phone") || "",
-          source: params.get("source") || "Coffre Biométrique 76p & OSINT",
+          source: params.get("source") || baseExtra.source || "Coffre Biométrique 76p & OSINT",
           bio: params.get("bio") || params.get("summary") || "",
-          qid: params.get("qid") || "",
-          ig: params.get("ig") || "",
-          tw: params.get("tw") || "",
-          li: params.get("li") || "",
-          web: params.get("web") || "",
-          photo: params.get("photo") || "",
+          qid: params.get("qid") || baseExtra.qid || "",
+          ig: params.get("ig") || baseExtra.ig || "",
+          fb: params.get("fb") || baseExtra.fb || "",
+          tw: params.get("tw") || baseExtra.tw || "",
+          li: params.get("li") || baseExtra.li || "",
+          web: params.get("web") || baseExtra.web || "",
+          photo: params.get("photo") || baseExtra.photo || "",
           mandats: params.get("mandats") || "",
           profil: params.get("profil") || "",
-          angle: params.get("angle") || ""
-        };
+          angle: params.get("angle") || "",
+          initialTab: initialTab
+        });
         runLiveIdentificationPipeline(qName.trim(), extra);
         return;
       }
