@@ -1464,9 +1464,8 @@
 
   // Runs the 4-Stage Live Identification Pipeline for any person or 12MP Face Scan
   async function runLiveIdentificationPipeline(personName, extraParams) {
-    if (isDisallowedSubjectName(personName)) {
-      personName = "Xavier Niel";
-      extraParams = { qid: "Q1393697", role: "Fondateur Groupe Iliad (Free), Station F & Kyutai", match: "99.6%", photo: "photos/xavier_1.jpg", source: "Coffre Biométrique 76p" };
+    if (!personName || !String(personName).trim() || isDisallowedSubjectName(personName)) {
+      return;
     }
     const dTitle = document.getElementById("detail-title");
     const dRoleSub = document.getElementById("detail-role-sub");
@@ -1538,28 +1537,8 @@
     setFooterStatus("✓ Identifié : " + liveProfile.name + " (" + liveProfile.confidence + " · " + liveProfile.qid + ")");
   }
 
-  // 76-Pt Face Vault & Live OSINT Radar Targets (ZERO iOS Contacts! 100% Face Vault 76p + Public OSINT)
+  // 76-Pt Face Vault & Live OSINT Radar Targets (Only used when manually selected in #search-modal)
   const LIVE_RADAR_TARGETS = [
-    {
-      name: "Xavier Niel",
-      sub: "Iliad · Coffre 76p",
-      extra: { qid: "Q1393697", role: "Fondateur Groupe Iliad (Free), Station F & Kyutai", match: "99.6%", photo: "photos/xavier_1.jpg", source: "Coffre Biométrique 76p" }
-    },
-    {
-      name: "Arthur Mensch",
-      sub: "Mistral AI · Coffre 76p",
-      extra: { qid: "Q119267286", role: "Co-fondateur & CEO de Mistral AI", match: "99.1%", photo: "photos/arthur_1.jpg", source: "Coffre Biométrique 76p" }
-    },
-    {
-      name: "Yann LeCun",
-      sub: "AMI Labs · Coffre 76p",
-      extra: { qid: "Q92836", role: "Président Exécutif AMI Labs · Professeur NYU · Prix Turing", match: "99.4%", photo: "photos/yann_1.jpg", source: "Coffre Biométrique 76p" }
-    },
-    {
-      name: "Pavel Durov",
-      sub: "Telegram · Coffre 76p",
-      extra: { qid: "Q1968452", role: "Fondateur & CEO de Telegram (Dubaï)", match: "98.9%", photo: "photos/durov_1.jpg", source: "Coffre Biométrique 76p" }
-    },
     {
       name: "Sam Altman",
       sub: "OpenAI · OSINT Live",
@@ -1599,10 +1578,29 @@
       name: "Satya Nadella",
       sub: "Microsoft · OSINT Live",
       extra: { qid: "Q7426970", role: "Président-directeur général de Microsoft", match: "98.8%", source: "Wikipedia & Wikidata Live" }
+    },
+    {
+      name: "Arthur Mensch",
+      sub: "Mistral AI · Coffre 76p",
+      extra: { qid: "Q119267286", role: "Co-fondateur & CEO de Mistral AI", match: "99.1%", photo: "photos/arthur_1.jpg", source: "Coffre Biométrique 76p" }
+    },
+    {
+      name: "Yann LeCun",
+      sub: "AMI Labs · Coffre 76p",
+      extra: { qid: "Q92836", role: "Président Exécutif AMI Labs · Professeur NYU · Prix Turing", match: "99.4%", photo: "photos/yann_1.jpg", source: "Coffre Biométrique 76p" }
+    },
+    {
+      name: "Pavel Durov",
+      sub: "Telegram · Coffre 76p",
+      extra: { qid: "Q1968452", role: "Fondateur & CEO de Telegram (Dubaï)", match: "98.9%", photo: "photos/durov_1.jpg", source: "Coffre Biométrique 76p" }
+    },
+    {
+      name: "Xavier Niel",
+      sub: "Iliad · Coffre 76p",
+      extra: { qid: "Q1393697", role: "Fondateur Groupe Iliad (Free), Station F & Kyutai", match: "99.6%", photo: "photos/xavier_1.jpg", source: "Coffre Biométrique 76p" }
     }
   ];
 
-  let nextLiveScanCursor = 0;
   let focusedRadarIndex = 0;
   let lastSyncedHubTimestamp = 0;
   let lastLiveOSINTJsonTimestamp = 0;
@@ -1648,7 +1646,56 @@
     });
   }
 
-  // BUTTON 1: [Scanner Visage] — Triggers real 12MP Face Rec (live_osint.json -> Local Hub -> Camera Snapshot -> Enrolled 76p Face Vault Queue)
+  // Helper to check if a fresh scan has arrived from the iPhone / Hub
+  async function checkFreshLiveScanFromPhoneOrHub() {
+    // 1. Check live_osint.json
+    try {
+      const lRes = await fetchWithTimeout("live_osint.json?t=" + Date.now(), { cache: "no-store" }, 450);
+      if (lRes && lRes.ok) {
+        const lData = await lRes.json();
+        const ts = Number(lData && (lData.timestamp || lData.updatedAt || 0));
+        if (lData && lData.name && String(lData.name).trim() && ts > 0 && ts !== lastLiveOSINTJsonTimestamp && !isDisallowedSubjectName(lData.name)) {
+          lastLiveOSINTJsonTimestamp = ts;
+          await runLiveIdentificationPipeline(lData.name, lData);
+          return true;
+        }
+      }
+    } catch (_) {}
+
+    // 2. Check local MAYA / Aleria Hub server (:8788)
+    const hubCandidates = [];
+    const customHub = localStorage.getItem("maya_hub_url");
+    if (customHub) hubCandidates.push(customHub);
+    if (window.location.protocol === "http:") hubCandidates.push("");
+    hubCandidates.push("http://127.0.0.1:8788", "http://localhost:8788");
+
+    for (let base of hubCandidates) {
+      try {
+        const res = await fetchWithTimeout(base + "/meta-hud/state", { cache: "no-store" }, 450);
+        if (res && res.ok) {
+          const state = await res.json();
+          const tr = state && state.faceRecTriptych;
+          const ts = Number(tr && tr.updatedAt || 0);
+          if (tr && tr.identityName && String(tr.identityName).trim() && ts > 0 && ts !== lastSyncedHubTimestamp && !isDisallowedSubjectName(tr.identityName)) {
+            lastSyncedHubTimestamp = ts;
+            await runLiveIdentificationPipeline(tr.identityName, {
+              role: tr.identityRole,
+              match: (tr.confidencePercent || 96) + "%",
+              source: tr.identityOrg || "Coffre Biométrique 76p & Caméra 12MP",
+              bio: tr.tacticalBrief,
+              ig: tr.instagramHandle,
+              li: (tr.validatedSources && tr.validatedSources.linkedin) ? tr.validatedSources.linkedin.replace(" ✓", "") : "",
+              photo: tr.faceCropBase64 ? ("data:image/jpeg;base64," + tr.faceCropBase64) : ""
+            });
+            return true;
+          }
+        }
+      } catch (_) {}
+    }
+    return false;
+  }
+
+  // BUTTON 1: [Scanner Visage] — Triggers real iPhone 12MP Face Rec (`maya://osint-scan`) + polls live_osint.json & Hub (NEVER shows a fake/queued person!)
   async function triggerLiveFaceScan(ev) {
     if (ev) {
       ev.preventDefault();
@@ -1659,79 +1706,39 @@
     lastTriggerTime = now;
 
     selectDockButton(0);
-    scanBoostFrames = 110;
+    scanBoostFrames = 130;
     triggerShutterFlash();
-    setFooterStatus("📸 Scan Visage 12MP lancé — Analyse biométrique 76 points & OSINT en direct…");
+    setFooterStatus("📸 Scan 12MP déclenché sur l'iPhone — Analyse du visage en cours…");
+    document.getElementById("center-stage-pill").textContent = "Scan 12MP…";
+    document.getElementById("detail-title").textContent = "Acquisition Photo 12MP en Cours…";
+    document.getElementById("detail-role-sub").textContent = "MAYA (iPhone) extrait les 76 points biométriques de la dernière photo des lunettes…";
+    document.getElementById("detail-badge").textContent = "Scan Actif";
 
-    // 1. Check live_osint.json first
+    // 1. Wake up the iPhone app (`work.aleria.remote`) via hidden iframe scheme bridge
     try {
-      const lRes = await fetchWithTimeout("live_osint.json?t=" + Date.now(), { cache: "no-store" }, 400);
-      if (lRes && lRes.ok) {
-        const lData = await lRes.json();
-        if (lData && lData.name && !isDisallowedSubjectName(lData.name) && (!currentLiveSubject || currentLiveSubject.name !== lData.name)) {
-          lastLiveOSINTJsonTimestamp = lData.updatedAt || Date.now();
-          await runLiveIdentificationPipeline(lData.name, lData);
-          return;
-        }
+      let iframe = document.getElementById("maya-scheme-bridge");
+      if (!iframe) {
+        iframe = document.createElement("iframe");
+        iframe.id = "maya-scheme-bridge";
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
       }
+      iframe.src = "maya://osint-scan?ts=" + Date.now();
     } catch (_) {}
 
-    // 2. Check if a local MAYA / Aleria Hub server (:8788) has a fresh non-contact scan
-    const hubCandidates = [];
-    const customHub = localStorage.getItem("maya_hub_url");
-    if (customHub) hubCandidates.push(customHub);
-    if (window.location.protocol === "http:") hubCandidates.push("");
-    hubCandidates.push("http://127.0.0.1:8788", "http://localhost:8788");
-
-    for (let base of hubCandidates) {
-      try {
-        const res = await fetchWithTimeout(base + "/meta-hud/state", { cache: "no-store" }, 420);
-        if (res && res.ok) {
-          const state = await res.json();
-          const tr = state && state.faceRecTriptych;
-          if (tr && tr.identityName && !isDisallowedSubjectName(tr.identityName) && (!currentLiveSubject || currentLiveSubject.name !== tr.identityName)) {
-            lastSyncedHubTimestamp = tr.updatedAt || Date.now();
-            await runLiveIdentificationPipeline(tr.identityName, {
-              role: tr.identityRole,
-              match: (tr.confidencePercent || 96) + "%",
-              source: tr.identityOrg || "Coffre Biométrique 76p & Caméra 12MP",
-              bio: tr.tacticalBrief,
-              ig: tr.instagramHandle,
-              li: (tr.validatedSources && tr.validatedSources.linkedin) ? tr.validatedSources.linkedin.replace(" ✓", "") : "",
-              photo: tr.faceCropBase64 ? ("data:image/jpeg;base64," + tr.faceCropBase64) : ""
-            });
-            return;
-          }
-        }
-      } catch (_) {}
+    // 2. Poll live_osint.json & local Hub over 2.4 seconds for the fresh iPhone camera scan result
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (attempt > 0) {
+        await new Promise(function(r) { setTimeout(r, 800); });
+      }
+      const found = await checkFreshLiveScanFromPhoneOrHub();
+      if (found) return;
     }
 
-    // 3. If an active optical camera stream is already running, capture a snapshot frame and analyze it
-    if (cameraStream) {
-      try {
-        const video = document.getElementById("maya-camera-video");
-        if (video && video.videoWidth > 0) {
-          const snap = document.createElement("canvas");
-          snap.width = 400;
-          snap.height = 400;
-          const sctx = snap.getContext("2d");
-          sctx.drawImage(video, 0, 0, 400, 400);
-          const dataUrl = snap.toDataURL("image/jpeg", 0.85);
-          const target = LIVE_RADAR_TARGETS[nextLiveScanCursor % LIVE_RADAR_TARGETS.length];
-          nextLiveScanCursor = (nextLiveScanCursor + 1) % LIVE_RADAR_TARGETS.length;
-          await runLiveIdentificationPipeline(target.name, Object.assign({}, target.extra, {
-            photo: dataUrl,
-            source: "Caméra Optique 12MP Live"
-          }));
-          return;
-        }
-      } catch (_) {}
-    }
-
-    // 4. Execute the 4-Stage Live Identification Pipeline immediately on the Enrolled 76p Face Vault / OSINT Queue
-    const target = LIVE_RADAR_TARGETS[nextLiveScanCursor % LIVE_RADAR_TARGETS.length];
-    nextLiveScanCursor = (nextLiveScanCursor + 1) % LIVE_RADAR_TARGETS.length;
-    await runLiveIdentificationPipeline(target.name, target.extra);
+    // 3. If no fresh camera photo scan arrived from the iPhone yet, NEVER return a fake person (Xavier Niel)!
+    // Instead, open the Target Identification / Voice prompt so the user can dictate or select the real person in front of them.
+    setFooterStatus("🎙️ Dictez le nom de la cible ou prenez une photo 12MP avec le bouton des lunettes");
+    openSearchModal();
   }
 
   // BUTTON 2: [Identifier Voix] — Live Web Speech API (`fr-FR`) or opens the Neural-Band Navigable Radar Modal
@@ -1911,45 +1918,7 @@
 
   // Background poll for live_osint.json & local Hub (:8788/meta-hud/state) without iOS Contacts
   async function pollLocalHubState() {
-    try {
-      const lRes = await fetchWithTimeout("live_osint.json?t=" + Date.now(), { cache: "no-store" }, 450);
-      if (lRes && lRes.ok) {
-        const lData = await lRes.json();
-        if (lData && lData.name && !isDisallowedSubjectName(lData.name) && lData.updatedAt && lData.updatedAt !== lastLiveOSINTJsonTimestamp) {
-          lastLiveOSINTJsonTimestamp = lData.updatedAt;
-          if (!currentLiveSubject || currentLiveSubject.name !== lData.name) {
-            await runLiveIdentificationPipeline(lData.name, lData);
-            return;
-          }
-        }
-      }
-    } catch (_) {}
-
-    const bases = window.location.protocol === "http:" ? ["", "http://127.0.0.1:8788"] : ["http://127.0.0.1:8788"];
-    for (let base of bases) {
-      try {
-        const res = await fetchWithTimeout(base + "/meta-hud/state", { cache: "no-store" }, 450);
-        if (res && res.ok) {
-          const state = await res.json();
-          const tr = state && state.faceRecTriptych;
-          if (tr && tr.identityName && !isDisallowedSubjectName(tr.identityName) && tr.updatedAt && tr.updatedAt !== lastSyncedHubTimestamp) {
-            lastSyncedHubTimestamp = tr.updatedAt;
-            if (!currentLiveSubject || currentLiveSubject.name !== tr.identityName) {
-              await runLiveIdentificationPipeline(tr.identityName, {
-                role: tr.identityRole,
-                match: (tr.confidencePercent || 96) + "%",
-                source: tr.identityOrg || "Coffre Biométrique 76p & Caméra 12MP",
-                bio: tr.tacticalBrief,
-                ig: tr.instagramHandle,
-                li: (tr.validatedSources && tr.validatedSources.linkedin) ? tr.validatedSources.linkedin.replace(" ✓", "") : "",
-                photo: tr.faceCropBase64 ? ("data:image/jpeg;base64," + tr.faceCropBase64) : ""
-              });
-            }
-            return;
-          }
-        }
-      } catch (_) {}
-    }
+    await checkFreshLiveScanFromPhoneOrHub();
   }
 
   // Parse URL Query Parameters (?name=...&role=...&match=...&source=...&bio=...&q=...) or restore last live scan
@@ -1961,7 +1930,7 @@
     } catch (_) {}
     try {
       const savedRaw = localStorage.getItem("maya_last_live_subject") || "";
-      if (isDisallowedSubjectName(savedRaw)) {
+      if (isDisallowedSubjectName(savedRaw) || savedRaw.toLowerCase().includes("xavier niel")) {
         localStorage.removeItem("maya_last_live_subject");
       }
 
@@ -2220,7 +2189,7 @@
   initNeuralBandWrist();
   initMayaWebMCP();
   setInterval(updateClock, 10000);
-  setInterval(pollLocalHubState, 3500);
+  setInterval(pollLocalHubState, 1500);
 </script>
 </body>
 </html>
