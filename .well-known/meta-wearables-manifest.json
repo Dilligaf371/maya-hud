@@ -1,9 +1,11 @@
 {
   "version": 1,
-  "name": "MAYA",
-  "description": "Mon Assistante Y Arrive — Visière Holographique Biométrique, OSINT & SOCMINT (600×600)",
+  "name": "Hermes",
+  "short_name": "Hermes",
+  "description": "Hermes Executive Glasses Assistant — E.D.I.T.H. 512-D Biometrics, Vision 12MP & ICO Voice (600×600)",
   "appearance": {
-    "theme_color": "#00F0FF"
+    "theme_color": "#00FF9D",
+    "background_color": "#000000"
   },
   "icons": [
     {

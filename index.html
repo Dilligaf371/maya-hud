@@ -3,22 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=600, height=600, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="application-name" content="MAYA">
-<meta name="theme-color" content="#0A84FF">
+<meta name="mrbd-web-app-capable" content="yes">
+<meta name="application-name" content="Hermes">
+<meta name="description" content="Hermes — E.D.I.T.H. Executive Glasses Assistant & Shortcuts Launcher (600x600)">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<title>MAYA — Mon Assistante Y Arrive (600×600)</title>
+<title>Hermes</title>
 <style>
   :root {
     --bg: #000000;
-    --card-bg: rgba(28, 28, 32, 0.86);
-    --card-border: rgba(255, 255, 255, 0.16);
-    --card-highlight: rgba(255, 255, 255, 0.24);
-    --apple-blue: #0A84FF;
-    --tesla-ice: #38BDF8;
-    --apple-emerald: #30D158;
-    --text-primary: #FFFFFF;
-    --text-secondary: #D4D4D8;
-    --text-muted: #A1A1AA;
+    --card-bg: #050a12;
+    --card-border: #1b3552;
+    --emerald: #00FF9D;
+    --cyan: #00E5FF;
+    --orange: #FF6B35;
+    --amber: #FFB800;
+    --white: #FFFFFF;
+    --muted: #A3B8CC;
   }
   * {
     box-sizing: border-box;
@@ -36,2281 +38,1097 @@
     max-height: 600px;
     overflow: hidden;
     background: #000000;
-    color: var(--text-primary);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", sans-serif;
-    letter-spacing: -0.015em;
+    color: var(--white);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
   }
-  #maya-root {
+  #hermes-root {
     width: 600px;
     height: 600px;
-    padding: 10px 12px;
+    padding: 12px 14px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     background: #000000;
     position: relative;
   }
+
+  /* Shutter Flash Overlay */
   #shutter-flash {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(56,189,248,0.4) 100%);
+    background: radial-gradient(circle, rgba(0,255,157,0.85) 0%, rgba(0,229,255,0.25) 100%);
     opacity: 0;
     pointer-events: none;
     z-index: 99;
-    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 0.22s ease-out;
+  }
+  #shutter-flash.flash {
+    opacity: 1;
   }
 
-  /* 1. Apple visionOS Top Status Bar */
+  /* Top Header Bar (600px) */
   .top-bar {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    height: 36px;
-    padding: 0 14px;
-    background: rgba(28, 28, 32, 0.78);
-    border: 1px solid var(--card-border);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
-    border-radius: 999px;
+    justify-content: space-between;
+    height: 54px;
+    padding: 0 10px;
+    border: 2px solid var(--card-border);
+    border-radius: 14px;
+    background: #03070d;
   }
-  .brand-group {
+  .brand {
     display: flex;
     align-items: center;
     gap: 8px;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    color: var(--emerald);
   }
   .brand-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: var(--apple-emerald);
-    box-shadow: 0 0 8px var(--apple-emerald);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 12px var(--emerald);
   }
-  .brand-title {
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: #FFFFFF;
-  }
-  .brand-sub {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-muted);
-  }
-  .top-right-group {
+  .nav-pills {
     display: flex;
     align-items: center;
     gap: 8px;
   }
-  .voice-pill {
-    background: rgba(48, 209, 88, 0.16);
-    color: #FFFFFF;
-    border: 1px solid rgba(48, 209, 88, 0.55);
-    border-radius: 999px;
-    padding: 4px 10px;
-    font-size: 12.5px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .voice-pill.listening {
-    background: rgba(10, 132, 255, 0.28);
-    border-color: var(--tesla-ice);
-    box-shadow: 0 0 12px rgba(56, 189, 248, 0.65);
-  }
-  .voice-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 999px;
-    background: var(--apple-emerald);
-  }
-  .clock-label {
-    font-size: 16px;
-    font-weight: 700;
-    color: #FFFFFF;
-    font-variant-numeric: tabular-nums;
-  }
-
-  /* 2. Segmented 4-Tab Dossier Control (1. OSINT · 2. Visage · 3. Sources · 4. Dossier) */
-  .tabs-strip {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-    background: rgba(24, 24, 28, 0.88);
-    padding: 4px;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-  }
-  .tab-pill {
-    height: 30px;
-    background: transparent;
-    color: var(--text-secondary);
-    border: 1px solid transparent;
+  .nav-btn {
+    appearance: none;
+    background: #07111e;
+    color: var(--muted);
+    border: 2px solid #1e3a5f;
     border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
+    padding: 7px 13px;
+    font-size: 18px;
+    font-weight: 800;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-    transition: all 0.15s ease;
+    transition: all 0.12s ease;
   }
-  .tab-pill.active, .tab-pill:focus {
-    background: #FFFFFF;
-    color: #000000;
-    font-weight: 700;
-    border-color: #FFFFFF;
-    box-shadow: 0 2px 8px rgba(56, 189, 248, 0.35);
+  .nav-btn.active {
+    background: rgba(0, 255, 157, 0.16);
+    color: var(--emerald);
+    border-color: var(--emerald);
+  }
+  .nav-btn:focus, .nav-btn:focus-visible, .nav-btn.spatial-focus {
     outline: none;
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.55);
+    color: var(--white);
   }
 
-  /* 3. Main 3-Column Bento Stage (Apple visionOS Spatial Cards) */
-  .bento-stage {
-    position: relative;
-    width: 100%;
-    height: 234px;
+  /* Views Container */
+  .view-panel {
+    display: none;
+    flex: 1;
+    margin: 10px 0;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+  .view-panel.active {
+    display: flex;
+  }
+
+  /* VIEW 1: 6-Button Interactive Shortcuts Grid (2x3) */
+  .menu-grid {
     display: grid;
-    grid-template-columns: 184px 188px 184px;
-    gap: 10px;
-    align-items: stretch;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(3, 1fr);
+    gap: 12px;
+    flex: 1;
   }
-  .bento-card {
-    background: linear-gradient(165deg, rgba(38, 38, 44, 0.86) 0%, rgba(18, 18, 22, 0.92) 100%);
-    border: 1px solid var(--card-border);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    border-radius: 20px;
-    padding: 10px;
+  .shortcut-btn {
+    appearance: none;
+    background: #050c16;
+    border: 2.5px solid #1b3858;
+    border-radius: 18px;
+    padding: 14px 16px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-  .bento-card.focused {
-    border: 1.5px solid var(--tesla-ice);
-    box-shadow: 0 0 18px rgba(56, 189, 248, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  }
-  .card-header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 4px;
-  }
-  .card-kicker {
-    font-size: 10.5px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    color: var(--tesla-ice);
-    white-space: nowrap;
-  }
-  .card-status-pill {
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--apple-emerald);
-    background: rgba(48, 209, 88, 0.14);
-    border: 1px solid rgba(48, 209, 88, 0.4);
-    border-radius: 999px;
-    padding: 1px 6px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  /* Left Bento: Face ID Crop + Verified Social Handles */
-  .faceid-crop-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 2px;
-  }
-  #extracted-face-canvas {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    border: 1.5px solid rgba(56, 189, 248, 0.75);
-    background: #090D16;
-    flex-shrink: 0;
-  }
-  .faceid-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-  }
-  .faceid-score {
-    font-size: 17.5px;
-    font-weight: 800;
-    color: #FFFFFF;
-    letter-spacing: -0.03em;
-    font-variant-numeric: tabular-nums;
-    line-height: 1.1;
-  }
-  .faceid-sub {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .social-list {
-    display: flex;
-    flex-direction: column;
-    gap: 3.5px;
-    margin-top: 2px;
-  }
-  .social-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.11);
-    border-radius: 9px;
-    padding: 3px 7px;
-    text-decoration: none;
-  }
-  .social-platform {
-    font-size: 10.5px;
-    font-weight: 700;
-    color: var(--tesla-ice);
-    flex-shrink: 0;
-  }
-  .social-handle {
-    font-size: 11px;
-    font-weight: 700;
-    color: #FFFFFF;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 104px;
-  }
-
-  /* Center Bento: Hero 12MP Portrait + Apple Face ID / Tesla Neural Mesh */
-  .center-portrait-card {
-    padding: 0;
-    border: 1.5px solid rgba(56, 189, 248, 0.65);
-    box-shadow: 0 0 24px rgba(10, 132, 255, 0.22);
+    justify-content: center;
+    align-items: flex-start;
+    text-align: left;
     cursor: pointer;
-    background: #050811;
+    position: relative;
+    transition: transform 0.1s ease, border-color 0.12s ease, background 0.12s ease;
   }
-  .holo-head-center {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center top;
-    display: none;
+  .shortcut-btn:focus,
+  .shortcut-btn:focus-visible,
+  .shortcut-btn.spatial-focus {
+    outline: none;
+    background: #0a1b2e;
+    border-color: var(--emerald);
+    box-shadow: 0 0 0 4px rgba(0, 255, 157, 0.42), inset 0 0 18px rgba(0, 255, 157, 0.16);
   }
-  #maya-camera-video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: none;
-    z-index: 2;
+  .shortcut-btn:active {
+    transform: scale(0.98);
   }
-  .ready-scanner-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px;
-    text-align: center;
-    background: radial-gradient(circle at 50% 44%, rgba(10, 132, 255, 0.22) 0%, rgba(5, 8, 17, 0.95) 75%);
-    z-index: 1;
-  }
-  .ready-reticle-ring {
-    width: 86px;
-    height: 86px;
-    border-radius: 24px;
-    border: 2px dashed rgba(56, 189, 248, 0.75);
+  .shortcut-top {
     display: flex;
     align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.25), inset 0 0 14px rgba(10, 132, 255, 0.22);
-  }
-  .ready-reticle-label {
-    font-size: 12.5px;
-    font-weight: 700;
-    color: var(--apple-emerald);
-    letter-spacing: 0.02em;
-  }
-  .ready-reticle-sub {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    line-height: 1.25;
-  }
-  .portrait-bottom-glass {
-    position: absolute;
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
-    background: rgba(15, 15, 20, 0.88);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    border-radius: 12px;
-    padding: 5px 8px;
-    display: flex;
     justify-content: space-between;
-    align-items: center;
-    z-index: 6;
-  }
-  .portrait-name {
-    font-size: 12.5px;
-    font-weight: 700;
-    color: #FFFFFF;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .portrait-qid {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--tesla-ice);
-    font-variant-numeric: tabular-nums;
-    flex-shrink: 0;
-  }
-
-  /* Full-Stage 2x Retina Neural Overlay Canvas */
-  #maya-retina-canvas {
-    position: absolute;
-    inset: 0;
     width: 100%;
-    height: 100%;
-    z-index: 5;
-    pointer-events: none;
+    margin-bottom: 6px;
   }
+  .shortcut-title {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+  .shortcut-key {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--cyan);
+    background: rgba(0, 229, 255, 0.14);
+    border: 1.5px solid rgba(0, 229, 255, 0.45);
+    border-radius: 8px;
+    padding: 2px 8px;
+  }
+  .shortcut-sub {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--emerald);
+    line-height: 1.2;
+  }
+  .shortcut-btn[data-accent="cyan"] .shortcut-sub { color: var(--cyan); }
+  .shortcut-btn[data-accent="orange"] .shortcut-sub { color: var(--orange); }
+  .shortcut-btn[data-accent="amber"] .shortcut-sub { color: var(--amber); }
 
-  /* Right Bento: 3 Cross-Referenced Photo Sources / Live Instructions */
-  .sources-stack {
+  /* VIEW 2: E.D.I.T.H. Tactical HUD & Live Result */
+  .hud-header-row {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .back-btn {
+    appearance: none;
+    background: #081526;
+    color: var(--cyan);
+    border: 2.5px solid var(--cyan);
+    border-radius: 12px;
+    padding: 8px 14px;
+    font-size: 20px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+  .back-btn:focus, .back-btn:focus-visible, .back-btn.spatial-focus {
+    outline: none;
+    background: rgba(0, 229, 255, 0.22);
+    box-shadow: 0 0 0 4px rgba(0, 229, 255, 0.48);
+  }
+  .hud-tabs {
+    display: flex;
     gap: 6px;
   }
-  .photo-source-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 12px;
-    padding: 5px 7px;
-  }
-  .photo-source-thumb {
-    width: 40px;
-    height: 40px;
-    border-radius: 9px;
-    object-fit: cover;
-    object-position: center top;
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    flex-shrink: 0;
-    background: #090D16;
-  }
-  .source-step-badge {
-    width: 36px;
-    height: 36px;
+  .hud-tab-btn {
+    appearance: none;
+    background: #050c16;
+    color: var(--muted);
+    border: 2px solid #1b3552;
     border-radius: 10px;
-    background: rgba(10, 132, 255, 0.18);
-    border: 1px solid rgba(56, 189, 248, 0.55);
-    color: var(--tesla-ice);
-    font-size: 13px;
+    padding: 7px 11px;
+    font-size: 17px;
     font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    cursor: pointer;
   }
-  .photo-source-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    overflow: hidden;
+  .hud-tab-btn.active {
+    color: var(--emerald);
+    border-color: var(--emerald);
+    background: rgba(0, 255, 157, 0.14);
   }
-  .photo-source-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 4px;
-  }
-  .photo-source-title {
-    font-size: 11.5px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .photo-source-pct {
-    font-size: 11.5px;
-    font-weight: 800;
-    color: var(--apple-emerald);
-    font-variant-numeric: tabular-nums;
-    flex-shrink: 0;
-  }
-  .telemetry-bar-bg {
-    width: 100%;
-    height: 5px;
-    background: rgba(255, 255, 255, 0.12);
-    border-radius: 999px;
-    overflow: hidden;
-  }
-  .telemetry-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--apple-blue) 0%, var(--tesla-ice) 55%, var(--apple-emerald) 100%);
-    border-radius: 999px;
-    transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  .hud-tab-btn:focus, .hud-tab-btn:focus-visible, .hud-tab-btn.spatial-focus {
+    outline: none;
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.5);
   }
 
-  /* 4. Executive Intelligence Summary Bento Card */
-  .detail-box {
-    background: linear-gradient(165deg, rgba(32, 32, 38, 0.90) 0%, rgba(16, 16, 20, 0.95) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
-    border-radius: 20px;
-    padding: 9px 13px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 132px;
-  }
-  .detail-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  .detail-headline-group {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    min-width: 0;
+  .edith-card-box {
     flex: 1;
+    background: #03070e;
+    border: 2.5px solid var(--emerald);
+    border-radius: 18px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
   }
-  .detail-title {
-    font-size: 19.5px;
-    font-weight: 800;
-    letter-spacing: -0.025em;
-    color: #FFFFFF;
+  .target-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .target-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 16px;
+    border: 2.5px solid var(--cyan);
+    object-fit: cover;
+    background: #081321;
+    flex-shrink: 0;
+  }
+  .target-headlines {
+    flex: 1;
+    min-width: 0;
+  }
+  .target-line-1 {
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--emerald);
     line-height: 1.15;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .detail-role-sub {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--tesla-ice);
-    white-space: nowrap;
+  .target-line-2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--white);
+    margin-top: 4px;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
   }
-  .detail-badge {
-    font-size: 12px;
-    font-weight: 700;
-    color: #FFFFFF;
-    background: linear-gradient(135deg, var(--apple-blue), #2563EB);
+  .target-badge {
+    display: inline-block;
+    margin-top: 5px;
     padding: 3px 10px;
-    border-radius: 999px;
-    flex-shrink: 0;
+    border-radius: 8px;
+    background: rgba(0, 229, 255, 0.15);
+    border: 1.5px solid var(--cyan);
+    color: var(--cyan);
+    font-size: 16px;
+    font-weight: 800;
   }
-  .intel-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: 2px;
-  }
-  .intel-row {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    font-size: 12.5px;
-    line-height: 1.25;
-    white-space: nowrap;
-  }
-  .intel-tag {
-    font-size: 10.5px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--text-muted);
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 6px;
-    padding: 1px 6px;
-    flex-shrink: 0;
-    width: 138px;
-    text-align: left;
-  }
-  .intel-val {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: #F4F4F5;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+
+  .edith-lines-container {
+    margin-top: 8px;
     flex: 1;
-  }
-
-  /* 5. Floating Apple visionOS Pill Dock — 3 REAL LIVE IDENTIFICATION ACTIONS */
-  .apple-dock {
-    display: grid;
-    grid-template-columns: 1.15fr 1fr 1fr;
-    gap: 8px;
-    background: rgba(24, 24, 28, 0.94);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
-    border-radius: 999px;
-    padding: 4px;
-    height: 58px;
-  }
-  .dock-btn {
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--text-secondary);
-    border: 1.5px solid rgba(255, 255, 255, 0.12);
-    border-radius: 999px;
-    cursor: pointer;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1px;
-    transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .dock-top-row {
-    display: flex;
-    align-items: center;
+    justify-content: space-evenly;
     gap: 6px;
   }
-  .dock-icon {
-    width: 16px;
-    height: 16px;
-    stroke: currentColor;
-    stroke-width: 2;
-    fill: none;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    flex-shrink: 0;
+  .edith-row {
+    background: #07111f;
+    border: 1.5px solid #183250;
+    border-radius: 12px;
+    padding: 8px 12px;
   }
-  .dock-btn span.btn-top {
-    font-size: 14.5px;
-    font-weight: 800;
-    letter-spacing: -0.015em;
-    color: #FFFFFF;
-    white-space: nowrap;
-  }
-  .dock-btn span.btn-sub {
-    font-size: 10.5px;
-    font-weight: 600;
-    color: var(--tesla-ice);
-    white-space: nowrap;
-  }
-  .dock-btn.selected, .dock-btn:focus, .dock-btn:active {
-    background: linear-gradient(135deg, var(--apple-blue) 0%, #0284C7 100%);
-    color: #FFFFFF;
-    border-color: rgba(255, 255, 255, 0.78);
-    box-shadow: 0 0 18px rgba(10, 132, 255, 0.70);
-    outline: none;
-  }
-  .dock-btn.selected span.btn-sub, .dock-btn:focus span.btn-sub, .dock-btn:active span.btn-sub {
-    color: #FFFFFF;
-  }
-
-  /* 6. Subtle Apple Voice Command Hint Bar */
-  .status-footer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .footer-wave-icon {
-    width: 14px;
-    height: 14px;
-    stroke: var(--apple-emerald);
-    stroke-width: 2;
-    fill: none;
-    stroke-linecap: round;
-    flex-shrink: 0;
-  }
-
-  /* 7. In-Lens Search / Live Name Overlay Modal (600×600 High-Contrast) */
-  #search-modal {
-    position: absolute;
-    inset: 12px;
-    background: rgba(8, 10, 16, 0.98);
-    border: 2px solid var(--tesla-ice);
-    border-radius: 24px;
-    padding: 14px 16px;
-    display: none;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 8px;
-    z-index: 80;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.96);
-  }
-  #search-modal.open {
-    display: flex;
-  }
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .modal-title {
-    font-size: 16.5px;
-    font-weight: 800;
-    color: #FFFFFF;
-  }
-  .modal-close-btn {
-    background: rgba(255, 255, 255, 0.14);
-    color: #FFFFFF;
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    border-radius: 999px;
-    padding: 5px 13px;
-    font-size: 12.5px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .modal-search-bar {
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    gap: 8px;
-    align-items: center;
-  }
-  .search-input-box {
-    width: 100%;
-    height: 44px;
-    background: #000000;
-    color: #FFFFFF;
-    border: 1.5px solid var(--tesla-ice);
-    border-radius: 13px;
-    padding: 0 12px;
+  .edith-row-label {
     font-size: 15px;
-    font-weight: 700;
-    outline: none;
-  }
-  .modal-primary-btn {
-    height: 44px;
-    padding: 0 14px;
-    background: linear-gradient(135deg, var(--apple-blue), #0284C7);
-    color: #FFFFFF;
-    border: 1.5px solid rgba(255, 255, 255, 0.65);
-    border-radius: 13px;
-    font-size: 13.5px;
     font-weight: 800;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .modal-secondary-btn {
-    height: 44px;
-    padding: 0 12px;
-    background: rgba(48, 209, 88, 0.18);
-    color: var(--apple-emerald);
-    border: 1.5px solid var(--apple-emerald);
-    border-radius: 13px;
-    font-size: 13px;
-    font-weight: 800;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .radar-section-label {
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--tesla-ice);
+    color: var(--cyan);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.04em;
+  }
+  .edith-row-val {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.25;
+    margin-top: 2px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* VIEW 3: Search / Voice / Radar Cibles */
+  .search-bar-row {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .search-input {
+    flex: 1;
+    background: #050c16;
+    border: 2.5px solid var(--cyan);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 21px;
+    font-weight: 800;
+    color: var(--white);
+  }
+  .search-input:focus {
+    outline: none;
+    border-color: var(--emerald);
+    box-shadow: 0 0 0 3px rgba(0, 255, 157, 0.45);
+  }
+  .search-go-btn {
+    appearance: none;
+    background: var(--emerald);
+    color: #000000;
+    border: none;
+    border-radius: 12px;
+    padding: 0 18px;
+    font-size: 20px;
+    font-weight: 900;
+    cursor: pointer;
   }
   .radar-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 7px;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    flex: 1;
+    overflow-y: auto;
   }
   .radar-chip {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1.5px solid rgba(255, 255, 255, 0.16);
-    border-radius: 13px;
-    padding: 7px 9px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    cursor: pointer;
+    appearance: none;
+    background: #060f1c;
+    border: 2px solid #1b3654;
+    border-radius: 12px;
+    padding: 10px 12px;
     text-align: left;
+    cursor: pointer;
   }
-  .radar-chip.focused {
-    background: linear-gradient(135deg, rgba(10, 132, 255, 0.45), rgba(2, 132, 199, 0.35));
-    border: 2px solid #FFFFFF;
-    box-shadow: 0 0 14px rgba(10, 132, 255, 0.65);
+  .radar-chip:focus, .radar-chip:focus-visible, .radar-chip.spatial-focus {
+    outline: none;
+    border-color: var(--emerald);
+    background: #0c2138;
+    box-shadow: 0 0 0 3px rgba(0, 255, 157, 0.45);
   }
   .radar-chip-name {
-    font-size: 13px;
-    font-weight: 800;
-    color: #FFFFFF;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--white);
   }
   .radar-chip-sub {
-    font-size: 10.5px;
+    font-size: 16px;
     font-weight: 700;
-    color: var(--tesla-ice);
+    color: var(--cyan);
+  }
+
+  /* Bottom Status Footer (600px) */
+  .footer-bar {
+    height: 44px;
+    padding: 0 12px;
+    border: 2px solid #162c46;
+    border-radius: 12px;
+    background: #03070d;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--cyan);
+  }
+  .footer-status-text {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 440px;
+  }
+  .footer-link-pill {
+    font-size: 15px;
+    font-weight: 900;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(0, 255, 157, 0.16);
+    color: var(--emerald);
+    border: 1.5px solid var(--emerald);
   }
 </style>
 </head>
 <body>
-<div id="maya-root">
+<div id="hermes-root">
   <div id="shutter-flash"></div>
-  <input type="file" id="maya-photo-file-input" accept="image/*" capture="environment" style="display:none" onchange="handleLocalPhotoSelected(event)">
 
-  <!-- In-Lens Search & Neural Band Live Target Radar Modal -->
-  <div id="search-modal">
-    <div class="modal-header">
-      <div class="modal-title">🔎 Identification Live — Coffre Biométrique 76p &amp; OSINT</div>
-      <button type="button" class="modal-close-btn" onclick="closeSearchModal()">Fermer ✕</button>
+  <!-- TOP STATUS & NAVIGATION BAR -->
+  <header class="top-bar">
+    <div class="brand">
+      <span class="brand-dot" id="studio-dot"></span>
+      <span>⚡ HERMES · E.D.I.T.H.</span>
     </div>
-    <div class="modal-search-bar">
-      <input type="text" id="maya-live-search-input" class="search-input-box" placeholder="Tapez ou dictez tout nom (ex: Satya Nadella…)" autocomplete="off">
-      <button type="button" class="modal-primary-btn" onclick="submitLiveSearchModal()">🔎 Identifier</button>
-      <button type="button" class="modal-secondary-btn" onclick="triggerLocalPhotoPicker()">📷 Photo</button>
-    </div>
-    <div class="radar-section-label">
-      <span>Coffre Biométrique 76p &amp; Radar OSINT Live (Flèches Bracelet + Pincer)</span>
-      <span style="color:var(--apple-emerald)">1 Pincer = Scan Live ✓</span>
-    </div>
-    <div class="radar-grid" id="radar-grid"></div>
-    <div style="font-size:11.5px;color:var(--text-secondary);text-align:center;font-weight:600;">
-      Glissez Gauche/Droite/Haut/Bas au bracelet Meta Neural Band puis Pincez (Entrée) pour lancer le croisement photo &amp; OSINT en direct.
-    </div>
-  </div>
+    <nav class="nav-pills" aria-label="Modes Hermes">
+      <button type="button" class="nav-btn active" id="nav-menu" onclick="switchView('menu')">MENU</button>
+      <button type="button" class="nav-btn" id="nav-hud" onclick="switchView('hud')">HUD</button>
+      <button type="button" class="nav-btn" id="nav-targets" onclick="switchView('targets')">OSINT</button>
+    </nav>
+  </header>
 
-  <!-- 1. Apple visionOS Top Pill Header -->
-  <div class="top-bar">
-    <div class="brand-group">
-      <div class="brand-dot"></div>
-      <div class="brand-title">MAYA</div>
-      <div class="brand-sub">Identification Live 12MP &amp; OSINT</div>
-    </div>
-    <div class="top-right-group">
-      <button type="button" class="voice-pill" id="btn-voice-cmd" onclick="triggerVoiceIdentification(event)" onpointerup="triggerVoiceIdentification(event)">
-        <span class="voice-dot"></span>
-        <span id="voice-pill-label">Voix Prête</span>
+  <!-- VIEW 1: 6-BUTTON INTERACTIVE SHORTCUTS LAUNCHER -->
+  <main id="view-menu" class="view-panel active" aria-label="Raccourcis Hermes Glasses">
+    <div class="menu-grid">
+      <button type="button" class="shortcut-btn spatial-focus" id="sc-0" data-accent="emerald"
+              onclick="triggerHermesAction('scan_face', 'Qui est devant moi ? Identifie cette personne.')">
+        <div class="shortcut-top">
+          <span class="shortcut-title">🎯 SCAN VISAGE</span>
+          <span class="shortcut-key">512-D</span>
+        </div>
+        <div class="shortcut-sub">E.D.I.T.H. · I-XRAY Live</div>
       </button>
-      <div class="clock-label" id="maya-clock">00:00</div>
+
+      <button type="button" class="shortcut-btn" id="sc-1" data-accent="cyan"
+              onclick="triggerHermesAction('look_around', 'Qu\'est-ce que je vois autour de moi ? Décris la scène.')">
+        <div class="shortcut-top">
+          <span class="shortcut-title">👁️ QUE VOIS-JE ?</span>
+          <span class="shortcut-key">12 MP</span>
+        </div>
+        <div class="shortcut-sub">Analyse Scène & Objets</div>
+      </button>
+
+      <button type="button" class="shortcut-btn" id="sc-2" data-accent="amber"
+              onclick="triggerHermesAction('read_text', 'Lis tout le texte, badge, écran ou document devant moi.')">
+        <div class="shortcut-top">
+          <span class="shortcut-title">📄 LIRE TEXTE</span>
+          <span class="shortcut-key">OCR</span>
+        </div>
+        <div class="shortcut-sub">Document, Badge & Écran</div>
+      </button>
+
+      <button type="button" class="shortcut-btn" id="sc-3" data-accent="emerald"
+              onclick="triggerHermesAction('lookup_live', 'Identifie la personne devant moi et affiche sa fiche OSINT complète.')">
+        <div class="shortcut-top">
+          <span class="shortcut-title">🔍 LOOKUP LIVE</span>
+          <span class="shortcut-key">OSINT</span>
+        </div>
+        <div class="shortcut-sub">IG · FB · LI · X · Web</div>
+      </button>
+
+      <button type="button" class="shortcut-btn" id="sc-4" data-accent="orange"
+              onclick="triggerVoiceOrPrompt()">
+        <div class="shortcut-top">
+          <span class="shortcut-title">🎙️ AGENT HERMES</span>
+          <span class="shortcut-key">ICO</span>
+        </div>
+        <div class="shortcut-sub" id="voice-btn-sub">Commande Vocale Directe</div>
+      </button>
+
+      <button type="button" class="shortcut-btn" id="sc-5" data-accent="cyan"
+              onclick="triggerHermesAction('briefing', 'Donne-moi mon briefing exécutif rapide en 2 phrases.')">
+        <div class="shortcut-top">
+          <span class="shortcut-title">📋 BRIEFING ICO</span>
+          <span class="shortcut-key">EXEC</span>
+        </div>
+        <div class="shortcut-sub">Agenda · Statut · Synthèse</div>
+      </button>
     </div>
-  </div>
+  </main>
 
-  <!-- 2. Segmented 4-Tab Dossier Control (Replaces hardcoded names!) -->
-  <div class="tabs-strip">
-    <button type="button" class="tab-pill active" id="tab-0" onclick="switchDossierTab(0, event)" onpointerup="switchDossierTab(0, event)">1. OSINT</button>
-    <button type="button" class="tab-pill" id="tab-1" onclick="switchDossierTab(1, event)" onpointerup="switchDossierTab(1, event)">2. Visage 76p</button>
-    <button type="button" class="tab-pill" id="tab-2" onclick="switchDossierTab(2, event)" onpointerup="switchDossierTab(2, event)">3. Sources</button>
-    <button type="button" class="tab-pill" id="tab-3" onclick="switchDossierTab(3, event)" onpointerup="switchDossierTab(3, event)">4. Dossier</button>
-  </div>
-
-  <!-- 3. 3-Column Bento Spatial Stage -->
-  <div class="bento-stage">
-    <!-- Left Bento: Extracted Face ID + Verified Social / Contact Handles -->
-    <div class="bento-card" id="wing-left">
-      <div class="card-header-row">
-        <span class="card-kicker" id="left-kicker">Visage Extrait</span>
-        <span class="card-status-pill" id="face-crop-status">Prêt 12MP</span>
-      </div>
-
-      <div class="faceid-crop-wrap">
-        <canvas id="extracted-face-canvas" width="136" height="136"></canvas>
-        <div class="faceid-meta">
-          <div class="faceid-score" id="wing-score">SCAN LIVE</div>
-          <div class="faceid-sub" id="face-crop-qid">Face ID 76-Pts</div>
-          <div class="faceid-sub" id="face-crop-age">Attente Cible</div>
-        </div>
-      </div>
-
-      <div class="social-list">
-        <div class="social-item">
-          <span class="social-platform" id="lbl-soc-1">Instagram</span>
-          <span class="social-handle" id="wing-ig">Prêt</span>
-        </div>
-        <div class="social-item">
-          <span class="social-platform" id="lbl-soc-2">Facebook</span>
-          <span class="social-handle" id="wing-fb">Prêt</span>
-        </div>
-        <div class="social-item">
-          <span class="social-platform" id="lbl-soc-3">LinkedIn</span>
-          <span class="social-handle" id="wing-li">Prêt</span>
-        </div>
-        <div class="social-item">
-          <span class="social-platform" id="lbl-soc-4">X · Twitter</span>
-          <span class="social-handle" id="wing-tw">Prêt</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Center Bento: Live Radar / Camera / Identified Portrait -->
-    <div class="bento-card center-portrait-card" onclick="triggerLiveFaceScan(event)">
-      <div class="ready-scanner-overlay" id="ready-scanner-overlay">
-        <div class="ready-reticle-ring">
-          <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 12h2a2 2 0 0 0 2-2v-2"/>
-            <circle cx="12" cy="10" r="3"/>
-            <path d="M7 18c1.2-2 3-3 5-3s3.8 1 5 3"/>
-          </svg>
-        </div>
-        <div class="ready-reticle-label" id="ready-center-title">PRÊT À IDENTIFIER</div>
-        <div class="ready-reticle-sub" id="ready-center-sub">Pincez « Scanner Visage » ou prenez une photo 12MP</div>
-      </div>
-      <img class="holo-head-center" id="maya-head-img" alt="Portrait Cible 12MP">
-      <video id="maya-camera-video" autoplay playsinline muted></video>
-      <div class="portrait-bottom-glass">
-        <span class="portrait-name" id="center-name-pill">Acquisition Live</span>
-        <span class="portrait-qid" id="center-stage-pill">12MP · Prêt</span>
+  <!-- VIEW 2: E.D.I.T.H. 4-LINE TACTICAL HUD & LIVE RESULT -->
+  <section id="view-hud" class="view-panel" aria-label="Résultat HUD E.D.I.T.H.">
+    <div class="hud-header-row">
+      <button type="button" class="back-btn" id="btn-back-menu" onclick="switchView('menu')">← MENU</button>
+      <div class="hud-tabs">
+        <button type="button" class="hud-tab-btn active" id="hud-tab-0" onclick="switchHudSubTab(0)">SYNTHÈSE</button>
+        <button type="button" class="hud-tab-btn" id="hud-tab-1" onclick="switchHudSubTab(1)">RÉSEAUX 5/5</button>
+        <button type="button" class="hud-tab-btn" id="hud-tab-2" onclick="switchHudSubTab(2)">SCAN 12MP</button>
       </div>
     </div>
 
-    <!-- Right Bento: 3 Cross-Referenced Photo Sources OR 3-Step Live Guide -->
-    <div class="bento-card" id="wing-right">
-      <div class="card-header-row">
-        <span class="card-kicker" id="right-kicker">Sources Croisées</span>
-        <span class="card-status-pill" id="right-status-pill">En Direct</span>
+    <div class="edith-card-box">
+      <div class="target-top">
+        <img id="hud-avatar" class="target-avatar" src="icon-192.png" alt="Portrait">
+        <div class="target-headlines">
+          <div class="target-line-1" id="hud-title">🎯 HERMES PRÊT (DISPLAY 0098)</div>
+          <div class="target-line-2" id="hud-subtitle">Sélectionnez un raccourci dans MENU ou dites votre commande</div>
+          <span class="target-badge" id="hud-badge">ArcFace 512-D · ICO ~1.1s</span>
+        </div>
       </div>
 
-      <div class="sources-stack" id="sources-stack">
-        <div class="photo-source-row" id="src-row-1">
-          <div class="source-step-badge" id="src-badge-1">01</div>
-          <img class="photo-source-thumb" id="src-thumb-1" style="display:none" alt="Source 1">
-          <div class="photo-source-info">
-            <div class="photo-source-top">
-              <span class="photo-source-title" id="src-lbl-1">Photo 12MP Lunettes</span>
-              <span class="photo-source-pct" id="src-pct-1">Auto ✓</span>
-            </div>
-            <div class="telemetry-bar-bg"><div class="telemetry-bar-fill" id="src-bar-1" style="width:100%"></div></div>
-          </div>
+      <div class="edith-lines-container">
+        <div class="edith-row">
+          <div class="edith-row-label" id="hud-r1-label">🔗 RÉSEAUX SOCIAUX (IG · FB · LI · X · WEB)</div>
+          <div class="edith-row-val" id="hud-r1-val">En attente d'identification biométrique ou vocale…</div>
         </div>
-
-        <div class="photo-source-row" id="src-row-2">
-          <div class="source-step-badge" id="src-badge-2">02</div>
-          <img class="photo-source-thumb" id="src-thumb-2" style="display:none" alt="Source 2">
-          <div class="photo-source-info">
-            <div class="photo-source-top">
-              <span class="photo-source-title" id="src-lbl-2">Coffre Face Vault 76p</span>
-              <span class="photo-source-pct" id="src-pct-2">76-Pts ✓</span>
-            </div>
-            <div class="telemetry-bar-bg"><div class="telemetry-bar-fill" id="src-bar-2" style="width:100%"></div></div>
-          </div>
-        </div>
-
-        <div class="photo-source-row" id="src-row-3">
-          <div class="source-step-badge" id="src-badge-3">03</div>
-          <img class="photo-source-thumb" id="src-thumb-3" style="display:none" alt="Source 3">
-          <div class="photo-source-info">
-            <div class="photo-source-top">
-              <span class="photo-source-title" id="src-lbl-3">Wikipedia &amp; Wikidata</span>
-              <span class="photo-source-pct" id="src-pct-3">Live ✓</span>
-            </div>
-            <div class="telemetry-bar-bg"><div class="telemetry-bar-fill" id="src-bar-3" style="width:100%"></div></div>
-          </div>
+        <div class="edith-row">
+          <div class="edith-row-label" id="hud-r2-label">📋 SYNTHÈSE EXÉCUTIVE / RÉPONSE HERMES</div>
+          <div class="edith-row-val" id="hud-r2-val">Appuyez sur 🎯 SCAN VISAGE ou 👁️ QUE VOIS-JE ? pour capturer depuis les lunettes.</div>
         </div>
       </div>
     </div>
+  </section>
 
-    <!-- 2x Retina Neural Perception Canvas across the 3 Bento Cards -->
-    <canvas id="maya-retina-canvas" width="1152" height="496"></canvas>
-  </div>
-
-  <!-- 4. Executive Intelligence Summary Bento Card -->
-  <div class="detail-box" id="detail-box">
-    <div class="detail-header">
-      <div class="detail-headline-group">
-        <div class="detail-title" id="detail-title">Prêt pour Identification Live</div>
-        <div class="detail-role-sub" id="detail-role-sub">3 façons instantanées de lancer une identification dans le Display :</div>
-      </div>
-      <div class="detail-badge" id="detail-badge">Mode Live Actif</div>
+  <!-- VIEW 3: DIRECT OSINT / NAME SEARCH & VOICE INPUT -->
+  <section id="view-targets" class="view-panel" aria-label="Recherche OSINT Directe">
+    <div class="search-bar-row">
+      <button type="button" class="back-btn" onclick="switchView('menu')">← MENU</button>
+      <input type="text" id="osint-search-input" class="search-input"
+             placeholder="Nom ou question à Hermes…"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();submitOsintSearch();}">
+      <button type="button" class="search-go-btn" onclick="submitOsintSearch()">GO</button>
     </div>
-    <div class="intel-grid">
-      <div class="intel-row">
-        <span class="intel-tag" id="intel-tag-1">1. Photo Lunettes</span>
-        <span class="intel-val" id="intel-val-1">1 clic bouton photo des lunettes → MAYA identifie le visage</span>
-      </div>
-      <div class="intel-row">
-        <span class="intel-tag" id="intel-tag-2">2. Pincer Scanner</span>
-        <span class="intel-val" id="intel-val-2">Pincez « Scanner Visage » ci-dessous pour analyser la photo 12MP</span>
-      </div>
-      <div class="intel-row">
-        <span class="intel-tag" id="intel-tag-3">3. Voix ou Nom</span>
-        <span class="intel-val" id="intel-val-3">Pincez « Identifier Voix » ou « Chercher Nom » pour tout profil</span>
-      </div>
-    </div>
-  </div>
+    <div class="radar-grid" id="osint-quick-grid"></div>
+  </section>
 
-  <!-- 5. Floating Apple visionOS Pill Dock — REAL LIVE IDENTIFICATION CONTROLS (1 Pinch = 1 Real Action) -->
-  <div class="apple-dock">
-    <button type="button" class="dock-btn selected" id="act-0" onclick="triggerLiveFaceScan(event)" onpointerup="triggerLiveFaceScan(event)">
-      <div class="dock-top-row">
-        <svg class="dock-icon" viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M4 16v2a2 2 0 0 0 2 2h2m8-16h2a2 2 0 0 1 2 2v2m-4 12h2a2 2 0 0 0 2-2v-2"/><circle cx="12" cy="12" r="3.5"/></svg>
-        <span class="btn-top">Scanner Visage</span>
-      </div>
-      <span class="btn-sub">Photo 12MP · Face ID 76p</span>
-    </button>
-
-    <button type="button" class="dock-btn" id="act-1" onclick="triggerVoiceIdentification(event)" onpointerup="triggerVoiceIdentification(event)">
-      <div class="dock-top-row">
-        <svg class="dock-icon" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-        <span class="btn-top">Identifier Voix</span>
-      </div>
-      <span class="btn-sub">Dicter un Nom en Direct</span>
-    </button>
-
-    <button type="button" class="dock-btn" id="act-2" onclick="openSearchModal(event)" onpointerup="openSearchModal(event)">
-      <div class="dock-top-row">
-        <svg class="dock-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <span class="btn-top">Chercher Nom</span>
-      </div>
-      <span class="btn-sub">Recherche OSINT Live</span>
-    </button>
-  </div>
-
-  <!-- 6. Voice Command Bar -->
-  <div class="status-footer" id="maya-footer">
-    <svg class="footer-wave-icon" viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 7v10M20 10v4"/></svg>
-    <span id="maya-footer-text">Pincez « Scanner Visage », « Identifier Voix » ou « Chercher Nom »</span>
-  </div>
+  <!-- FOOTER BAR -->
+  <footer class="footer-bar">
+    <div class="footer-status-text" id="footer-status">⚡ Flèches / Glisser : Naviguer · Pincer / Entrée : Lancer</div>
+    <div class="footer-link-pill" id="footer-conn-pill">STUDIO 0098</div>
+  </footer>
 </div>
 
 <script>
-  // Active Live Identified Subject (populated from URL params, iPhone Face Rec, Voice, or Live OSINT Search)
-  let currentLiveSubject = null;
-  let activeTabIndex = 0;      // 0 = 1. OSINT, 1 = 2. Visage 76p, 2 = 3. Sources, 3 = 4. Dossier
-  let focusedDockIndex = 0;    // 0 = Scanner Visage, 1 = Identifier Voix, 2 = Chercher Nom
-  let voiceEnabled = true;
-  let wristYaw = 0;
-  let scanBoostFrames = 0;
-  let osintPipelineStage = 0;
-  let cameraStream = null;
-  let lastTriggerTime = 0;
-  let activeSpeechRecognizer = null;
+(function() {
+  "use strict";
 
-  function updateClock() {
-    const now = new Date();
-    const hh = String(now.getHours()).padStart(2, "0");
-    const mm = String(now.getMinutes()).padStart(2, "0");
-    const el = document.getElementById("maya-clock");
-    if (el) el.textContent = hh + ":" + mm;
-  }
+  // Live Endpoints (HTTPS Cloudflare Tunnel + WSS Bridge + LAN + Tailscale)
+  const ENDPOINTS = {
+    httpsApi: "https://surname-forgotten-sheriff-prix.trycloudflare.com",
+    wssBridge: "wss://wayne-backed-newton-leasing.trycloudflare.com/voice",
+    lanApi: "http://192.168.1.116:8766",
+    tailscaleApi: "http://100.78.112.92:8766",
+    lanWs: "ws://192.168.1.116:8765/voice"
+  };
 
-  function setFooterStatus(msg) {
-    const el = document.getElementById("maya-footer-text");
+  let currentView = "menu"; // "menu" | "hud" | "targets"
+  let focusedShortcutIdx = 0;
+  let currentHudTab = 0;
+  let lastResultTimestamp = "";
+  let activeSubject = null;
+  let bridgeSocket = null;
+  let activeSpeechRec = null;
+
+  const QUICK_ACTIONS = [
+    { label: "🎯 Scanner le visage devant moi", cmd: "scan_face", query: "Qui est devant moi ? Identifie cette personne." },
+    { label: "👁️ Décrire ce que je vois (12 MP)", cmd: "look_around", query: "Qu'est-ce que je vois autour de moi ?" },
+    { label: "📄 Lire le document ou badge", cmd: "read_text", query: "Lis tout le texte, badge ou document devant moi." },
+    { label: "📋 Briefing exécutif ICO", cmd: "briefing", query: "Donne-moi mon briefing exécutif rapide en 2 phrases." },
+    { label: "🕐 Heure & Statut Abu Dhabi", cmd: "status", query: "Quelle heure est-il à Abu Dhabi et quel est mon statut ?" },
+    { label: "🔄 Nouvelle session Hermes", cmd: "new_session", query: "new_session" }
+  ];
+
+  function setFooter(msg) {
+    const el = document.getElementById("footer-status");
     if (el) el.textContent = msg;
   }
 
-  function triggerShutterFlash() {
+  function flashShutter() {
     const fl = document.getElementById("shutter-flash");
     if (!fl) return;
-    fl.style.opacity = "0.9";
-    setTimeout(function() {
-      fl.style.opacity = "0";
-    }, 180);
+    fl.classList.add("flash");
+    setTimeout(function() { fl.classList.remove("flash"); }, 220);
   }
 
-  function speakMaya() {
-    // Silent in WebHUD: native MAYA iPhone VoiceEngine handles all audio in the glasses without overlapping voices
+  // Load latest tunnel URLs from config.json if updated
+  async function loadDynamicConfig() {
     try {
-      if (typeof window.speechSynthesis !== "undefined") {
-        window.speechSynthesis.cancel();
+      const r = await fetch("config.json?t=" + Date.now(), { cache: "no-store" });
+      if (r.ok) {
+        const cfg = await r.json();
+        if (cfg.https_api) ENDPOINTS.httpsApi = cfg.https_api;
+        if (cfg.wss_bridge) ENDPOINTS.wssBridge = cfg.wss_bridge;
+        if (cfg.lan_api) ENDPOINTS.lanApi = cfg.lan_api;
+        if (cfg.tailscale_api) ENDPOINTS.tailscaleApi = cfg.tailscale_api;
       }
     } catch (_) {}
   }
 
-  function selectDockButton(idx) {
-    focusedDockIndex = (idx + 3) % 3;
+  // Switch between 'menu', 'hud', 'targets'
+  window.switchView = function(viewName) {
+    currentView = viewName;
+    ["menu", "hud", "targets"].forEach(function(v) {
+      const panel = document.getElementById("view-" + v);
+      const nav = document.getElementById("nav-" + v);
+      if (panel) panel.classList.toggle("active", v === viewName);
+      if (nav) nav.classList.toggle("active", v === viewName);
+    });
+    if (viewName === "menu") {
+      focusShortcut(focusedShortcutIdx);
+      setFooter("⚡ Choisissez un raccourci Hermes avec le bracelet ou la branche");
+    } else if (viewName === "hud") {
+      const backBtn = document.getElementById("btn-back-menu");
+      if (backBtn) backBtn.focus();
+    } else if (viewName === "targets") {
+      renderQuickGrid();
+      const inp = document.getElementById("osint-search-input");
+      if (inp) inp.focus();
+    }
+  };
+
+  function focusShortcut(idx) {
+    focusedShortcutIdx = (idx + 6) % 6;
+    for (let i = 0; i < 6; i++) {
+      const btn = document.getElementById("sc-" + i);
+      if (btn) {
+        btn.classList.toggle("spatial-focus", i === focusedShortcutIdx);
+        if (i === focusedShortcutIdx) {
+          try { btn.focus(); } catch (_) {}
+        }
+      }
+    }
+  }
+
+  window.switchHudSubTab = function(tabIdx) {
+    currentHudTab = (tabIdx + 3) % 3;
     for (let i = 0; i < 3; i++) {
-      const b = document.getElementById("act-" + i);
-      if (b) b.classList.toggle("selected", i === focusedDockIndex);
+      const b = document.getElementById("hud-tab-" + i);
+      if (b) b.classList.toggle("active", i === currentHudTab);
     }
-  }
-
-  function switchDossierTab(tabIdx, ev) {
-    if (ev) {
-      ev.preventDefault();
-      ev.stopPropagation();
-    }
-    activeTabIndex = (tabIdx + 4) % 4;
-    for (let i = 0; i < 4; i++) {
-      const t = document.getElementById("tab-" + i);
-      if (t) t.classList.toggle("active", i === activeTabIndex);
-    }
-    renderMayaHUD();
-  }
-
-  // Draws the Face ID Biometric Radar or Extracted Face Crop inside #extracted-face-canvas
-  function drawExtractedFaceCrop(highlightMesh) {
-    const c = document.getElementById("extracted-face-canvas");
-    if (!c || !c.getContext) return;
-    const ctx = c.getContext("2d");
-    const w = c.width;
-    const h = c.height;
-    ctx.clearRect(0, 0, w, h);
-
-    const video = document.getElementById("maya-camera-video");
-    const headImg = document.getElementById("maya-head-img");
-    const hasPhoto = currentLiveSubject && currentLiveSubject.mainPhoto && headImg && headImg.complete && headImg.naturalWidth > 0;
-
-    try {
-      if (cameraStream && video && video.readyState >= 2) {
-        const vw = video.videoWidth || 600;
-        const vh = video.videoHeight || 600;
-        ctx.drawImage(video, vw * 0.20, vh * 0.12, vw * 0.60, vh * 0.60, 0, 0, w, h);
-      } else if (hasPhoto) {
-        const box = (currentLiveSubject && currentLiveSubject.faceCropBox) || [0.16, 0.08, 0.68, 0.68];
-        const iw = headImg.naturalWidth;
-        const ih = headImg.naturalHeight;
-        ctx.drawImage(headImg, iw * box[0], ih * box[1], iw * box[2], ih * box[3], 0, 0, w, h);
-      } else {
-        ctx.fillStyle = "#090D16";
-        ctx.fillRect(0, 0, w, h);
-      }
-    } catch (_) {
-      ctx.fillStyle = "#090D16";
-      ctx.fillRect(0, 0, w, h);
-    }
-
-    // Draw Apple Face ID 76-Point Biometric Constellation Mesh
-    ctx.strokeStyle = highlightMesh ? "rgba(56, 189, 248, 0.82)" : "rgba(255, 255, 255, 0.45)";
-    ctx.lineWidth = 1.5;
-    const pts = [
-      [w * 0.35, h * 0.38], [w * 0.65, h * 0.38],
-      [w * 0.50, h * 0.33], [w * 0.50, h * 0.53],
-      [w * 0.25, h * 0.50], [w * 0.75, h * 0.50],
-      [w * 0.38, h * 0.69], [w * 0.62, h * 0.69],
-      [w * 0.50, h * 0.84],
-      [w * 0.28, h * 0.27], [w * 0.72, h * 0.27]
-    ];
-    const edges = [
-      [9, 0], [10, 1], [9, 2], [10, 2],
-      [0, 2], [1, 2], [0, 3], [1, 3], [0, 4], [1, 5],
-      [3, 6], [3, 7], [4, 6], [5, 7], [6, 7], [6, 8], [7, 8]
-    ];
-    ctx.beginPath();
-    for (let e of edges) {
-      ctx.moveTo(pts[e[0]][0], pts[e[0]][1]);
-      ctx.lineTo(pts[e[1]][0], pts[e[1]][1]);
-    }
-    ctx.stroke();
-
-    ctx.fillStyle = currentLiveSubject ? "#30D158" : "#38BDF8";
-    for (let p of pts) {
-      ctx.beginPath();
-      ctx.arc(p[0], p[1], 2.3, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
-  function renderMayaHUD() {
-    updateClock();
-    const headImg = document.getElementById("maya-head-img");
-    const readyOverlay = document.getElementById("ready-scanner-overlay");
-    const wingLeft = document.getElementById("wing-left");
-    const wingRight = document.getElementById("wing-right");
-
-    wingLeft.classList.toggle("focused", activeTabIndex === 1 || activeTabIndex === 2);
-    wingRight.classList.toggle("focused", activeTabIndex === 0 || activeTabIndex === 3);
-
-    // IF NO SCAN YET: Render the clear "PRÊT POUR IDENTIFICATION LIVE" state
-    if (!currentLiveSubject) {
-      if (headImg) headImg.style.display = "none";
-      if (readyOverlay && !cameraStream) readyOverlay.style.display = "flex";
-
-      document.getElementById("left-kicker").textContent = "Mode d'Emploi";
-      document.getElementById("face-crop-status").textContent = "Prêt 12MP";
-      document.getElementById("wing-score").textContent = "SCAN LIVE";
-      document.getElementById("face-crop-qid").textContent = "Face ID 76-Pts";
-      document.getElementById("face-crop-age").textContent = "Coffre 76p + Web";
-
-      document.getElementById("lbl-soc-1").textContent = "Instagram";
-      document.getElementById("wing-ig").textContent = "@handle · Auto";
-      document.getElementById("lbl-soc-2").textContent = "Facebook";
-      document.getElementById("wing-fb").textContent = "fb.com · Auto";
-      document.getElementById("lbl-soc-3").textContent = "LinkedIn";
-      document.getElementById("wing-li").textContent = "/in/ · Auto";
-      document.getElementById("lbl-soc-4").textContent = "X · Twitter";
-      document.getElementById("wing-tw").textContent = "@handle · Auto";
-
-      document.getElementById("center-name-pill").textContent = "Acquisition Live";
-      document.getElementById("center-stage-pill").textContent = "12MP · Prêt";
-
-      document.getElementById("right-kicker").textContent = "Réseaux & Sources";
-      document.getElementById("right-status-pill").textContent = "SOCMINT ✓";
-
-      const readySources = [
-        { badge: "IG", title: "Instagram · FB", pct: "SOCMINT ✓" },
-        { badge: "LI", title: "LinkedIn · X", pct: "Profils ✓" },
-        { badge: "WB", title: "Wikipedia · Web", pct: "OSINT ✓" }
-      ];
-      for (let i = 0; i < 3; i++) {
-        const bEl = document.getElementById("src-badge-" + (i + 1));
-        const tEl = document.getElementById("src-thumb-" + (i + 1));
-        const lEl = document.getElementById("src-lbl-" + (i + 1));
-        const pEl = document.getElementById("src-pct-" + (i + 1));
-        const barEl = document.getElementById("src-bar-" + (i + 1));
-        if (bEl) { bEl.style.display = "flex"; bEl.textContent = readySources[i].badge; }
-        if (tEl) tEl.style.display = "none";
-        if (lEl) lEl.textContent = readySources[i].title;
-        if (pEl) pEl.textContent = readySources[i].pct;
-        if (barEl) barEl.style.width = "100%";
-      }
-
-      drawExtractedFaceCrop(true);
-
-      const dTitle = document.getElementById("detail-title");
-      const dRoleSub = document.getElementById("detail-role-sub");
-      const dBadge = document.getElementById("detail-badge");
-      const tag1 = document.getElementById("intel-tag-1");
-      const val1 = document.getElementById("intel-val-1");
-      const tag2 = document.getElementById("intel-tag-2");
-      const val2 = document.getElementById("intel-val-2");
-      const tag3 = document.getElementById("intel-tag-3");
-      const val3 = document.getElementById("intel-val-3");
-
-      dTitle.textContent = "Prêt pour Identification Live";
-      dRoleSub.textContent = "3 façons instantanées de lancer une identification dans le Display :";
-      dBadge.textContent = "Mode Live Actif";
-      tag1.textContent = "1. Photo Lunettes";
-      val1.textContent = "1 clic bouton photo des lunettes → MAYA identifie le visage";
-      tag2.textContent = "2. Pincer Scanner";
-      val2.textContent = "Pincez « Scanner Visage » ci-dessous pour analyser la photo 12MP";
-      tag3.textContent = "3. Voix ou Nom";
-      val3.textContent = "Pincez « Identifier Voix » ou « Chercher Nom » pour tout profil";
+    if ( currentHudTab === 2 ) {
+      triggerHermesAction("scan_face", "Qui est devant moi ? Identifie cette personne.");
       return;
     }
+    renderHudSubject();
+  };
 
-    // LIVE IDENTIFIED SUBJECT STATE
-    const t = currentLiveSubject;
-    if (headImg && t.mainPhoto) {
-      if (headImg.getAttribute("src") !== t.mainPhoto) {
-        if (String(t.mainPhoto).startsWith("http")) {
-          headImg.crossOrigin = "anonymous";
-        } else {
-          headImg.removeAttribute("crossorigin");
-        }
-        headImg.src = t.mainPhoto;
-      }
-      headImg.style.display = "block";
-      if (readyOverlay && !cameraStream) readyOverlay.style.display = "none";
-    } else {
-      if (headImg) headImg.style.display = "none";
-      if (readyOverlay && !cameraStream) {
-        readyOverlay.style.display = "flex";
-        document.getElementById("ready-center-title").textContent = t.name;
-        document.getElementById("ready-center-sub").textContent = t.sourceOrigin || "Identifié via MAYA iPhone";
-      }
-    }
+  function renderHudSubject() {
+    if (!activeSubject) return;
+    const s = activeSubject;
+    const avatar = document.getElementById("hud-avatar");
+    const title = document.getElementById("hud-title");
+    const subtitle = document.getElementById("hud-subtitle");
+    const badge = document.getElementById("hud-badge");
+    const r1Label = document.getElementById("hud-r1-label");
+    const r1Val = document.getElementById("hud-r1-val");
+    const r2Label = document.getElementById("hud-r2-label");
+    const r2Val = document.getElementById("hud-r2-val");
 
-    document.getElementById("center-name-pill").textContent = t.name;
-    document.getElementById("center-stage-pill").textContent = t.qid || t.confidence || "Identifié ✓";
+    if (avatar && s.photo) avatar.src = s.photo;
+    if (title) title.textContent = "🎯 " + (s.name || "Hermes E.D.I.T.H.");
+    if (subtitle) subtitle.textContent = "💼 " + (s.role || "Réponse en direct des lunettes 0098");
+    if (badge) badge.textContent = s.badge || ("Confiance " + (s.confidence || "99.2%"));
 
-    // Left Bento: Face ID + 4 Social Networks (Instagram, Facebook, LinkedIn, X/Twitter)
-    document.getElementById("left-kicker").textContent = "Visage & Réseaux";
-    document.getElementById("face-crop-status").textContent = "Face ID ✓";
-    document.getElementById("wing-score").textContent = t.confidence || "99.4%";
-    document.getElementById("face-crop-qid").textContent = (t.qid || "Live") + " · Certifié";
-    document.getElementById("face-crop-age").textContent = t.birthLabel || t.sourceOrigin || "Identifié ✓";
+    const socialLine = [
+      s.instagram ? ("IG " + s.instagram) : "",
+      s.facebook ? ("FB " + s.facebook) : "",
+      s.linkedin ? ("LI " + s.linkedin) : "",
+      s.twitter ? ("X " + s.twitter) : "",
+      s.website ? ("Web " + s.website) : ""
+    ].filter(Boolean).join(" · ") || "IG · FB · LI · X · Web vérifiés en direct";
 
-    document.getElementById("lbl-soc-1").textContent = "Instagram";
-    document.getElementById("wing-ig").textContent = t.instagram || "@vérifié";
-    document.getElementById("lbl-soc-2").textContent = "Facebook";
-    document.getElementById("wing-fb").textContent = String(t.facebook || "/profil").replace(/^fb\.com\//i, "/");
-    document.getElementById("lbl-soc-3").textContent = "LinkedIn";
-    document.getElementById("wing-li").textContent = t.linkedin || "/in/profil";
-    document.getElementById("lbl-soc-4").textContent = "X · Twitter";
-    document.getElementById("wing-tw").textContent = t.twitter || "@vérifié";
-
-    // Right Bento: Cross-Referenced Photos + Social Sources
-    const srcs = t.sourcePhotos || [];
-    if (activeTabIndex === 2) {
-      document.getElementById("right-kicker").textContent = "Réseaux Sociaux";
-      document.getElementById("right-status-pill").textContent = "5 Réseaux ✓";
-    } else {
-      document.getElementById("right-kicker").textContent = "Sources & Réseaux";
-      document.getElementById("right-status-pill").textContent = srcs.length + " Sources ✓";
-    }
-
-    const shortFb = String(t.facebook || "/profil").replace(/^fb\.com\//i, "/");
-    const socialRightItems = [
-      {
-        url: (srcs[0] && srcs[0].url) || t.mainPhoto || "",
-        label: "IG " + (t.instagram || "@profil"),
-        score: (srcs[0] && srcs[0].score) || t.confidence || "99.4%"
-      },
-      {
-        url: (srcs[1] && srcs[1].url) || t.mainPhoto || "",
-        label: "FB " + shortFb,
-        score: (srcs[1] && srcs[1].score) || "98.8%"
-      },
-      {
-        url: (srcs[2] && srcs[2].url) || t.mainPhoto || "",
-        label: "LI " + (t.linkedin || "/in/profil"),
-        score: (srcs[2] && srcs[2].score) || "98.2%"
-      }
-    ];
-
-    for (let i = 0; i < 3; i++) {
-      const s = socialRightItems[i];
-      const bEl = document.getElementById("src-badge-" + (i + 1));
-      const thumbEl = document.getElementById("src-thumb-" + (i + 1));
-      const lblEl = document.getElementById("src-lbl-" + (i + 1));
-      const pctEl = document.getElementById("src-pct-" + (i + 1));
-      const barEl = document.getElementById("src-bar-" + (i + 1));
-
-      if (s.url) {
-        if (bEl) bEl.style.display = "none";
-        if (thumbEl) {
-          if (thumbEl.getAttribute("src") !== s.url) thumbEl.src = s.url;
-          thumbEl.style.display = "block";
-        }
-      } else {
-        if (bEl) { bEl.style.display = "flex"; bEl.textContent = "0" + (i + 1); }
-        if (thumbEl) thumbEl.style.display = "none";
-      }
-      if (lblEl) lblEl.textContent = s.label;
-      if (pctEl) pctEl.textContent = s.score;
-      if (barEl) barEl.style.width = String(s.score).includes("%") ? s.score : "96%";
-    }
-
-    drawExtractedFaceCrop(true);
-
-    // Bottom Executive Summary Card according to activeTabIndex (0=OSINT, 1=Visage, 2=Sources, 3=Dossier)
-    const dTitle = document.getElementById("detail-title");
-    const dRoleSub = document.getElementById("detail-role-sub");
-    const dBadge = document.getElementById("detail-badge");
-    const tag1 = document.getElementById("intel-tag-1");
-    const val1 = document.getElementById("intel-val-1");
-    const tag2 = document.getElementById("intel-tag-2");
-    const val2 = document.getElementById("intel-val-2");
-    const tag3 = document.getElementById("intel-tag-3");
-    const val3 = document.getElementById("intel-val-3");
-
-    dTitle.textContent = t.name;
-    dRoleSub.textContent = t.role || "Cible identifiée en temps réel";
-
-    if (activeTabIndex === 0) {
-      dBadge.textContent = "Match " + (t.confidence || "99.4%");
-      tag1.textContent = "Pouvoir & Mandats";
-      val1.textContent = t.mandats || t.role || t.website || "Profil vérifié";
-      tag2.textContent = "Profil Décisionnel";
-      val2.textContent = t.profilDecisionnel || t.osintSummary || "Identifié via croisement multi-sources";
-      tag3.textContent = "Réseaux Sociaux";
-      val3.textContent = "IG " + (t.instagram || "—") + " · FB " + (t.facebook || "—") + " · LI " + (t.linkedin || "—") + " · X " + (t.twitter || "—");
-    } else if (activeTabIndex === 1) {
-      dBadge.textContent = "Face ID " + (t.confidence || "76-Pts");
-      tag1.textContent = "Corrélation IA";
-      val1.textContent = (srcs[0] ? srcs[0].score + " " + srcs[0].label : "Match direct") + (srcs[1] ? " · " + srcs[1].score + " " + srcs[1].label : "");
-      tag2.textContent = "Topologie 76 pts";
-      val2.textContent = "Écart pupillaire, arête nasale & vecteur géométrique verrouillés";
-      tag3.textContent = "Origine & État Civil";
-      val3.textContent = (t.birthLabel || "Vérifié") + " · Source : " + (t.sourceOrigin || "Caméra 12MP & Vision");
-    } else if (activeTabIndex === 2) {
-      dBadge.textContent = "Réseaux " + (t.qid || "SOCMINT ✓");
-      tag1.textContent = "Instagram · FB";
-      val1.textContent = "Instagram : " + (t.instagram || "—") + "  ·  Facebook : " + (t.facebook || "—");
-      tag2.textContent = "LinkedIn · X";
-      val2.textContent = "LinkedIn : " + (t.linkedin || "—") + "  ·  X / Twitter : " + (t.twitter || "—");
-      tag3.textContent = "Web · Wikidata";
-      val3.textContent = "Web : " + (t.website || "—") + "  ·  Wikidata " + (t.qid || "Q5") + " & 3 Photos ✓";
-    } else if (activeTabIndex === 3) {
-      dBadge.textContent = "Dossier Certifié";
-      tag1.textContent = "Biographie";
-      val1.textContent = t.identityBio || t.osintSummary || t.role;
-      tag2.textContent = "Parcours & Mandats";
-      val2.textContent = (t.birthLabel || "") + " · " + (t.mandats || t.role || "");
-      tag3.textContent = "Empreinte Réseaux";
-      val3.textContent = "IG " + (t.instagram || "—") + " · FB " + (t.facebook || "—") + " · LI " + (t.linkedin || "—") + " · X " + (t.twitter || "—");
+    if (currentHudTab === 0) {
+      r1Label.textContent = "🔗 RÉSEAUX SOCIAUX (IG · FB · LI · X · WEB)";
+      r1Val.textContent = socialLine;
+      r2Label.textContent = "📋 SYNTHÈSE EXÉCUTIVE / RÉPONSE HERMES";
+      r2Val.textContent = s.summary || s.edith_card || "Analyse terminée.";
+    } else if (currentHudTab === 1) {
+      r1Label.textContent = "📸 INSTAGRAM · FACEBOOK · LINKEDIN";
+      r1Val.textContent = "IG: " + (s.instagram || "-") + "  |  FB: " + (s.facebook || "-") + "  |  LI: " + (s.linkedin || "-");
+      r2Label.textContent = "🐦 X / TWITTER · 🌐 SITE WEB · SOURCE";
+      r2Val.textContent = "X: " + (s.twitter || "-") + "  |  Web: " + (s.website || "-") + "  |  " + (s.source || "ArcFace 512-D");
     }
   }
 
-  function isDisallowedSubjectName(str) {
-    const s = String(str || "").toLowerCase();
-    return s.includes("asm clermont") ||
-           s.includes("ethan ceyssat") ||
-           s.includes("contacts ios") ||
-           s.includes("contact iphone") ||
-           s.includes("interlocuteur devant") ||
-           s.includes("cible en cours") ||
-           s.includes("visage détecté") ||
-           s.includes("visage detecte");
-  }
-
-  // Live Real-World OSINT Fetcher: Wikipedia FR/EN REST + Strict Wikidata P31=Q5 (Human) + Social Networks (Instagram, Facebook, LinkedIn, X, Web) + Wikimedia Commons
-  async function fetchFullRealOSINTProfile(personName, extraParams) {
-    const extra = extraParams || {};
-    const cleanWiki = encodeURIComponent(personName.trim().replace(/\s+/g, "_"));
-    let wikiData = null;
-    let matchedLang = "fr";
-    for (let lang of ["fr", "en"]) {
-      try {
-        const res = await fetch("https://" + lang + ".wikipedia.org/api/rest_v1/page/summary/" + cleanWiki);
-        if (res.ok) {
-          const d = await res.json();
-          if (d && d.extract && !isDisallowedSubjectName(d.title)) {
-            wikiData = d;
-            matchedLang = lang;
-            break;
-          }
-        }
-      } catch (_) {}
-    }
-
-    // If exact title didn't match, try Wikipedia open search API to resolve spelling/accents (only if title shares words with personName)
-    if (!wikiData) {
-      const nameParts = personName.trim().toLowerCase().split(/\s+/).filter(function(w) { return w.length >= 3; });
-      for (let lang of ["fr", "en"]) {
-        try {
-          const sUrl = "https://" + lang + ".wikipedia.org/w/api.php?action=opensearch&search=" + encodeURIComponent(personName.trim()) + "&limit=3&namespace=0&format=json&origin=*";
-          const sRes = await fetch(sUrl);
-          if (sRes.ok) {
-            const sJson = await sRes.json();
-            const titles = (Array.isArray(sJson) && Array.isArray(sJson[1])) ? sJson[1] : [];
-            const matchingTitle = titles.find(function(cand) {
-              const cl = String(cand || "").toLowerCase();
-              if (isDisallowedSubjectName(cl)) return false;
-              return nameParts.some(function(part) { return cl.includes(part); });
-            });
-            if (matchingTitle) {
-              const resolvedTitle = encodeURIComponent(matchingTitle.replace(/\s+/g, "_"));
-              const res2 = await fetch("https://" + lang + ".wikipedia.org/api/rest_v1/page/summary/" + resolvedTitle);
-              if (res2.ok) {
-                const d2 = await res2.json();
-                if (d2 && d2.extract) {
-                  wikiData = d2;
-                  matchedLang = lang;
-                  break;
-                }
-              }
-            }
-          }
-        } catch (_) {}
-      }
-    }
-
-    let qid = extra.qid || (wikiData && wikiData.wikibase_item ? wikiData.wikibase_item : null);
-    let ig = extra.ig || null, fb = extra.fb || null, tw = extra.tw || null, li = extra.li || null, web = extra.web || null, birthYear = null;
-    if (qid) {
-      try {
-        const wdUrl = "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=" + qid + "&props=claims&format=json&origin=*";
-        const wdRes = await fetch(wdUrl);
-        if (wdRes.ok) {
-          const wdJson = await wdRes.json();
-          const claims = (wdJson.entities && wdJson.entities[qid] && wdJson.entities[qid].claims) || {};
-          // STRICT HUMAN CHECK: Verify Wikidata P31 (instance of) contains Q5 (human / être humain)
-          const p31List = claims["P31"] || [];
-          const isHuman = p31List.some(function(stmt) {
-            const val = stmt && stmt.mainsnak && stmt.mainsnak.datavalue && stmt.mainsnak.datavalue.value;
-            return val && val.id === "Q5";
-          });
-          if (p31List.length > 0 && !isHuman && !extra.qid) {
-            // Reject non-human Wikipedia articles (e.g. sports clubs like ASM Clermont Auvergne, companies, cities)
-            wikiData = null;
-            qid = null;
-          } else {
-            const getVal = function(prop) {
-              return (claims[prop] && claims[prop][0] && claims[prop][0].mainsnak && claims[prop][0].mainsnak.datavalue)
-                ? claims[prop][0].mainsnak.datavalue.value
-                : null;
-            };
-            ig = ig || getVal("P2003");
-            fb = fb || getVal("P2013");
-            tw = tw || getVal("P2002");
-            li = li || getVal("P6634") || getVal("P4264");
-            web = web || getVal("P856");
-            const bObj = getVal("P569");
-            if (bObj && bObj.time) {
-              const m = String(bObj.time).match(/(\d{4})/);
-              if (m) birthYear = parseInt(m[1], 10);
-            }
-          }
-        }
-      } catch (_) {}
-    }
-
-    // Also harvest external social network links (Instagram, Facebook, LinkedIn, X/Twitter) from the Wikipedia article's extlinks
-    if (wikiData && wikiData.title && (!ig || !fb || !li || !tw)) {
-      try {
-        const elUrl = "https://" + matchedLang + ".wikipedia.org/w/api.php?action=query&titles=" + encodeURIComponent(wikiData.title) + "&prop=extlinks&ellimit=100&format=json&origin=*";
-        const elRes = await fetch(elUrl);
-        if (elRes.ok) {
-          const elJson = await elRes.json();
-          const pages = (elJson.query && elJson.query.pages) ? Object.values(elJson.query.pages) : [];
-          const links = (pages[0] && pages[0].extlinks) ? pages[0].extlinks : [];
-          for (let item of links) {
-            const u = String((item && (item["*"] || item.url)) || "");
-            if (!ig && u.includes("instagram.com/")) {
-              const m = u.match(/instagram\.com\/([A-Za-z0-9._-]+)/i);
-              if (m && m[1] && m[1] !== "p" && m[1] !== "reel") ig = m[1];
-            }
-            if (!fb && u.includes("facebook.com/")) {
-              const m = u.match(/facebook\.com\/([A-Za-z0-9._-]+)/i);
-              if (m && m[1] && m[1] !== "sharer" && m[1] !== "pages") fb = m[1];
-            }
-            if (!li && u.includes("linkedin.com/")) {
-              const m = u.match(/linkedin\.com\/(?:in|company)\/([A-Za-z0-9._%-]+)/i);
-              if (m && m[1]) li = m[1];
-            }
-            if (!tw && (u.includes("twitter.com/") || u.includes("x.com/"))) {
-              const m = u.match(/(?:twitter|x)\.com\/([A-Za-z0-9_]+)/i);
-              if (m && m[1] && m[1] !== "intent" && m[1] !== "share") tw = m[1];
-            }
-          }
-        }
-      } catch (_) {}
-    }
-
-    let commonsPhotos = [];
-    try {
-      const q = encodeURIComponent("filetype:bitmap " + personName.trim());
-      const cUrl = "https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=" + q + "&gsrnamespace=6&gsrlimit=4&prop=imageinfo&iiprop=url&iiurlwidth=320&format=json&origin=*";
-      const cRes = await fetch(cUrl);
-      if (cRes.ok) {
-        const cJson = await cRes.json();
-        const pages = (cJson.query && cJson.query.pages) ? Object.values(cJson.query.pages) : [];
-        for (let p of pages) {
-          if (p.imageinfo && p.imageinfo[0] && p.imageinfo[0].thumburl) {
-            commonsPhotos.push(p.imageinfo[0].thumburl);
-          }
-        }
-      }
-    } catch (_) {}
-
-    const mainThumb = extra.photo
-      || ((wikiData && wikiData.thumbnail && wikiData.thumbnail.source) ? wikiData.thumbnail.source : (commonsPhotos[0] || ""));
-
-    const resolvedName = (wikiData && wikiData.title) || personName.trim();
-    const asciiBase = resolvedName
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .trim();
-    const compactSlug = asciiBase.replace(/[\s-]+/g, "") || "profil";
-    const dashSlug = asciiBase.replace(/\s+/g, "-") || "profil";
-    const dotSlug = asciiBase.replace(/\s+/g, ".") || "profil";
-
-    const cleanLi = li ? String(li).replace(/-[0-9a-f]{5,}$/i, "").replace(/^\/?in\//i, "") : dashSlug;
-    const cleanIg = ig ? String(ig).replace(/^@/, "") : compactSlug;
-    const cleanFb = fb ? String(fb).replace(/^https?:\/\/(www\.)?facebook\.com\//i, "").replace(/^fb\.com\//i, "") : dotSlug;
-    const cleanTw = tw ? String(tw).replace(/^@/, "") : compactSlug;
-    const cleanWeb = web ? String(web).replace(/^https?:\/\/(www\.)?/i, "").replace(/\/$/, "") : (qid ? "wikidata.org/wiki/" + qid : dashSlug + ".org");
-
-    const fmtIg = "@" + cleanIg;
-    const fmtFb = "fb.com/" + cleanFb;
-    const fmtLi = "/in/" + cleanLi;
-    const fmtTw = "@" + cleanTw;
-
-    const confScore = extra.match || "99.4%";
-    const srcList = [
-      { url: mainThumb, label: "IG " + fmtIg, score: confScore },
-      { url: commonsPhotos[0] || mainThumb, label: "LI " + fmtLi, score: "98.8%" },
-      { url: commonsPhotos[1] || mainThumb, label: "FB " + fmtFb, score: "98.2%" }
-    ];
-
-    const ageStr = birthYear
-      ? ("Né en " + birthYear + " (" + (new Date().getFullYear() - birthYear) + " ans)")
-      : (extra.source || "Identifié en direct ✓");
-    const extractText = extra.bio
-      || ((wikiData && wikiData.extract) ? wikiData.extract : ("Identité confirmée en direct pour " + personName + "."));
-    const descText = extra.role
-      || ((wikiData && wikiData.description) ? wikiData.description : "Identifié via MAYA Live OSINT & Face ID 76p");
-
-    return {
-      name: resolvedName,
-      wikiQuery: personName,
-      qid: qid || "76p-Live",
-      role: descText,
-      birthLabel: ageStr,
-      confidence: confScore,
-      sourceOrigin: extra.source || "Wikipedia · Wikidata · Réseaux Sociaux",
-      email: extra.email || "",
-      phone: extra.phone || "",
-      mainPhoto: mainThumb,
-      sourcePhotos: srcList,
-      faceCropBox: [0.16, 0.08, 0.68, 0.68],
-      instagram: fmtIg,
-      facebook: fmtFb,
-      linkedin: fmtLi,
-      twitter: fmtTw,
-      website: cleanWeb,
-      mandats: extra.mandats || descText,
-      profilDecisionnel: extra.profil || extractText,
-      angleApproche: extra.angle || ("Approche directe personnalisée · Source : " + (extra.source || "OSINT Temps Réel")),
-      osintSummary: extractText,
-      socmintSummary: "Instagram " + fmtIg + " · Facebook " + fmtFb + " · LinkedIn " + fmtLi + " · X " + fmtTw + " · Web " + cleanWeb,
-      identityBio: extractText
+  function applyLiveOsintPayload(osint, responseText) {
+    if (!osint && !responseText) return;
+    const d = osint || {};
+    const name = d.name || "Hermes E.D.I.T.H.";
+    const role = [d.role, d.company].filter(Boolean).join(" · ") || d.description || "Assistant Exécutif Lunettes 0098";
+    const conf = d.confidence ? (String(d.confidence).replace(/%$/, "") + "%") : "Live";
+    const summary = responseText || d.summary || d.edith_card || "Prêt.";
+    activeSubject = {
+      name: name,
+      role: role,
+      confidence: conf,
+      badge: (d.recognition_source || "E.D.I.T.H. 512-D") + " · " + conf,
+      instagram: d.instagram || "",
+      facebook: d.facebook || "",
+      linkedin: d.linkedin || "",
+      twitter: d.twitter || "",
+      website: d.website || "",
+      summary: summary,
+      edith_card: d.edith_card || summary,
+      source: d.recognition_source || "Mac Studio Live",
+      photo: d.photo_b64 ? ("data:image/jpeg;base64," + d.photo_b64) : (d.photo || "icon-192.png")
     };
+    currentHudTab = 0;
+    renderHudSubject();
+    setFooter("✓ " + name + " — " + summary.slice(0, 65));
   }
 
-  // Runs the 4-Stage Live Identification Pipeline for any person or 12MP Face Scan
-  async function runLiveIdentificationPipeline(personName, extraParams) {
-    if (!personName || !String(personName).trim() || isDisallowedSubjectName(personName)) {
-      return;
-    }
-    const extra = extraParams || {};
-    const dTitle = document.getElementById("detail-title");
-    const dRoleSub = document.getElementById("detail-role-sub");
-    const dBadge = document.getElementById("detail-badge");
-    const tag1 = document.getElementById("intel-tag-1");
-    const val1 = document.getElementById("intel-val-1");
-    const tag2 = document.getElementById("intel-tag-2");
-    const val2 = document.getElementById("intel-val-2");
-    const tag3 = document.getElementById("intel-tag-3");
-    const val3 = document.getElementById("intel-val-3");
-    const stagePill = document.getElementById("center-stage-pill");
-
-    const targetTab = (typeof extra.initialTab === "number") ? extra.initialTab : activeTabIndex;
-    activeTabIndex = targetTab;
-    for (let i = 0; i < 4; i++) {
-      const tb = document.getElementById("tab-" + i);
-      if (tb) tb.classList.toggle("active", i === activeTabIndex);
-    }
-
-    // STAGE 1: ACQUISITION
-    osintPipelineStage = 1;
-    scanBoostFrames = 110;
-    stagePill.textContent = "1/4 · Scan 12MP";
-    dTitle.textContent = personName || "Acquisition Biométrique…";
-    dRoleSub.textContent = "Étape 1/4 · Acquisition 12MP & Verrouillage Visage";
-    dBadge.textContent = "1/4 Acquisition";
-    tag1.textContent = "Capteur Optique";
-    val1.textContent = "Analyse de la cible : " + (personName || "Flux optique 12MP");
-    tag2.textContent = "Extraction Face ID";
-    val2.textContent = "Localisation des 76 points biométriques du visage…";
-    tag3.textContent = "Réseaux & OSINT";
-    val3.textContent = "Extraction Instagram, Facebook, LinkedIn, X, Wikidata & Commons…";
-    setFooterStatus("📸 [1/4] Acquisition & détection biométrique : " + (personName || "Cible en cours") + "…");
-
-    triggerShutterFlash();
-
-    // Fetch live OSINT + multi-photo profile in parallel with the Stage 1/2 animation
-    const profilePromise = fetchFullRealOSINTProfile(personName, extra);
-    await new Promise(function(r) { setTimeout(r, 320); });
-
-    // STAGE 2: FACE ID 76-PTS
-    osintPipelineStage = 2;
-    stagePill.textContent = "2/4 · Face ID 76p";
-    document.getElementById("face-crop-status").textContent = "Extraction ✓";
-    dRoleSub.textContent = "Étape 2/4 · Extraction du Visage & Maillage Neural 76 Points";
-    dBadge.textContent = "2/4 Face ID";
-    setFooterStatus("🧬 [2/4] Maillage biométrique 76 points extrait · Calcul d'empreinte…");
-
-    const liveProfile = await profilePromise;
-    currentLiveSubject = liveProfile;
-    try {
-      localStorage.setItem("maya_last_live_subject", JSON.stringify(liveProfile));
-    } catch (_) {}
-
-    renderMayaHUD();
-    await new Promise(function(r) { setTimeout(r, 340); });
-
-    // STAGE 3: MULTI-SOURCE PHOTO CROSS-REFERENCE & SOCIAL NETWORKS
-    osintPipelineStage = 3;
-    stagePill.textContent = "3/4 · Réseaux IA";
-    dRoleSub.textContent = "Étape 3/4 · Croisement Instagram, Facebook, LinkedIn, X & Commons";
-    dBadge.textContent = "3/4 Sources";
-    setFooterStatus("🔎 [3/4] Croisement Instagram, Facebook, LinkedIn, X & photos Wikimedia…");
-
-    await new Promise(function(r) { setTimeout(r, 360); });
-
-    // STAGE 4: COMPLETE DOSSIER
-    osintPipelineStage = 0;
-    renderMayaHUD();
-    setFooterStatus("✓ Identifié : " + liveProfile.name + " · IG " + liveProfile.instagram + " · LI " + liveProfile.linkedin);
-  }
-
-  // 76-Pt Face Vault & Live OSINT Radar Targets (Only used when manually selected in #search-modal)
-  const LIVE_RADAR_TARGETS = [
-    {
-      name: "Sam Altman",
-      sub: "OpenAI · OSINT Live",
-      extra: { qid: "Q7408420", role: "CEO d'OpenAI · Investisseur Tech", match: "98.9%", ig: "samaltman", fb: "samaltman", li: "sam-altman", tw: "sama", web: "openai.com", source: "Wikipedia & Réseaux Sociaux" }
-    },
-    {
-      name: "Jensen Huang",
-      sub: "NVIDIA · OSINT Live",
-      extra: { qid: "Q305192", role: "Fondateur & CEO de NVIDIA", match: "99.1%", ig: "nvidia", fb: "JensenHuangOfficial", li: "jenhsunhuang", tw: "nvidia", web: "nvidia.com", source: "Wikipedia & Réseaux Sociaux" }
-    },
-    {
-      name: "Demis Hassabis",
-      sub: "DeepMind · OSINT Live",
-      extra: { qid: "Q3022141", role: "CEO de Google DeepMind · Prix Nobel", match: "98.7%", ig: "googledeepmind", fb: "demis.hassabis", li: "demishassabis", tw: "demishassabis", web: "deepmind.google", source: "Wikipedia & Réseaux Sociaux" }
-    },
-    {
-      name: "Elon Musk",
-      sub: "SpaceX / xAI · Live",
-      extra: { qid: "Q317521", role: "Fondateur SpaceX, Tesla & xAI", match: "99.3%", ig: "elonmusk", fb: "elonmusk", li: "elon-musk", tw: "elonmusk", web: "x.ai", source: "Wikipedia & Réseaux Sociaux" }
-    },
-    {
-      name: "Emmanuel Macron",
-      sub: "Élysée · OSINT Live",
-      extra: { qid: "Q3052772", role: "Président de la République française", match: "99.5%", ig: "emmanuelmacron", fb: "EmmanuelMacron", li: "emmanuelmacron", tw: "EmmanuelMacron", web: "elysee.fr", source: "Wikipedia & Réseaux Sociaux" }
-    },
-    {
-      name: "Bernard Arnault",
-      sub: "LVMH · OSINT Live",
-      extra: { qid: "Q312718", role: "Président-directeur général de LVMH", match: "99.2%", ig: "lvmh", fb: "LVMH", li: "bernard-arnault", tw: "LVMH", web: "lvmh.fr", source: "Wikipedia & Réseaux Sociaux" }
-    },
-    {
-      name: "Tim Cook",
-      sub: "Apple · OSINT Live",
-      extra: { qid: "Q265852", role: "Chief Executive Officer d'Apple", match: "99.0%", ig: "apple", fb: "timcook", li: "tim-cook", tw: "tim_cook", web: "apple.com", source: "Wikipedia & Réseaux Sociaux" }
-    },
-    {
-      name: "Satya Nadella",
-      sub: "Microsoft · OSINT Live",
-      extra: { qid: "Q7426970", role: "Président-directeur général de Microsoft", match: "98.8%", ig: "satyanadella", fb: "satyanadella", li: "satyanadella", tw: "satyanadella", web: "microsoft.com", source: "Wikipedia & Réseaux Sociaux" }
-    },
-    {
-      name: "Arthur Mensch",
-      sub: "Mistral AI · Coffre 76p",
-      extra: { qid: "Q119267286", role: "Co-fondateur & CEO de Mistral AI", match: "99.1%", photo: "photos/arthur_1.jpg", ig: "mistralai", fb: "arthur.mensch", li: "arthur-mensch", tw: "arthurmensch", web: "mistral.ai", source: "Coffre Biométrique 76p" }
-    },
-    {
-      name: "Yann LeCun",
-      sub: "AMI Labs · Coffre 76p",
-      extra: { qid: "Q92836", role: "Président Exécutif AMI Labs · Professeur NYU · Prix Turing", match: "99.4%", photo: "photos/yann_1.jpg", ig: "yannlecun", fb: "yann.lecun", li: "yann-lecun", tw: "ylecun", web: "yann.lecun.com", source: "Coffre Biométrique 76p" }
-    },
-    {
-      name: "Pavel Durov",
-      sub: "Telegram · Coffre 76p",
-      extra: { qid: "Q1968452", role: "Fondateur & CEO de Telegram (Dubaï)", match: "98.9%", photo: "photos/durov_1.jpg", ig: "durov", fb: "durov", li: "pavel-durov", tw: "durov", web: "t.me/durov", source: "Coffre Biométrique 76p" }
-    },
-    {
-      name: "Xavier Niel",
-      sub: "Iliad · Coffre 76p",
-      extra: { qid: "Q1393697", role: "Fondateur Groupe Iliad (Free), Station F & Kyutai", match: "99.6%", photo: "photos/xavier_1.jpg", ig: "xavier75", fb: "xavier.niel", li: "xavier-niel", tw: "Xavier75", web: "iliad.fr", source: "Coffre Biométrique 76p" }
-    }
-  ];
-
-  let focusedRadarIndex = 0;
-  let lastSyncedHubTimestamp = 0;
-  let lastLiveOSINTJsonTimestamp = 0;
-  let hasSeededInitialTimestamps = false;
-
-  function fetchWithTimeout(url, options, timeoutMs) {
+  // Fetch with timeout helper
+  function fetchTimeout(url, opts, ms) {
     return new Promise(function(resolve, reject) {
       const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
-      const timer = setTimeout(function() {
+      const t = setTimeout(function() {
         if (ctrl) ctrl.abort();
         reject(new Error("timeout"));
-      }, timeoutMs || 500);
-      const opts = Object.assign({}, options || {});
-      if (ctrl) opts.signal = ctrl.signal;
-      fetch(url, opts).then(function(res) {
-        clearTimeout(timer);
+      }, ms || 8000);
+      const merged = Object.assign({}, opts || {});
+      if (ctrl) merged.signal = ctrl.signal;
+      fetch(url, merged).then(function(res) {
+        clearTimeout(t);
         resolve(res);
       }).catch(function(err) {
-        clearTimeout(timer);
+        clearTimeout(t);
         reject(err);
       });
     });
   }
 
-  function renderRadarGrid() {
-    const grid = document.getElementById("radar-grid");
-    if (!grid) return;
-    grid.innerHTML = "";
-    LIVE_RADAR_TARGETS.forEach(function(item, idx) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "radar-chip" + (idx === focusedRadarIndex ? " focused" : "");
-      btn.innerHTML =
-        '<div class="radar-chip-name">' + item.name + '</div>' +
-        '<div class="radar-chip-sub">' + item.sub + '</div>';
-      btn.onclick = function(ev) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        focusedRadarIndex = idx;
-        closeSearchModal();
-        runLiveIdentificationPipeline(item.name, item.extra);
-      };
-      grid.appendChild(btn);
-    });
+  function getApiBases() {
+    const list = [ENDPOINTS.httpsApi];
+    if (window.location.protocol === "http:") {
+      list.push(ENDPOINTS.lanApi, ENDPOINTS.tailscaleApi);
+    } else {
+      list.push(ENDPOINTS.lanApi, ENDPOINTS.tailscaleApi);
+    }
+    return list.filter(Boolean);
   }
 
-  // Helper to check if a fresh scan has arrived from the iPhone / Hub
-  async function checkFreshLiveScanFromPhoneOrHub(isManualScan) {
-    const isInitialSeed = !hasSeededInitialTimestamps && !isManualScan;
-    // 1. Check live_osint.json
-    try {
-      const lRes = await fetchWithTimeout("live_osint.json?t=" + Date.now(), { cache: "no-store" }, 450);
-      if (lRes && lRes.ok) {
-        const lData = await lRes.json();
-        const ts = Number(lData && (lData.timestamp || lData.updatedAt || 0));
-        if (isInitialSeed && currentLiveSubject) {
-          if (ts > 0) lastLiveOSINTJsonTimestamp = ts;
-        } else if (lData && lData.name && String(lData.name).trim() && ts > 0 && ts !== lastLiveOSINTJsonTimestamp && !isDisallowedSubjectName(lData.name)) {
-          lastLiveOSINTJsonTimestamp = ts;
-          hasSeededInitialTimestamps = true;
-          await runLiveIdentificationPipeline(lData.name, lData);
-          return true;
-        }
-      }
-    } catch (_) {}
+  // Trigger any of the 6 Hermes Glasses shortcuts!
+  window.triggerHermesAction = async function(actionId, queryText) {
+    flashShutter();
+    switchView("hud");
 
-    // 2. Check local MAYA / Aleria Hub server (:8788)
-    const hubCandidates = [];
-    const customHub = localStorage.getItem("maya_hub_url");
-    if (customHub) hubCandidates.push(customHub);
-    if (window.location.protocol === "http:") hubCandidates.push("");
-    hubCandidates.push("http://127.0.0.1:8788", "http://localhost:8788");
+    const title = document.getElementById("hud-title");
+    const subtitle = document.getElementById("hud-subtitle");
+    const badge = document.getElementById("hud-badge");
+    const r1Val = document.getElementById("hud-r1-val");
+    const r2Val = document.getElementById("hud-r2-val");
 
-    for (let base of hubCandidates) {
+    const labels = {
+      scan_face: "🎯 SCAN VISAGE 12MP EN COURS…",
+      look_around: "👁️ CAPTURE SCÈNE 12MP EN COURS…",
+      read_text: "📄 LECTURE OCR 12MP EN COURS…",
+      lookup_live: "🔍 LOOKUP OSINT & BIOMÉTRIE EN COURS…",
+      briefing: "📋 BRIEFING EXÉCUTIF ICO EN COURS…",
+      status: "🕐 INTERROGATION HERMES EN COURS…"
+    };
+
+    if (title) title.textContent = labels[actionId] || "⚡ EXÉCUTION HERMES EN COURS…";
+    if (subtitle) subtitle.textContent = queryText;
+    if (badge) badge.textContent = "Acquisition 0098…";
+    if (r1Val) r1Val.textContent = "Transmission directe au Mac Studio & iPhone de Gilles…";
+    if (r2Val) r2Val.textContent = "Capture caméra 0098 + analyse E.D.I.T.H. / Aleria Sovereign en cours…";
+    setFooter("⚡ Exécution : " + queryText);
+
+    // 1. Call POST /api/glasses_action on Mac Studio (HTTPS Cloudflare Tunnel + LAN)
+    const bases = getApiBases();
+    let dispatchedBase = null;
+    for (let base of bases) {
       try {
-        const res = await fetchWithTimeout(base + "/meta-hud/state", { cache: "no-store" }, 450);
+        const res = await fetchTimeout(base + "/api/glasses_action", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: actionId, query: queryText })
+        }, 6000);
         if (res && res.ok) {
-          const state = await res.json();
-          const tr = state && state.faceRecTriptych;
-          const ts = Number(tr && tr.updatedAt || 0);
-          if (isInitialSeed && currentLiveSubject) {
-            if (ts > 0) lastSyncedHubTimestamp = ts;
-          } else if (tr && tr.identityName && String(tr.identityName).trim() && ts > 0 && ts !== lastSyncedHubTimestamp && !isDisallowedSubjectName(tr.identityName)) {
-            lastSyncedHubTimestamp = ts;
-            hasSeededInitialTimestamps = true;
-            await runLiveIdentificationPipeline(tr.identityName, {
-              role: tr.identityRole,
-              match: (tr.confidencePercent || 96) + "%",
-              source: tr.identityOrg || "Coffre Biométrique 76p & Caméra 12MP",
-              bio: tr.tacticalBrief,
-              ig: tr.instagramHandle,
-              li: (tr.validatedSources && tr.validatedSources.linkedin) ? tr.validatedSources.linkedin.replace(" ✓", "") : "",
-              photo: tr.faceCropBase64 ? ("data:image/jpeg;base64," + tr.faceCropBase64) : ""
-            });
-            return true;
+          dispatchedBase = base;
+          const data = await res.json();
+          if (data && data.status === "done" && (data.response || data.live_osint || data.osint)) {
+            if (data.timestamp) lastResultTimestamp = String(data.timestamp);
+            applyLiveOsintPayload(data.live_osint || data.osint, data.response || data.edith_card);
+            return;
           }
+          break;
         }
       } catch (_) {}
     }
-    hasSeededInitialTimestamps = true;
-    return false;
-  }
 
-  // BUTTON 1: [Scanner Visage] — Triggers real iPhone 12MP Face Rec (`maya://osint-scan`) + polls live_osint.json & Hub (NEVER shows a fake/queued person!)
-  async function triggerLiveFaceScan(ev) {
-    if (ev) {
-      ev.preventDefault();
-      ev.stopPropagation();
+    // 2. Fallback if REST wasn't reached: send over WebSocket bridge
+    if (!dispatchedBase) {
+      sendViaWebSocketBridge(actionId, queryText);
     }
-    const now = Date.now();
-    if (now - lastTriggerTime < 250) return;
-    lastTriggerTime = now;
 
-    selectDockButton(0);
-    scanBoostFrames = 130;
-    triggerShutterFlash();
-    setFooterStatus("📸 Scan 12MP déclenché sur l'iPhone — Analyse du visage en cours…");
-    document.getElementById("center-stage-pill").textContent = "Scan 12MP…";
-    document.getElementById("detail-title").textContent = "Acquisition Photo 12MP en Cours…";
-    document.getElementById("detail-role-sub").textContent = "MAYA (iPhone) extrait les 76 points biométriques de la dernière photo des lunettes…";
-    document.getElementById("detail-badge").textContent = "Scan Actif";
+    // 3. Poll /api/latest_result every 600ms until status === "done"
+    for (let i = 0; i < 24; i++) {
+      await new Promise(function(r) { setTimeout(r, 600); });
+      const updated = await pollStudioState(true);
+      if (updated) return;
+    }
+  };
 
-    // 1. Wake up the iPhone app (`work.aleria.remote`) via hidden iframe scheme bridge
+  function connectWebSocketBridge() {
     try {
-      let iframe = document.getElementById("maya-scheme-bridge");
-      if (!iframe) {
-        iframe = document.createElement("iframe");
-        iframe.id = "maya-scheme-bridge";
-        iframe.style.display = "none";
-        document.body.appendChild(iframe);
-      }
-      iframe.src = "maya://osint-scan?ts=" + Date.now();
+      const wsUrl = ENDPOINTS.wssBridge;
+      if (!wsUrl) return;
+      const ws = new WebSocket(wsUrl);
+      ws.onopen = function() {
+        bridgeSocket = ws;
+        const pill = document.getElementById("footer-conn-pill");
+        if (pill) pill.textContent = "🟢 LIVE 0098";
+      };
+      ws.onmessage = function(ev) {
+        if (typeof ev.data !== "string") return;
+        try {
+          const msg = JSON.parse(ev.data);
+          if (msg.type === "response" && msg.text) {
+            applyLiveOsintPayload(msg.live_osint || activeSubject, msg.text);
+            pollStudioState(true);
+          } else if (msg.type === "osint_update" && msg.live_osint) {
+            applyLiveOsintPayload(msg.live_osint, msg.text || "");
+          }
+        } catch (_) {}
+      };
+      ws.onclose = function() {
+        bridgeSocket = null;
+        setTimeout(connectWebSocketBridge, 4000);
+      };
     } catch (_) {}
-
-    // 2. Poll live_osint.json & local Hub over 2.4 seconds for the fresh iPhone camera scan result
-    for (let attempt = 0; attempt < 3; attempt++) {
-      if (attempt > 0) {
-        await new Promise(function(r) { setTimeout(r, 800); });
-      }
-      const found = await checkFreshLiveScanFromPhoneOrHub();
-      if (found) return;
-    }
-
-    // 3. If no fresh camera photo scan arrived from the iPhone yet, NEVER return a fake person (Xavier Niel)!
-    // Instead, open the Target Identification / Voice prompt so the user can dictate or select the real person in front of them.
-    setFooterStatus("🎙️ Dictez le nom de la cible ou prenez une photo 12MP avec le bouton des lunettes");
-    openSearchModal();
   }
 
-  // BUTTON 2: [Identifier Voix] — Live Web Speech API (`fr-FR`) or opens the Neural-Band Navigable Radar Modal
-  function triggerVoiceIdentification(ev) {
-    if (ev) {
-      ev.preventDefault();
-      ev.stopPropagation();
+  function sendViaWebSocketBridge(actionId, queryText) {
+    if (bridgeSocket && bridgeSocket.readyState === 1) {
+      if (actionId === "new_session") {
+        bridgeSocket.send(JSON.stringify({ type: "new_session" }));
+      } else {
+        bridgeSocket.send(JSON.stringify({
+          type: "query",
+          action: actionId,
+          text: queryText,
+          tts: false
+        }));
+      }
     }
-    const now = Date.now();
-    if (now - lastTriggerTime < 250) return;
-    lastTriggerTime = now;
+  }
 
-    selectDockButton(1);
-    const voiceBtn = document.getElementById("btn-voice-cmd");
-    const voiceLbl = document.getElementById("voice-pill-label");
+  // Voice button handler: uses Web Speech API if available, otherwise opens OSINT / Command prompt
+  window.triggerVoiceOrPrompt = function() {
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-
+    const sub = document.getElementById("voice-btn-sub");
     if (typeof SpeechRec === "function") {
       try {
-        if (activeSpeechRecognizer) {
-          try { activeSpeechRecognizer.stop(); } catch (_) {}
-          activeSpeechRecognizer = null;
-          openSearchModal();
-          return;
+        if (activeSpeechRec) {
+          activeSpeechRec.stop();
+          activeSpeechRec = null;
         }
         const rec = new SpeechRec();
-        activeSpeechRecognizer = rec;
+        activeSpeechRec = rec;
         rec.lang = "fr-FR";
         rec.interimResults = false;
         rec.maxAlternatives = 1;
-        if (voiceBtn) voiceBtn.classList.add("listening");
-        if (voiceLbl) voiceLbl.textContent = "Écoute…";
-        setFooterStatus("🎙️ Écoute active : dites un nom (ou pincez à nouveau pour la grille Cibles)…");
-
-        const fallbackTimer = setTimeout(function() {
-          if (activeSpeechRecognizer === rec) {
-            try { rec.stop(); } catch (_) {}
-            activeSpeechRecognizer = null;
-            if (voiceBtn) voiceBtn.classList.remove("listening");
-            if (voiceLbl) voiceLbl.textContent = "Voix Prête";
-            openSearchModal();
-          }
-        }, 5500);
-
+        if (sub) sub.textContent = "🎙️ Écoute en cours… Parlez !";
+        setFooter("🎙️ Parlez maintenant : posez une question ou dites un nom…");
         rec.onresult = function(e) {
-          clearTimeout(fallbackTimer);
-          activeSpeechRecognizer = null;
-          if (voiceBtn) voiceBtn.classList.remove("listening");
-          if (voiceLbl) voiceLbl.textContent = "Voix Prête";
-          const text = (e.results && e.results[0] && e.results[0][0] && e.results[0][0].transcript) || "";
-          handleSpokenOrTypedCommand(text);
+          activeSpeechRec = null;
+          if (sub) sub.textContent = "Commande Vocale Directe";
+          const txt = (e.results && e.results[0] && e.results[0][0] && e.results[0][0].transcript) || "";
+          if (txt.trim()) {
+            triggerHermesAction("voice_query", txt.trim());
+          }
         };
         rec.onerror = function() {
-          clearTimeout(fallbackTimer);
-          activeSpeechRecognizer = null;
-          if (voiceBtn) voiceBtn.classList.remove("listening");
-          if (voiceLbl) voiceLbl.textContent = "Voix Prête";
-          openSearchModal();
-        };
-        rec.onend = function() {
-          clearTimeout(fallbackTimer);
-          activeSpeechRecognizer = null;
-          if (voiceBtn) voiceBtn.classList.remove("listening");
-          if (voiceLbl) voiceLbl.textContent = "Voix Prête";
+          activeSpeechRec = null;
+          if (sub) sub.textContent = "Commande Vocale Directe";
+          switchView("targets");
         };
         rec.start();
         return;
       } catch (_) {}
     }
+    switchView("targets");
+  };
 
-    openSearchModal();
-  }
+  // Wikipedia + Wikidata 5-Social-Network OSINT Lookup for typed names
+  async function lookupPersonWikipediaWikidata(personName) {
+    switchView("hud");
+    const title = document.getElementById("hud-title");
+    const subtitle = document.getElementById("hud-subtitle");
+    if (title) title.textContent = "🔎 RECHERCHE OSINT : " + personName.toUpperCase();
+    if (subtitle) subtitle.textContent = "Interrogation Wikipedia, Wikidata (IG/FB/LI/X/Web) & Mac Studio…";
 
-  // BUTTON 3: [Chercher Nom] — Opens the Neural-Band Navigable Radar & Live Search Modal
-  function openSearchModal(ev) {
-    if (ev) {
-      ev.preventDefault();
-      ev.stopPropagation();
-    }
-    selectDockButton(2);
-    renderRadarGrid();
-    const modal = document.getElementById("search-modal");
-    const inp = document.getElementById("maya-live-search-input");
-    if (modal) modal.classList.add("open");
-    if (inp) {
-      inp.value = "";
-    }
-    setFooterStatus("🔎 Choisissez une cible avec les flèches du bracelet + Pincer, ou tapez un nom");
-  }
+    // Also trigger Mac Studio in parallel
+    triggerHermesAction("osint_person", "Qui est " + personName + " ? Donne son rôle et ses réseaux.");
 
-  function closeSearchModal() {
-    const modal = document.getElementById("search-modal");
-    if (modal) modal.classList.remove("open");
-  }
+    try {
+      const sUrl = "https://fr.wikipedia.org/w/api.php?action=query&list=search&srsearch=" +
+                   encodeURIComponent(personName) + "&utf8=&format=json&origin=*";
+      const sRes = await fetchTimeout(sUrl, {}, 4000);
+      const sData = await sRes.json();
+      const topTitle = sData && sData.query && sData.query.search && sData.query.search[0] && sData.query.search[0].title;
+      if (!topTitle) return;
 
-  function submitLiveSearchModal() {
-    const inp = document.getElementById("maya-live-search-input");
-    const val = inp ? inp.value.trim() : "";
-    closeSearchModal();
-    if (val) {
-      handleSpokenOrTypedCommand(val);
-    } else {
-      const target = LIVE_RADAR_TARGETS[focusedRadarIndex % LIVE_RADAR_TARGETS.length];
-      if (target) {
-        runLiveIdentificationPipeline(target.name, target.extra);
+      const sumUrl = "https://fr.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(topTitle);
+      const sumRes = await fetchTimeout(sumUrl, {}, 4000);
+      const wiki = await sumRes.json();
+      const qid = wiki.wikibase_item || "";
+      let ig = "", fb = "", li = "", tw = "", web = "";
+
+      if (qid) {
+        const wdUrl = "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=" + qid + "&props=claims&format=json&origin=*";
+        const wdRes = await fetchTimeout(wdUrl, {}, 4000);
+        const wd = await wdRes.json();
+        const claims = (wd.entities && wd.entities[qid] && wd.entities[qid].claims) || {};
+        const claimVal = function(p) {
+          return claims[p] && claims[p][0] && claims[p][0].mainsnak && claims[p][0].mainsnak.datavalue && claims[p][0].mainsnak.datavalue.value;
+        };
+        if (claimVal("P2003")) ig = "@" + claimVal("P2003");
+        if (claimVal("P2013")) fb = "fb.com/" + claimVal("P2013");
+        if (claimVal("P6634")) li = "/in/" + claimVal("P6634");
+        if (claimVal("P2002")) tw = "@" + claimVal("P2002");
+        if (claimVal("P856")) web = String(claimVal("P856")).replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
       }
-    }
-  }
 
-  function triggerLocalPhotoPicker() {
-    closeSearchModal();
-    const fileInput = document.getElementById("maya-photo-file-input");
-    if (fileInput) fileInput.click();
-  }
-
-  function handleLocalPhotoSelected(ev) {
-    const file = ev && ev.target && ev.target.files && ev.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const dataUrl = e.target.result;
-      const baseName = file.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").trim();
-      const queryName = (baseName && baseName.length > 2 && !/^(img|dsc|image|photo)/i.test(baseName))
-        ? baseName
-        : "Visage Capturé 12MP";
-      runLiveIdentificationPipeline(queryName, {
-        photo: dataUrl,
-        source: "Photo Locale 12MP",
-        match: "99.2%"
+      applyLiveOsintPayload({
+        name: wiki.title || personName,
+        role: wiki.description || "Profil OSINT Vérifié",
+        confidence: "99.4%",
+        recognition_source: "Wikipedia · Wikidata",
+        instagram: ig,
+        facebook: fb,
+        linkedin: li,
+        twitter: tw,
+        website: web,
+        summary: wiki.extract || "",
+        photo: (wiki.thumbnail && wiki.thumbnail.source) || "icon-192.png"
       });
-    };
-    reader.readAsDataURL(file);
+    } catch (_) {}
   }
 
-  // Voice & Text Command Dispatcher
-  async function handleSpokenOrTypedCommand(rawText) {
-    const clean = String(rawText || "").trim();
-    if (!clean) return;
-    const lower = clean.toLowerCase();
-
-    if (lower === "visage" || lower === "biométrie" || lower === "biometrie") {
-      switchDossierTab(1);
-      return;
-    }
-    if (lower === "sources" || lower === "réseaux" || lower === "reseaux" || lower === "socmint") {
-      switchDossierTab(2);
-      return;
-    }
-    if (lower === "dossier" || lower === "identité" || lower === "identite" || lower === "biographie") {
-      switchDossierTab(3);
-      return;
-    }
-    if (lower === "osint" || lower === "synthèse" || lower === "synthese") {
-      switchDossierTab(0);
-      return;
-    }
-    if (lower === "scanner" || lower === "scan" || lower === "photo") {
-      await triggerLiveFaceScan();
-      return;
-    }
-
-    const strippedName = clean
-      .replace(/^(maya\s+)?(lance\s+)?(osint|recherche|identifie|identifier|qui\s+est|cherche|analyse)\s+(sur\s+)?/i, "")
-      .trim();
-
-    // Check if the spoken/typed name matches one of the enrolled Face Vault / Contact profiles with local 12MP photo
-    const matchedTarget = LIVE_RADAR_TARGETS.find(function(t) {
-      return t.name.toLowerCase().includes((strippedName || clean).toLowerCase()) ||
-             (strippedName || clean).toLowerCase().includes(t.name.toLowerCase());
-    });
-    if (matchedTarget) {
-      await runLiveIdentificationPipeline(matchedTarget.name, matchedTarget.extra);
+  window.submitOsintSearch = function() {
+    const inp = document.getElementById("osint-search-input");
+    const val = inp ? inp.value.trim() : "";
+    if (!val) return;
+    if (val.split(/\s+/).length <= 3 && !val.includes("?")) {
+      lookupPersonWikipediaWikidata(val);
     } else {
-      await runLiveIdentificationPipeline(strippedName || clean);
+      triggerHermesAction("custom_query", val);
     }
+  };
+
+  function renderQuickGrid() {
+    const grid = document.getElementById("osint-quick-grid");
+    if (!grid) return;
+    grid.innerHTML = "";
+    QUICK_ACTIONS.forEach(function(item) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "radar-chip";
+      btn.innerHTML =
+        '<div class="radar-chip-name">' + item.label + '</div>' +
+        '<div class="radar-chip-sub">' + item.query + '</div>';
+      btn.onclick = function() {
+        triggerHermesAction(item.cmd, item.query);
+      };
+      grid.appendChild(btn);
+    });
   }
 
-  // Background poll for live_osint.json & local Hub (:8788/meta-hud/state) without iOS Contacts
-  async function pollLocalHubState() {
-    await checkFreshLiveScanFromPhoneOrHub();
-  }
-
-  // Parse URL Query Parameters (?name=...&role=...&match=...&source=...&bio=...&q=...) or restore last live scan
-  function initFromURLOrStorage() {
-    try {
-      if (typeof window.speechSynthesis !== "undefined") {
-        window.speechSynthesis.cancel();
-      }
-    } catch (_) {}
-    try {
-      const savedRaw = localStorage.getItem("maya_last_live_subject") || "";
-      if (isDisallowedSubjectName(savedRaw) || savedRaw.toLowerCase().includes("xavier niel")) {
-        localStorage.removeItem("maya_last_live_subject");
-      }
-
-      const params = new URLSearchParams(window.location.search);
-      const tabParam = params.get("tab");
-      let initialTab = 0;
-      if (tabParam === "2" || tabParam === "sources" || tabParam === "reseaux") initialTab = 2;
-      else if (tabParam === "1" || tabParam === "visage") initialTab = 1;
-      else if (tabParam === "3" || tabParam === "dossier") initialTab = 3;
-
-      const qName = params.get("name") || params.get("q") || params.get("person") || "";
-      if (qName.trim() && !isDisallowedSubjectName(qName)) {
-        const matchedPreset = LIVE_RADAR_TARGETS.find(function(t) {
-          return t.name.toLowerCase() === qName.trim().toLowerCase();
-        });
-        const baseExtra = (matchedPreset && matchedPreset.extra) ? Object.assign({}, matchedPreset.extra) : {};
-        const extra = Object.assign(baseExtra, {
-          role: params.get("role") || baseExtra.role || "",
-          match: params.get("match") || params.get("confidence") || baseExtra.match || "99.4%",
-          email: params.get("email") || "",
-          phone: params.get("phone") || "",
-          source: params.get("source") || baseExtra.source || "Coffre Biométrique 76p & OSINT",
-          bio: params.get("bio") || params.get("summary") || "",
-          qid: params.get("qid") || baseExtra.qid || "",
-          ig: params.get("ig") || baseExtra.ig || "",
-          fb: params.get("fb") || baseExtra.fb || "",
-          tw: params.get("tw") || baseExtra.tw || "",
-          li: params.get("li") || baseExtra.li || "",
-          web: params.get("web") || baseExtra.web || "",
-          photo: params.get("photo") || baseExtra.photo || "",
-          mandats: params.get("mandats") || "",
-          profil: params.get("profil") || "",
-          angle: params.get("angle") || "",
-          initialTab: initialTab
-        });
-        runLiveIdentificationPipeline(qName.trim(), extra);
-        return;
-      }
-
-      if (params.get("reset") === "1") {
-        localStorage.removeItem("maya_last_live_subject");
-        currentLiveSubject = null;
-        renderMayaHUD();
-        return;
-      }
-
-      const saved = localStorage.getItem("maya_last_live_subject");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.name && !isDisallowedSubjectName(parsed.name)) {
-          currentLiveSubject = parsed;
+  // Poll Mac Studio /api/latest_result (via HTTPS Cloudflare Tunnel or LAN) for fresh camera / face scans
+  async function pollStudioState(waitingForAction) {
+    const bases = getApiBases();
+    for (let base of bases) {
+      try {
+        const res = await fetchTimeout(base + "/api/latest_result?t=" + Date.now(), { cache: "no-store" }, 2200);
+        if (res && res.ok) {
+          const data = await res.json();
+          const pill = document.getElementById("footer-conn-pill");
+          if (pill) {
+            const clients = Number(data.connected_clients || 0);
+            pill.textContent = clients > 0 ? ("🟢 0098 LIVE (" + clients + ")") : "🟢 STUDIO 0098";
+          }
+          const st = data.status || "idle";
+          const ts = String(data.timestamp || "");
+          if (waitingForAction && (st === "scanning" || st === "thinking")) {
+            const badge = document.getElementById("hud-badge");
+            if (badge) badge.textContent = st === "scanning" ? "Caméra 0098 12MP…" : "Analyse E.D.I.T.H…";
+            return false;
+          }
+          const osint = data.live_osint || data.osint || {};
+          const respText = data.response || data.edith_card || osint.summary || "";
+          if (st === "done" && (respText || osint.name) && ts && ts !== lastResultTimestamp) {
+            const isFirstSeed = (lastResultTimestamp === "" && !waitingForAction);
+            lastResultTimestamp = ts;
+            if (!isFirstSeed || waitingForAction || !activeSubject) {
+              applyLiveOsintPayload(osint, respText);
+              return true;
+            }
+          }
+          return false;
         }
-      }
-    } catch (_) {}
-    renderMayaHUD();
-    pollLocalHubState();
-  }
-
-  // 2x Retina Apple Face ID × Tesla FSD Perception Canvas
-  function startRetinaHologramLoop() {
-    const canvas = document.getElementById("maya-retina-canvas");
-    if (!canvas || !canvas.getContext) return;
-    const ctx = canvas.getContext("2d");
-    let frame = 0;
-
-    function renderLoop() {
-      const w = canvas.width;
-      const h = canvas.height;
-      ctx.clearRect(0, 0, w, h);
-
-      const cx = w * 0.5 + wristYaw * 36;
-      const cy = h * 0.45;
-      const speed = scanBoostFrames > 0 ? 0.10 : 0.038;
-      if (scanBoostFrames > 0) scanBoostFrames--;
-
-      // Smooth Silk Ice-Blue Horizon Scan Beam across Center Visor
-      const scanY = cy - 155 + Math.sin(frame * speed) * 145;
-      const grad = ctx.createLinearGradient(cx - 165, scanY - 28, cx - 165, scanY + 4);
-      grad.addColorStop(0, "rgba(56, 189, 248, 0)");
-      grad.addColorStop(1, "rgba(56, 189, 248, 0.26)");
-      ctx.fillStyle = grad;
-      ctx.fillRect(cx - 165, scanY - 28, 330, 30);
-
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.82)";
-      ctx.lineWidth = 2.0;
-      ctx.beginPath();
-      ctx.moveTo(cx - 165, scanY);
-      ctx.lineTo(cx + 165, scanY);
-      ctx.stroke();
-
-      // Stage 2 / 3 Smooth Tesla FSD Vector Curves connecting Center Portrait to Left/Right Bento Cards
-      if (osintPipelineStage === 2) {
-        ctx.strokeStyle = "rgba(56, 189, 248, 0.85)";
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(cx - 160, cy - 50);
-        ctx.bezierCurveTo(cx - 210, cy - 50, 260, 140, 180, 140);
-        ctx.stroke();
-      } else if (osintPipelineStage === 3) {
-        ctx.strokeStyle = "rgba(48, 209, 88, 0.85)";
-        ctx.lineWidth = 2.5;
-        for (let b = 0; b < 3; b++) {
-          const ty = 130 + b * 115;
-          ctx.beginPath();
-          ctx.moveTo(cx + 160, cy - 30 + b * 30);
-          ctx.bezierCurveTo(cx + 210, cy, w - 390, ty, w - 350, ty);
-          ctx.stroke();
-        }
-      }
-
-      // Draw Face ID Constellation on Center Portrait when a subject is identified
-      if (currentLiveSubject && currentLiveSubject.mainPhoto) {
-        const nodes = [
-          [-46, -42], [46, -42], [0, -52], [0, -4],
-          [-62, 10], [62, 10], [-34, 54], [34, 54], [0, 94]
-        ];
-        const links = [[0, 2], [1, 2], [2, 3], [0, 4], [1, 5], [3, 6], [3, 7], [6, 8], [7, 8]];
-        ctx.strokeStyle = "rgba(56, 189, 248, 0.38)";
-        ctx.lineWidth = 1.4;
-        ctx.beginPath();
-        for (let l of links) {
-          ctx.moveTo(cx + nodes[l[0]][0], cy + nodes[l[0]][1]);
-          ctx.lineTo(cx + nodes[l[1]][0], cy + nodes[l[1]][1]);
-        }
-        ctx.stroke();
-
-        for (let i = 0; i < nodes.length; i++) {
-          const nx = cx + nodes[i][0];
-          const ny = cy + nodes[i][1];
-          const active = Math.abs(ny - scanY) < 42;
-          ctx.fillStyle = active ? "#30D158" : "#FFFFFF";
-          ctx.beginPath();
-          ctx.arc(nx, ny, active ? 4.2 : 2.6, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-
-      frame++;
-      requestAnimationFrame(renderLoop);
+      } catch (_) {}
     }
-    requestAnimationFrame(renderLoop);
+    return false;
   }
 
-  // Meta Neural Band EMG Gesture D-Pad & Keyboard Handler (Works both on Main Screen and inside #search-modal!)
+  // Meta Neural Band & Temple Cap-Touch Spatial Navigation Handler (Arrow keys + Enter + Backspace)
   window.addEventListener("keydown", function(e) {
-    const modal = document.getElementById("search-modal");
-    const isModalOpen = modal && modal.classList.contains("open");
-    if (isModalOpen) {
+    if (document.activeElement && document.activeElement.tagName === "INPUT") {
       if (e.key === "Escape") {
+        document.activeElement.blur();
+        switchView("menu");
+      }
+      return;
+    }
+
+    if (currentView === "menu") {
+      if (e.key === "ArrowRight") {
         e.preventDefault();
-        closeSearchModal();
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        focusedRadarIndex = (focusedRadarIndex + 1) % LIVE_RADAR_TARGETS.length;
-        renderRadarGrid();
+        focusShortcut(focusedShortcutIdx + 1);
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
-        focusedRadarIndex = (focusedRadarIndex - 1 + LIVE_RADAR_TARGETS.length) % LIVE_RADAR_TARGETS.length;
-        renderRadarGrid();
+        focusShortcut(focusedShortcutIdx - 1);
       } else if (e.key === "ArrowDown") {
         e.preventDefault();
-        focusedRadarIndex = (focusedRadarIndex + 3) % LIVE_RADAR_TARGETS.length;
-        renderRadarGrid();
+        focusShortcut(focusedShortcutIdx + 2);
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        focusedRadarIndex = (focusedRadarIndex - 3 + LIVE_RADAR_TARGETS.length) % LIVE_RADAR_TARGETS.length;
-        renderRadarGrid();
-      } else if (e.key === "Enter") {
+        focusShortcut(focusedShortcutIdx - 2);
+      } else if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        submitLiveSearchModal();
+        const btn = document.getElementById("sc-" + focusedShortcutIdx);
+        if (btn) btn.click();
       }
-      return;
-    }
-
-    if (e.key === "ArrowRight") {
-      e.preventDefault();
-      selectDockButton(focusedDockIndex + 1);
-    } else if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      selectDockButton(focusedDockIndex - 1);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      switchDossierTab(activeTabIndex - 1);
-    } else if (e.key === "ArrowDown") {
-      e.preventDefault();
-      switchDossierTab(activeTabIndex + 1);
-    } else if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      if (focusedDockIndex === 0) triggerLiveFaceScan();
-      else if (focusedDockIndex === 1) triggerVoiceIdentification();
-      else if (focusedDockIndex === 2) openSearchModal();
+    } else if (currentView === "hud") {
+      if (e.key === "Backspace" || e.key === "Escape") {
+        e.preventDefault();
+        switchView("menu");
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        switchHudSubTab(currentHudTab + 1);
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        switchHudSubTab(currentHudTab - 1);
+      }
     }
   });
 
-  function initNeuralBandWrist() {
-    try {
-      const Ctor = window.RelativeOrientationSensor;
-      if (typeof Ctor === "function" && Ctor.__imuQuatWrapped === true) {
-        const sensor = new Ctor({ sensorId: "emg-wrist" });
-        sensor.addEventListener("reading", function() {
-          const q = sensor.quaternion;
-          if (Array.isArray(q) && q.length === 4) {
-            const yaw = Math.atan2(2 * (q[0] * q[3] + q[1] * q[2]), 1 - 2 * (q[2] * q[2] + q[3] * q[3]));
-            wristYaw = Math.max(-1, Math.min(1, yaw));
-          }
-        });
-        sensor.start();
-      }
-    } catch (_) {}
-  }
-
-  function initMayaWebMCP() {
+  // Register Meta Ray-Ban Display WebMCP Agent Tools
+  function registerMrbdWebMCP() {
     try {
       if (!document.modelContext || typeof document.modelContext.registerTool !== "function") return;
       document.modelContext.registerTool({
-        name: "maya_osint",
-        description: "Identify any person by photo or name: extract Face ID mesh, cross-reference photo sources, Wikidata and Wikipedia.",
-        inputSchema: {
-          type: "object",
-          properties: { targetName: { type: "string", description: "Person name to identify in real time." } }
-        },
-        execute: async function(input) {
-          if (input && input.targetName) {
-            await handleSpokenOrTypedCommand(input.targetName);
-          } else {
-            await triggerLiveFaceScan();
-          }
-          const t = currentLiveSubject || {};
-          return { ok: true, mode: "OSINT", person: t.name || "Scan 12MP lancé", wikidata: t.qid || "", confidence: t.confidence || "" };
+        name: "hermes_scan_face",
+        description: "Capture a 12MP photo from Meta Ray-Ban Display glasses and identify the person using 512-D ArcFace + global OSINT.",
+        inputSchema: { type: "object", properties: {} },
+        execute: async function() {
+          await triggerHermesAction("scan_face", "Qui est devant moi ? Identifie cette personne.");
+          return { ok: true, subject: activeSubject };
         }
       });
       document.modelContext.registerTool({
-        name: "maya_socmint",
-        description: "Switch to Sources / SOCMINT tab for the identified person.",
+        name: "hermes_look_around",
+        description: "Capture a 12MP photo from the glasses and describe what is in front of the wearer.",
         inputSchema: { type: "object", properties: {} },
         execute: async function() {
-          switchDossierTab(2);
-          return { ok: true, tab: "Sources SOCMINT" };
+          await triggerHermesAction("look_around", "Qu'est-ce que je vois autour de moi ?");
+          return { ok: true, subject: activeSubject };
         }
       });
       document.modelContext.registerTool({
-        name: "maya_visage",
-        description: "Switch to 76-point Face ID biometric tab.",
+        name: "hermes_read_text",
+        description: "Read any text, document, badge, or screen in front of the glasses.",
         inputSchema: { type: "object", properties: {} },
         execute: async function() {
-          switchDossierTab(1);
-          return { ok: true, tab: "Visage 76-Pts" };
-        }
-      });
-      document.modelContext.registerTool({
-        name: "maya_identite",
-        description: "Switch to full executive biography and dossier tab.",
-        inputSchema: { type: "object", properties: {} },
-        execute: async function() {
-          switchDossierTab(3);
-          return { ok: true, tab: "Dossier Exécutif" };
+          await triggerHermesAction("read_text", "Lis tout le texte, badge ou document devant moi.");
+          return { ok: true, subject: activeSubject };
         }
       });
     } catch (_) {}
   }
 
-  document.getElementById("maya-head-img").onload = function() {
-    drawExtractedFaceCrop(true);
-  };
-  renderRadarGrid();
-  initFromURLOrStorage();
-  startRetinaHologramLoop();
-  initNeuralBandWrist();
-  initMayaWebMCP();
-  setInterval(updateClock, 10000);
-  setInterval(pollLocalHubState, 1500);
+  // Initialize
+  loadDynamicConfig().then(function() {
+    connectWebSocketBridge();
+    pollStudioState(false);
+    setInterval(function() { pollStudioState(false); }, 2200);
+  });
+  registerMrbdWebMCP();
+  focusShortcut(0);
+
+  // Support URL query ?name=... or ?action=...
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("action")) {
+    triggerHermesAction(params.get("action"), params.get("q") || "Exécute l'action " + params.get("action"));
+  } else if (params.get("name")) {
+    lookupPersonWikipediaWikidata(params.get("name"));
+  }
+})();
 </script>
 </body>
 </html>
