@@ -453,15 +453,20 @@
       <img id="live-video-img" class="live-video-img" src="icon-192.png" alt="Flux Vidéo 0098 en Direct">
     </div>
 
-    <div class="live-controls-bar">
+    <div class="live-controls-bar" style="grid-template-columns: 1.45fr 1.15fr 0.9fr;">
       <button type="button" class="big-action-btn primary spatial-focus" id="live-btn-0" onclick="takePhotoFromGlasses()">
         <span class="btn-main-label">📸 PRENDRE LA PHOTO</span>
-        <span class="btn-sub-label">Figer l'image des lunettes 0098 dans le HUD</span>
+        <span class="btn-sub-label">Capteur 0098 direct</span>
       </button>
 
-      <button type="button" class="big-action-btn secondary" id="live-btn-1" onclick="showPhotoHudScreen()">
-        <span class="btn-main-label">🎯 HUD / OSINT</span>
-        <span class="btn-sub-label">Voir photo prise</span>
+      <button type="button" class="big-action-btn amber" id="live-btn-1" onclick="requestStartVideoStreamOnGlasses(true)">
+        <span class="btn-main-label">📹 FLUX VIDÉO (4s)</span>
+        <span class="btn-sub-label">Aperçu direct 0098</span>
+      </button>
+
+      <button type="button" class="big-action-btn secondary" id="live-btn-2" onclick="showPhotoHudScreen()">
+        <span class="btn-main-label">🎯 OSINT</span>
+        <span class="btn-sub-label">Voir HUD</span>
       </button>
     </div>
   </main>
@@ -605,7 +610,7 @@
   }
 
   function updateSpatialHighlight() {
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 3; i++) {
       const b = document.getElementById("live-btn-" + i);
       if (b) b.classList.toggle("spatial-focus", currentScreen === "live" && i === liveFocusIdx);
     }
@@ -618,7 +623,7 @@
   // =========================================================================
   // STEP 1: SHOW LIVE VIDEO VIEWFINDER IN GLASSES DISPLAY
   // =========================================================================
-  window.showLiveVideoScreen = function() {
+  window.showLiveVideoScreen = function(startBurst) {
     currentScreen = "live";
     document.getElementById("view-live").classList.add("active");
     document.getElementById("view-hud").classList.remove("active");
@@ -626,8 +631,10 @@
     document.getElementById("tab-hud").classList.remove("active");
     liveFocusIdx = 0;
     updateSpatialHighlight();
-    setFooter("📹 Flux vidéo 0098 en direct — Pincez 📸 PRENDRE LA PHOTO");
-    requestStartVideoStreamOnGlasses();
+    setFooter("🟢 Neural Band actif — Pincez 📸 PRENDRE LA PHOTO ou 📹 FLUX VIDÉO (4s)");
+    if (startBurst) {
+      requestStartVideoStreamOnGlasses(true);
+    }
   };
 
   window.showPhotoHudScreen = function() {
@@ -646,44 +653,55 @@
   // =========================================================================
   // STEP 2: TAKE PHOTO WITH GLASSES ONLY (FREEZE IN HUD, NO OSINT YET)
   // =========================================================================
+  let isTakingPhoto = false;
   window.takePhotoFromGlasses = async function() {
+    if (isTakingPhoto) return;
+    isTakingPhoto = true;
     flashShutter();
 
-    // Immediately freeze the current live video frame into the HUD so there is zero delay and zero scrolling
-    if (latestLiveFrameDataUrl) {
-      setFrozenHudPhoto(latestLiveFrameDataUrl, "📸 PHOTO PRISE PAR VOS LUNETTES 0098 (FIGÉE)");
-    }
-
-    document.getElementById("hud-title").textContent = "📸 PHOTO PRISE AVEC LES LUNETTES 0098";
-    document.getElementById("hud-subtitle").textContent = "Photo figée — Pincez « 🎯 LANCER OSINT » pour identifier";
-    document.getElementById("hud-badge").textContent = "Prête · 12MP";
-    document.getElementById("hud-social-line").textContent = "🔗 PRÊT POUR RECHERCHE OSINT & BIOMÉTRIE 512-D";
-    document.getElementById("hud-summary-text").textContent = "Votre photo est figée ci-dessus. Pincez « 🎯 LANCER OSINT » pour lancer la reconnaissance faciale et OSINT, ou « 📹 FLUX VIDÉO » pour reprendre une photo.";
-
     showPhotoHudScreen();
-    setFooter("📸 Photo figée dans le HUD — Pincez 🎯 LANCER OSINT");
+    document.getElementById("hud-title").textContent = "📸 PRISE DE LA PHOTO 0098 EN COURS…";
+    document.getElementById("hud-subtitle").textContent = "Déclenchement du capteur 12MP des lunettes Meta 0098…";
+    document.getElementById("hud-badge").textContent = "Capture…";
+    document.getElementById("hud-social-line").textContent = "📸 CAPTURE OPTIQUE SANS TÉLÉPHONE EN COURS…";
+    document.getElementById("hud-summary-text").textContent = "Vos lunettes 0098 prennent la photo et libèrent immédiatement le Neural Band…";
+    setFooter("📸 Prise de la photo avec les lunettes 0098 en cours…");
 
-    // Persist the frozen still photo on Mac Studio (and trigger 0098 snap_photo if needed) WITHOUT running OSINT yet
-    const rawB64 = latestLiveFrameDataUrl.startsWith("data:image")
-      ? (latestLiveFrameDataUrl.split(",")[1] || "")
-      : "";
-
-    const bases = getApiBases();
-    for (let base of bases) {
-      try {
-        const res = await fetchTimeout(base + "/api/capture_still", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image_b64: rawB64 })
-        }, 4000);
-        if (res && res.ok) {
-          const data = await res.json();
-          if (data && data.capture_b64 && !rawB64) {
-            setFrozenHudPhoto("data:image/jpeg;base64," + data.capture_b64, "📸 PHOTO PRISE PAR VOS LUNETTES 0098 (FIGÉE)");
+    try {
+      const bases = getApiBases();
+      let capturedNew = false;
+      for (let base of bases) {
+        try {
+          const res = await fetchTimeout(base + "/api/capture_still", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ trigger_glasses_shutter: true })
+          }, 7500);
+          if (res && res.ok) {
+            const data = await res.json();
+            if (data && data.capture_b64) {
+              const newUrl = "data:image/jpeg;base64," + data.capture_b64;
+              renderLiveVideoFrame(newUrl);
+              setFrozenHudPhoto(newUrl, "📸 NOUVELLE PHOTO PRISE PAR VOS LUNETTES 0098");
+              capturedNew = true;
+            }
+            break;
           }
-          break;
-        }
-      } catch (_) {}
+        } catch (_) {}
+      }
+
+      if (!capturedNew && latestLiveFrameDataUrl) {
+        setFrozenHudPhoto(latestLiveFrameDataUrl, "📸 PHOTO 0098 FIGÉE DANS LE HUD");
+      }
+
+      document.getElementById("hud-title").textContent = "📸 PHOTO PRISE AVEC LES LUNETTES 0098";
+      document.getElementById("hud-subtitle").textContent = "Photo figée — Pincez « 🎯 LANCER OSINT » pour identifier";
+      document.getElementById("hud-badge").textContent = "Prête · 12MP";
+      document.getElementById("hud-social-line").textContent = "🔗 PRÊT POUR RECHERCHE OSINT & BIOMÉTRIE 512-D";
+      document.getElementById("hud-summary-text").textContent = "Votre nouvelle photo 0098 est figée ci-dessus. Pincez « 🎯 LANCER OSINT » pour lancer la reconnaissance faciale et OSINT.";
+      setFooter("📸 Nouvelle photo 0098 figée — Pincez 🎯 LANCER OSINT");
+    } finally {
+      isTakingPhoto = false;
     }
   };
 
@@ -827,10 +845,20 @@
   }
 
   let lastStreamRequestAt = 0;
-  async function requestStartVideoStreamOnGlasses() {
+  window.requestStartVideoStreamOnGlasses = async function(forceNow) {
     const now = Date.now();
-    if (now - lastStreamRequestAt < 10000) return;
+    if (!forceNow && now - lastStreamRequestAt < 8000) return;
     lastStreamRequestAt = now;
+    const pill = document.getElementById("live-video-pill");
+    if (pill) pill.textContent = "🟢 APERÇU VIDÉO 0098 EN DIRECT (4s)…";
+    setFooter("📹 Aperçu vidéo 0098 en direct (4s) — Le Neural Band se déverrouille juste après");
+    setTimeout(function() {
+      const p = document.getElementById("live-video-pill");
+      if (p) p.textContent = "🟢 NEURAL BAND PRÊT — PINCEZ 📸 PRENDRE LA PHOTO";
+      if (currentScreen === "live") {
+        setFooter("🟢 Neural Band déverrouillé — Pincez 📸 PRENDRE LA PHOTO ou 📹 FLUX VIDÉO (4s)");
+      }
+    }, 4500);
     const bases = getApiBases();
     for (let base of bases) {
       try {
@@ -842,7 +870,7 @@
         if (res && res.ok) return;
       } catch (_) {}
     }
-  }
+  };
 
   function connectWebSocketBridge() {
     try {
@@ -871,9 +899,15 @@
   // Meta Neural Band Keyboard / D-Pad Navigation (NO timer .focus() hijacking!)
   window.addEventListener("keydown", function(e) {
     if (currentScreen === "live") {
-      if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
         e.preventDefault();
-        liveFocusIdx = (liveFocusIdx + 1) % 2;
+        liveFocusIdx = (liveFocusIdx + 1) % 3;
+        updateSpatialHighlight();
+        const btn = document.getElementById("live-btn-" + liveFocusIdx);
+        if (btn) { try { btn.focus(); } catch (_) {} }
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        liveFocusIdx = (liveFocusIdx + 2) % 3;
         updateSpatialHighlight();
         const btn = document.getElementById("live-btn-" + liveFocusIdx);
         if (btn) { try { btn.focus(); } catch (_) {} }
@@ -907,7 +941,6 @@
   });
 
   connectWebSocketBridge();
-  requestStartVideoStreamOnGlasses();
   pollLiveVideoStream();
   setInterval(pollLiveVideoStream, 280);
 })();
