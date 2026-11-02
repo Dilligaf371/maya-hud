@@ -643,15 +643,15 @@
       <span>⚡ ALERIA · 0098</span>
     </div>
     <nav class="nav-pills" aria-label="Modes Hermes">
-      <button type="button" class="nav-btn active" id="nav-menu" onclick="switchView('menu')">MENU</button>
-      <button type="button" class="nav-btn" id="nav-video" onclick="switchView('video')">📹 VISEUR</button>
+      <button type="button" class="nav-btn active" id="nav-video" onclick="switchView('video')">📹 VISEUR</button>
+      <button type="button" class="nav-btn" id="nav-menu" onclick="switchView('menu')">MENU</button>
       <button type="button" class="nav-btn" id="nav-hud" onclick="switchView('hud')">HUD</button>
       <button type="button" class="nav-btn" id="nav-targets" onclick="switchView('targets')">OSINT</button>
     </nav>
   </header>
 
   <!-- VIEW 1: ALWAYS-ON CAMERA VIEWFINDER + 6-BUTTON INTERACTIVE SHORTCUTS LAUNCHER -->
-  <main id="view-menu" class="view-panel active" aria-label="Viseur Caméra & Raccourcis Hermes Glasses">
+  <main id="view-menu" class="view-panel" aria-label="Viseur Caméra & Raccourcis Hermes Glasses">
     <div class="menu-camera-stage" id="menu-camera-stage">
       <div class="vf-corner vf-tl"></div>
       <div class="vf-corner vf-tr"></div>
@@ -765,7 +765,7 @@
   </section>
 
   <!-- VIEW 3: META-STYLE FULL-SCREEN CAMERA / VIDEO VIEWFINDER (600x600) -->
-  <section id="view-video" class="view-panel" aria-label="Viseur Photo et Vidéo en Direct">
+  <section id="view-video" class="view-panel active" aria-label="Viseur Photo et Vidéo en Direct">
     <div class="viewfinder-box">
       <div class="vf-corner vf-tl"></div>
       <div class="vf-corner vf-tr"></div>
@@ -776,15 +776,15 @@
       <img id="viewfinder-img" class="viewfinder-img" src="icon-192.png" alt="Viseur Caméra 0098 en Direct">
 
       <div class="vf-top-hud">
-        <button type="button" class="back-btn" id="vf-back-btn" onclick="stopLiveViewfinderAndBack()">← MENU</button>
+        <button type="button" class="back-btn" id="vf-back-btn" onclick="stopLiveViewfinderAndBack()">☰ MENU 6 ACTIONS</button>
         <div class="vf-live-badge" id="vf-status-badge">
           <span class="vf-rec-dot"></span>
-          <span id="vf-status-text">VISEUR CAMÉRA 0098 LIVE</span>
+          <span id="vf-status-text">🟢 RETOUR VIDÉO 0098 LIVE</span>
         </div>
       </div>
 
       <div class="vf-bottom-controls">
-        <div class="vf-caption-bar" id="vf-caption-bar">Cadrez avec vos lunettes puis pincez pour capturer et analyser :</div>
+        <div class="vf-caption-bar" id="vf-caption-bar">🟢 Flux vidéo 0098 en direct — Cadrez puis pincez pour capturer :</div>
         <div class="vf-action-row">
           <button type="button" class="vf-shutter-btn spatial-focus" id="vf-btn-0"
                   onclick="triggerHermesAction('scan_face', 'Qui est devant moi ? Identifie cette personne.')">
@@ -834,7 +834,7 @@
     lanWs: "ws://192.168.1.116:8765/voice"
   };
 
-  let currentView = "menu"; // "menu" | "video" | "hud" | "targets"
+  let currentView = "video"; // "video" | "menu" | "hud" | "targets"
   let focusedShortcutIdx = 0;
   let focusedVfBtnIdx = 0;
   let currentHudTab = 0;
@@ -940,19 +940,12 @@
   };
 
   function startLiveViewfinderPolling() {
+    // Live frames are pushed in real time via WebSocket (`live_frame` base64)
+    // and polled via `pollStudioState` (`live_frame_b64` base64) so `<img>.src`
+    // only ever receives decoded `data:image/jpeg;base64,...` strings and never
+    // aborts in-flight image loads in WebKit.
     if (liveViewfinderInterval) return;
-    liveViewfinderInterval = setInterval(function() {
-      if (currentView !== "menu" && currentView !== "video" && !isCapturingPhoto) return;
-      const base = ENDPOINTS.httpsApi || ENDPOINTS.lanApi;
-      if (base) {
-        const img = new Image();
-        const url = base + "/api/live_frame.jpg?t=" + Date.now();
-        img.onload = function() {
-          updateCameraImages(url, "🟢 VISEUR CAMÉRA 0098 EN DIRECT", false);
-        };
-        img.src = url;
-      }
-    }, 450);
+    liveViewfinderInterval = true;
   }
 
   function focusShortcut(idx) {
@@ -1126,12 +1119,6 @@
     lastActionStartUnix = (Date.now() / 1000) - 0.25;
     flashShutter();
     switchView("hud");
-
-    const base = ENDPOINTS.httpsApi || ENDPOINTS.lanApi;
-    const hudImg = document.getElementById("hud-camera-img");
-    if (hudImg && base) {
-      hudImg.src = base + "/api/live_frame.jpg?t=" + Date.now();
-    }
 
     const title = document.getElementById("hud-title");
     const subtitle = document.getElementById("hud-subtitle");
@@ -1394,7 +1381,7 @@
             if (st === "done" && (respText || osint.name) && ts && ts !== lastResultTimestamp) {
               const isFirstSeed = (lastResultTimestamp === "" && !waitingForAction);
               lastResultTimestamp = ts;
-              if (!isFirstSeed || waitingForAction || !activeSubject) {
+              if (!isFirstSeed || waitingForAction) {
                 applyLiveOsintPayload(osint, respText, data.capture_b64 || data.live_frame_b64, data.capture_ts || data.live_frame_ts);
                 return true;
               }
@@ -1502,10 +1489,10 @@
     startLiveViewfinderPolling();
     sendActionToStudio("start_video_return", "Active le retour vidéo en direct des lunettes 0098");
     pollStudioState(false);
-    setInterval(function() { pollStudioState(false); }, 450);
+    setInterval(function() { pollStudioState(false); }, 320);
   });
   registerMrbdWebMCP();
-  focusShortcut(0);
+  focusVfButton(0);
 
   const params = new URLSearchParams(window.location.search);
   if (params.get("action")) {
