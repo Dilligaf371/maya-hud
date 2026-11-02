@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=600, height=600, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="mrbd-web-app-capable" content="yes">
 <meta name="application-name" content="Hermes">
-<meta name="description" content="Hermes — E.D.I.T.H. Executive Glasses Assistant, Live Camera Viewfinder & Shortcuts (600x600)">
+<meta name="description" content="Hermes 0098 — 1) Retour Flux Vidéo Lunettes 2) Prise de Photo Neural Band 3) Recherche OSINT dans le HUD">
 <meta name="theme-color" content="#000000">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -13,14 +13,13 @@
 <style>
   :root {
     --bg: #000000;
-    --card-bg: #050a12;
-    --card-border: #1b3552;
+    --card-bg: #050b14;
+    --card-border: #1b3654;
     --emerald: #00FF9D;
     --cyan: #00E5FF;
-    --orange: #FF6B35;
     --amber: #FFB800;
     --white: #FFFFFF;
-    --muted: #A3B8CC;
+    --muted: #9EB4CC;
   }
   * {
     box-sizing: border-box;
@@ -39,7 +38,7 @@
     overflow: hidden;
     background: #000000;
     color: var(--white);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
   }
   #hermes-root {
     width: 600px;
@@ -56,7 +55,7 @@
   #shutter-flash {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle, rgba(255,255,255,0.92) 0%, rgba(0,255,157,0.55) 60%, rgba(0,229,255,0.2) 100%);
+    background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(0,255,157,0.6) 60%, rgba(0,229,255,0.2) 100%);
     opacity: 0;
     pointer-events: none;
     z-index: 99;
@@ -66,23 +65,23 @@
     opacity: 1;
   }
 
-  /* Top Header Bar (600px) */
+  /* Top Header Bar */
   .top-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 50px;
-    padding: 0 10px;
+    height: 48px;
+    padding: 0 12px;
     border: 2px solid var(--card-border);
     border-radius: 14px;
-    background: #03070d;
+    background: #03070e;
     flex-shrink: 0;
   }
   .brand {
     display: flex;
     align-items: center;
-    gap: 7px;
-    font-size: 20px;
+    gap: 8px;
+    font-size: 19px;
     font-weight: 900;
     letter-spacing: 0.03em;
     color: var(--emerald);
@@ -94,29 +93,28 @@
     background: var(--emerald);
     box-shadow: 0 0 12px var(--emerald);
   }
-  .nav-pills {
+  .step-pills {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
   }
-  .nav-btn {
+  .step-btn {
     appearance: none;
-    background: #07111e;
+    background: #071220;
     color: var(--muted);
     border: 2px solid #1e3a5f;
     border-radius: 10px;
-    padding: 6px 11px;
-    font-size: 17px;
-    font-weight: 800;
+    padding: 6px 12px;
+    font-size: 16px;
+    font-weight: 900;
     cursor: pointer;
-    transition: all 0.12s ease;
   }
-  .nav-btn.active {
-    background: rgba(0, 255, 157, 0.18);
+  .step-btn.active {
+    background: rgba(0, 255, 157, 0.2);
     color: var(--emerald);
     border-color: var(--emerald);
   }
-  .nav-btn:focus, .nav-btn:focus-visible, .nav-btn.spatial-focus {
+  .step-btn:focus, .step-btn:focus-visible, .step-btn.spatial-focus {
     outline: none;
     border-color: var(--cyan);
     box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.55);
@@ -130,479 +128,267 @@
     margin: 8px 0;
     flex-direction: column;
     justify-content: space-between;
+    gap: 8px;
     overflow: hidden;
   }
   .view-panel.active {
     display: flex;
   }
 
-  /* VIEW 1: Live Camera Viewfinder + 6-Button Interactive Shortcuts Grid (2x3) */
-  .menu-camera-stage {
+  /* =========================================================================
+     STEP 1: LIVE VIDEO STREAM IN GLASSES DISPLAY (view-live)
+     ========================================================================= */
+  .live-video-stage {
     position: relative;
-    width: 100%;
-    height: 196px;
-    border-radius: 14px;
-    border: 2.5px solid var(--emerald);
-    background: #020509;
-    overflow: hidden;
-    flex-shrink: 0;
-    margin-bottom: 7px;
-  }
-  .menu-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: repeat(3, 1fr);
-    gap: 7px;
     flex: 1;
-    min-height: 0;
-  }
-  .shortcut-btn {
-    appearance: none;
-    background: #050c16;
-    border: 2px solid #1b3858;
-    border-radius: 13px;
-    padding: 6px 11px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    text-align: left;
-    cursor: pointer;
-    position: relative;
-    transition: transform 0.1s ease, border-color 0.12s ease, background 0.12s ease;
-  }
-  .shortcut-btn:focus,
-  .shortcut-btn:focus-visible,
-  .shortcut-btn.spatial-focus {
-    outline: none;
-    background: #0a1b2e;
-    border-color: var(--emerald);
-    box-shadow: 0 0 0 3px rgba(0, 255, 157, 0.42), inset 0 0 14px rgba(0, 255, 157, 0.16);
-  }
-  .shortcut-btn:active {
-    transform: scale(0.98);
-  }
-  .shortcut-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     width: 100%;
-    margin-bottom: 2px;
-  }
-  .shortcut-title {
-    font-size: 19px;
-    font-weight: 900;
-    color: var(--white);
-    letter-spacing: -0.01em;
-    line-height: 1.1;
-  }
-  .shortcut-key {
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--cyan);
-    background: rgba(0, 229, 255, 0.14);
-    border: 1.5px solid rgba(0, 229, 255, 0.45);
-    border-radius: 7px;
-    padding: 1px 6px;
-  }
-  .shortcut-sub {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--emerald);
-    line-height: 1.15;
-  }
-  .shortcut-btn[data-accent="cyan"] .shortcut-sub { color: var(--cyan); }
-  .shortcut-btn[data-accent="orange"] .shortcut-sub { color: var(--orange); }
-  .shortcut-btn[data-accent="amber"] .shortcut-sub { color: var(--amber); }
-
-  /* VIEW 2: E.D.I.T.H. Tactical HUD + LIVE CAMERA / PHOTO RETURN */
-  .hud-header-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    margin-bottom: 6px;
-    flex-shrink: 0;
-  }
-  .back-btn {
-    appearance: none;
-    background: #081526;
-    color: var(--cyan);
-    border: 2.5px solid var(--cyan);
-    border-radius: 11px;
-    padding: 6px 12px;
-    font-size: 18px;
-    font-weight: 900;
-    cursor: pointer;
-  }
-  .back-btn:focus, .back-btn:focus-visible, .back-btn.spatial-focus {
-    outline: none;
-    background: rgba(0, 229, 255, 0.22);
-    box-shadow: 0 0 0 4px rgba(0, 229, 255, 0.48);
-  }
-  .hud-tabs {
-    display: flex;
-    gap: 6px;
-  }
-  .hud-tab-btn {
-    appearance: none;
-    background: #050c16;
-    color: var(--muted);
-    border: 2px solid #1b3552;
-    border-radius: 10px;
-    padding: 6px 10px;
-    font-size: 16px;
-    font-weight: 800;
-    cursor: pointer;
-  }
-  .hud-tab-btn.active {
-    color: var(--emerald);
-    border-color: var(--emerald);
-    background: rgba(0, 255, 157, 0.14);
-  }
-  .hud-tab-btn:focus, .hud-tab-btn:focus-visible, .hud-tab-btn.spatial-focus {
-    outline: none;
-    border-color: var(--cyan);
-    box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.5);
-  }
-
-  .edith-card-box {
-    flex: 1;
-    background: #03070e;
-    border: 2.5px solid var(--emerald);
     border-radius: 16px;
-    padding: 10px 12px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 8px;
+    border: 3px solid var(--emerald);
+    background: #02050a;
     overflow: hidden;
   }
-
-  /* Camera & Captured Photo Stage inside HUD */
-  .hud-camera-stage {
-    position: relative;
-    width: 100%;
-    height: 215px;
-    border-radius: 12px;
-    border: 2px solid var(--cyan);
-    background: #020509;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-  .hud-camera-img {
+  .live-video-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
-    background: #020509;
+    background: #02050a;
   }
-  /* Meta-style Viewfinder Corner Brackets */
   .vf-corner {
     position: absolute;
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
     border-color: var(--emerald);
     border-style: solid;
     pointer-events: none;
     z-index: 3;
   }
-  .vf-tl { top: 10px; left: 10px; border-width: 3px 0 0 3px; border-top-left-radius: 6px; }
-  .vf-tr { top: 10px; right: 10px; border-width: 3px 3px 0 0; border-top-right-radius: 6px; }
-  .vf-bl { bottom: 10px; left: 10px; border-width: 0 0 3px 3px; border-bottom-left-radius: 6px; }
-  .vf-br { bottom: 10px; right: 10px; border-width: 0 3px 3px 0; border-bottom-right-radius: 6px; }
+  .vf-tl { top: 12px; left: 12px; border-width: 3.5px 0 0 3.5px; border-top-left-radius: 7px; }
+  .vf-tr { top: 12px; right: 12px; border-width: 3.5px 3.5px 0 0; border-top-right-radius: 7px; }
+  .vf-bl { bottom: 12px; left: 12px; border-width: 0 0 3.5px 3.5px; border-bottom-left-radius: 7px; }
+  .vf-br { bottom: 12px; right: 12px; border-width: 0 3.5px 3.5px 0; border-bottom-right-radius: 7px; }
   .vf-reticle {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 28px;
-    height: 28px;
+    width: 34px;
+    height: 34px;
     transform: translate(-50%, -50%);
-    border: 1.5px solid rgba(0, 255, 157, 0.55);
+    border: 2px solid rgba(0, 255, 157, 0.65);
     border-radius: 50%;
     pointer-events: none;
     z-index: 2;
   }
-  .hud-cam-pill {
+  .live-badge-top {
     position: absolute;
-    top: 8px;
-    left: 14px;
-    background: rgba(3, 8, 16, 0.85);
-    border: 1.5px solid var(--emerald);
-    border-radius: 8px;
-    padding: 3px 9px;
-    font-size: 14px;
-    font-weight: 900;
-    color: var(--emerald);
+    top: 12px;
+    left: 18px;
     z-index: 4;
-    letter-spacing: 0.03em;
-  }
-  .hud-cam-snap-btn {
-    position: absolute;
-    top: 7px;
-    right: 12px;
-    appearance: none;
-    background: rgba(0, 229, 255, 0.22);
-    border: 2px solid var(--cyan);
-    border-radius: 8px;
-    padding: 3px 10px;
-    font-size: 14px;
-    font-weight: 900;
-    color: var(--white);
-    cursor: pointer;
-    z-index: 5;
-  }
-  .hud-cam-overlay-bottom {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 6px 12px;
-    background: linear-gradient(0deg, rgba(2,6,12,0.94) 0%, rgba(2,6,12,0.68) 75%, transparent 100%);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    z-index: 4;
-  }
-  .target-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 10px;
-    border: 2px solid var(--cyan);
-    object-fit: cover;
-    background: #081321;
-    flex-shrink: 0;
-  }
-  .target-headlines {
-    flex: 1;
-    min-width: 0;
-  }
-  .target-line-1 {
-    font-size: 21px;
-    font-weight: 900;
-    color: var(--emerald);
-    line-height: 1.15;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .target-line-2 {
-    font-size: 16px;
-    font-weight: 800;
-    color: var(--white);
-    line-height: 1.15;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .target-badge {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 7px;
-    background: rgba(0, 229, 255, 0.18);
-    border: 1.5px solid var(--cyan);
-    color: var(--cyan);
-    font-size: 14px;
-    font-weight: 800;
-    flex-shrink: 0;
-  }
-
-  .edith-lines-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 6px;
-    min-height: 0;
-  }
-  .edith-row {
-    background: #07111f;
-    border: 1.5px solid #183250;
-    border-radius: 11px;
-    padding: 6px 10px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    overflow: hidden;
-  }
-  .edith-row-label {
-    font-size: 13px;
-    font-weight: 900;
-    color: var(--cyan);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .edith-row-val {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--white);
-    line-height: 1.2;
-    margin-top: 2px;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  /* VIEW 3: FULL-SCREEN META-STYLE CAMERA / VIDEO VIEWFINDER (600x600) */
-  .viewfinder-box {
-    flex: 1;
-    position: relative;
-    border-radius: 16px;
-    border: 2.5px solid var(--emerald);
-    background: #02050a;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  .viewfinder-img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 1;
-  }
-  .vf-top-hud {
-    position: relative;
-    z-index: 5;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 12px;
-    background: linear-gradient(180deg, rgba(0,0,0,0.82) 0%, transparent 100%);
-  }
-  .vf-live-badge {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    background: rgba(3, 10, 18, 0.88);
+    gap: 8px;
+    background: rgba(3, 9, 18, 0.88);
     border: 2px solid var(--emerald);
     border-radius: 999px;
-    padding: 5px 12px;
+    padding: 5px 13px;
     font-size: 16px;
     font-weight: 900;
     color: var(--emerald);
   }
-  .vf-rec-dot {
+  .rec-dot {
     width: 10px;
     height: 10px;
     border-radius: 50%;
     background: #FF3B30;
     box-shadow: 0 0 10px #FF3B30;
   }
-  .vf-bottom-controls {
-    position: relative;
-    z-index: 5;
-    padding: 10px 12px;
-    background: linear-gradient(0deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.68) 78%, transparent 100%);
+
+  .live-controls-bar {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr;
+    gap: 10px;
+    height: 78px;
+    flex-shrink: 0;
+  }
+  .big-action-btn {
+    appearance: none;
+    border-radius: 15px;
+    padding: 10px 14px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.1s ease, border-color 0.12s ease, background 0.12s ease;
   }
-  .vf-caption-bar {
-    font-size: 18px;
-    font-weight: 800;
+  .big-action-btn.primary {
+    background: #07221b;
+    border: 3px solid var(--emerald);
     color: var(--white);
-    text-shadow: 0 1px 4px #000;
+  }
+  .big-action-btn.secondary {
+    background: #061322;
+    border: 2.5px solid var(--cyan);
+    color: var(--white);
+  }
+  .big-action-btn.amber {
+    background: #1f1605;
+    border: 2.5px solid var(--amber);
+    color: var(--white);
+  }
+  .big-action-btn:focus,
+  .big-action-btn:focus-visible,
+  .big-action-btn.spatial-focus {
+    outline: none;
+    border-color: #FFFFFF;
+    box-shadow: 0 0 0 4px rgba(0, 255, 157, 0.65), inset 0 0 18px rgba(0, 255, 157, 0.25);
+  }
+  .big-action-btn:active {
+    transform: scale(0.98);
+  }
+  .btn-main-label {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    line-height: 1.15;
+  }
+  .btn-sub-label {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--emerald);
+    margin-top: 3px;
+  }
+  .big-action-btn.secondary .btn-sub-label {
+    color: var(--cyan);
+  }
+  .big-action-btn.amber .btn-sub-label {
+    color: var(--amber);
+  }
+
+  /* =========================================================================
+     STEP 2 & 3: FROZEN PHOTO IN HUD + LAUNCH OSINT SEARCH (view-hud)
+     ========================================================================= */
+  .hud-photo-stage {
+    position: relative;
+    width: 100%;
+    height: 215px;
+    border-radius: 15px;
+    border: 3px solid var(--cyan);
+    background: #02050a;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .hud-captured-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    background: #02050a;
+  }
+  .hud-photo-pill {
+    position: absolute;
+    top: 10px;
+    left: 14px;
+    background: rgba(3, 9, 18, 0.9);
+    border: 2px solid var(--cyan);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 15px;
+    font-weight: 900;
+    color: var(--cyan);
+    z-index: 4;
+  }
+  .hud-photo-bottom-banner {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 7px 12px;
+    background: linear-gradient(0deg, rgba(2,6,12,0.95) 0%, rgba(2,6,12,0.72) 78%, transparent 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    z-index: 4;
+  }
+  .hud-target-title {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--emerald);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .vf-action-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-  }
-  .vf-shutter-btn {
-    appearance: none;
-    background: rgba(5, 16, 28, 0.92);
-    border: 2.5px solid var(--emerald);
-    border-radius: 12px;
-    padding: 10px 8px;
-    font-size: 17px;
-    font-weight: 900;
-    color: var(--white);
-    cursor: pointer;
-    text-align: center;
-  }
-  .vf-shutter-btn:focus, .vf-shutter-btn:focus-visible, .vf-shutter-btn.spatial-focus {
-    outline: none;
-    background: rgba(0, 255, 157, 0.25);
-    border-color: var(--cyan);
-    box-shadow: 0 0 0 4px rgba(0, 229, 255, 0.5);
-  }
-
-  /* VIEW 4: Search / Voice / Radar Cibles */
-  .search-bar-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-  .search-input {
-    flex: 1;
-    background: #050c16;
-    border: 2.5px solid var(--cyan);
-    border-radius: 12px;
-    padding: 9px 12px;
-    font-size: 20px;
+  .hud-target-sub {
+    font-size: 15px;
     font-weight: 800;
     color: var(--white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .search-input:focus {
-    outline: none;
-    border-color: var(--emerald);
-    box-shadow: 0 0 0 3px rgba(0, 255, 157, 0.45);
-  }
-  .search-go-btn {
-    appearance: none;
-    background: var(--emerald);
-    color: #000000;
-    border: none;
-    border-radius: 12px;
-    padding: 0 16px;
-    font-size: 19px;
+  .hud-conf-badge {
+    padding: 4px 9px;
+    border-radius: 8px;
+    background: rgba(0, 255, 157, 0.18);
+    border: 1.5px solid var(--emerald);
+    color: var(--emerald);
+    font-size: 14px;
     font-weight: 900;
-    cursor: pointer;
-  }
-  .radar-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    flex: 1;
-    overflow-y: auto;
-  }
-  .radar-chip {
-    appearance: none;
-    background: #060f1c;
-    border: 2px solid #1b3654;
-    border-radius: 12px;
-    padding: 9px 11px;
-    text-align: left;
-    cursor: pointer;
-  }
-  .radar-chip:focus, .radar-chip:focus-visible, .radar-chip.spatial-focus {
-    outline: none;
-    border-color: var(--emerald);
-    background: #0c2138;
-    box-shadow: 0 0 0 3px rgba(0, 255, 157, 0.45);
-  }
-  .radar-chip-name {
-    font-size: 19px;
-    font-weight: 900;
-    color: var(--white);
-  }
-  .radar-chip-sub {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--cyan);
+    flex-shrink: 0;
   }
 
-  /* Bottom Status Footer (600px) */
+  /* Step 2/3 Action Buttons right below the Frozen Photo */
+  .hud-actions-row {
+    display: grid;
+    grid-template-columns: 1.45fr 1fr 1fr;
+    gap: 8px;
+    height: 70px;
+    flex-shrink: 0;
+  }
+  .hud-actions-row .btn-main-label {
+    font-size: 18px;
+  }
+  .hud-actions-row .btn-sub-label {
+    font-size: 13px;
+  }
+
+  /* Step 3 OSINT Result Box inside HUD */
+  .hud-osint-box {
+    flex: 1;
+    background: #040a14;
+    border: 2px solid #1b3654;
+    border-radius: 14px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    overflow: hidden;
+  }
+  .osint-social-line {
+    font-size: 15px;
+    font-weight: 900;
+    color: var(--cyan);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .osint-summary-text {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.24;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Bottom Status Footer */
   .footer-bar {
-    height: 40px;
+    height: 38px;
     padding: 0 12px;
     border: 2px solid #162c46;
     border-radius: 12px;
@@ -610,7 +396,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 800;
     color: var(--cyan);
     flex-shrink: 0;
@@ -619,10 +405,10 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 430px;
+    max-width: 440px;
   }
   .footer-link-pill {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 900;
     padding: 3px 9px;
     border-radius: 999px;
@@ -636,189 +422,102 @@
 <div id="hermes-root">
   <div id="shutter-flash"></div>
 
-  <!-- TOP STATUS & NAVIGATION BAR -->
+  <!-- TOP NAVIGATION BAR -->
   <header class="top-bar">
     <div class="brand">
-      <span class="brand-dot" id="studio-dot"></span>
+      <span class="brand-dot"></span>
       <span>⚡ ALERIA · 0098</span>
     </div>
-    <nav class="nav-pills" aria-label="Modes Hermes">
-      <button type="button" class="nav-btn active" id="nav-menu" onclick="switchView('menu')">MENU</button>
-      <button type="button" class="nav-btn" id="nav-video" onclick="openLiveViewfinder()">📹 VISEUR</button>
-      <button type="button" class="nav-btn" id="nav-hud" onclick="switchView('hud')">HUD</button>
-      <button type="button" class="nav-btn" id="nav-targets" onclick="switchView('targets')">OSINT</button>
+    <nav class="step-pills" aria-label="Étapes Lunettes">
+      <button type="button" class="step-btn active" id="tab-live" onclick="showLiveVideoScreen()">1. 📹 FLUX VIDÉO</button>
+      <button type="button" class="step-btn" id="tab-hud" onclick="showPhotoHudScreen()">2. 📸 PHOTO & OSINT</button>
     </nav>
   </header>
 
-  <!-- VIEW 1: ALWAYS-ON CAMERA VIEWFINDER + 6-BUTTON INTERACTIVE SHORTCUTS LAUNCHER -->
-  <main id="view-menu" class="view-panel active" aria-label="Viseur Caméra & Raccourcis Hermes Glasses">
-    <div class="menu-camera-stage" id="menu-camera-stage">
+  <!-- =======================================================================
+       ÉCRAN 1 : RETOUR DU FLUX VIDÉO EN DIRECT DANS LES LUNETTES + PRISE PHOTO
+       ======================================================================= -->
+  <main id="view-live" class="view-panel active" aria-label="Retour du Flux Vidéo en Direct">
+    <div class="live-video-stage">
       <div class="vf-corner vf-tl"></div>
       <div class="vf-corner vf-tr"></div>
       <div class="vf-corner vf-bl"></div>
       <div class="vf-corner vf-br"></div>
       <div class="vf-reticle"></div>
-      <span class="hud-cam-pill" id="menu-cam-pill">🟢 VISEUR CAMÉRA 0098 EN DIRECT — CADREZ VOS PHOTOS</span>
-      <button type="button" class="hud-cam-snap-btn" onclick="openLiveViewfinder()">⛶ PLEIN ÉCRAN</button>
-      <img id="menu-camera-img" class="hud-camera-img" src="icon-192.png" alt="Viseur Caméra 0098 en Direct">
+
+      <div class="live-badge-top">
+        <span class="rec-dot"></span>
+        <span id="live-video-pill">🟢 FLUX VIDÉO LUNETTES 0098 EN DIRECT</span>
+      </div>
+
+      <img id="live-video-img" class="live-video-img" src="icon-192.png" alt="Flux Vidéo 0098 en Direct">
     </div>
-    <div class="menu-grid">
-      <button type="button" class="shortcut-btn spatial-focus" id="sc-0" data-accent="emerald"
-              onclick="triggerHermesAction('scan_face', 'Qui est devant moi ? Identifie cette personne.')">
-        <div class="shortcut-top">
-          <span class="shortcut-title">🎯 SCAN VISAGE</span>
-          <span class="shortcut-key">PHOTO+ID</span>
-        </div>
-        <div class="shortcut-sub">Voir Photo + OSINT 512-D</div>
+
+    <div class="live-controls-bar">
+      <button type="button" class="big-action-btn primary spatial-focus" id="live-btn-0" onclick="takePhotoFromGlasses()">
+        <span class="btn-main-label">📸 PRENDRE LA PHOTO</span>
+        <span class="btn-sub-label">Figer l'image des lunettes 0098 dans le HUD</span>
       </button>
 
-      <button type="button" class="shortcut-btn" id="sc-1" data-accent="cyan"
-              onclick="triggerHermesAction('look_around', 'Qu\'est-ce que je vois autour de moi ? Décris la scène.')">
-        <div class="shortcut-top">
-          <span class="shortcut-title">👁️ QUE VOIS-JE ?</span>
-          <span class="shortcut-key">12 MP</span>
-        </div>
-        <div class="shortcut-sub">Voir Photo + Analyse Scène</div>
-      </button>
-
-      <button type="button" class="shortcut-btn" id="sc-2" data-accent="amber"
-              onclick="triggerHermesAction('read_text', 'Lis tout le texte, badge, écran ou document devant moi.')">
-        <div class="shortcut-top">
-          <span class="shortcut-title">📄 LIRE TEXTE</span>
-          <span class="shortcut-key">OCR</span>
-        </div>
-        <div class="shortcut-sub">Voir Photo + Lire Écran/Doc</div>
-      </button>
-
-      <button type="button" class="shortcut-btn" id="sc-3" data-accent="emerald"
-              onclick="openLiveViewfinder()">
-        <div class="shortcut-top">
-          <span class="shortcut-title">📹 VISEUR LIVE</span>
-          <span class="shortcut-key">VIDÉO</span>
-        </div>
-        <div class="shortcut-sub">Retour Caméra Meta 0098</div>
-      </button>
-
-      <button type="button" class="shortcut-btn" id="sc-4" data-accent="orange"
-              onclick="triggerVoiceOrPrompt()">
-        <div class="shortcut-top">
-          <span class="shortcut-title">🎙️ AGENT ALERIA</span>
-          <span class="shortcut-key">VOIX</span>
-        </div>
-        <div class="shortcut-sub" id="voice-btn-sub">Commande Vocale Directe</div>
-      </button>
-
-      <button type="button" class="shortcut-btn" id="sc-5" data-accent="cyan"
-              onclick="triggerHermesAction('briefing', 'Donne-moi mon briefing exécutif rapide en 2 phrases.')">
-        <div class="shortcut-top">
-          <span class="shortcut-title">📋 BRIEFING ICO</span>
-          <span class="shortcut-key">EXEC</span>
-        </div>
-        <div class="shortcut-sub">Agenda · Statut · Synthèse</div>
+      <button type="button" class="big-action-btn secondary" id="live-btn-1" onclick="showPhotoHudScreen()">
+        <span class="btn-main-label">🎯 HUD / OSINT</span>
+        <span class="btn-sub-label">Voir photo prise</span>
       </button>
     </div>
   </main>
 
-  <!-- VIEW 2: E.D.I.T.H. TACTICAL HUD WITH EMBEDDED CAMERA / PHOTO RETURN -->
-  <section id="view-hud" class="view-panel" aria-label="Résultat HUD & Photo Capturée">
-    <div class="hud-header-row">
-      <button type="button" class="back-btn" id="btn-back-menu" onclick="switchView('menu')">← MENU</button>
-      <div class="hud-tabs">
-        <button type="button" class="hud-tab-btn active" id="hud-tab-0" onclick="switchHudSubTab(0)">PHOTO + SYNTHÈSE</button>
-        <button type="button" class="hud-tab-btn" id="hud-tab-1" onclick="switchHudSubTab(1)">RÉSEAUX 5/5</button>
-        <button type="button" class="hud-tab-btn" id="hud-tab-2" onclick="openLiveViewfinder()">📹 PLEIN ÉCRAN</button>
-      </div>
-    </div>
-
-    <div class="edith-card-box">
-      <!-- LIVE CAMERA & CAPTURED PHOTO VIEWPORT -->
-      <div class="hud-camera-stage" id="hud-camera-stage">
-        <div class="vf-corner vf-tl"></div>
-        <div class="vf-corner vf-tr"></div>
-        <div class="vf-corner vf-bl"></div>
-        <div class="vf-corner vf-br"></div>
-        <div class="vf-reticle"></div>
-        <span class="hud-cam-pill" id="hud-cam-pill">📸 DERNIÈRE PHOTO PRISE PAR ALERIA</span>
-        <button type="button" class="hud-cam-snap-btn" id="btn-retake-photo" onclick="retakeCurrentPhoto()">📸 NOUVELLE PHOTO</button>
-        <img id="hud-camera-img" class="hud-camera-img" src="icon-192.png" alt="Retour Caméra Lunettes 0098">
-        <div class="hud-cam-overlay-bottom">
-          <img id="hud-avatar" class="target-avatar" src="icon-192.png" alt="Portrait">
-          <div class="target-headlines">
-            <div class="target-line-1" id="hud-title">🎯 ALERIA PRÊTE (DISPLAY 0098)</div>
-            <div class="target-line-2" id="hud-subtitle">Retour photo & vidéo caméra 0098 actif</div>
-          </div>
-          <span class="target-badge" id="hud-badge">Caméra 12MP</span>
-        </div>
-      </div>
-
-      <div class="edith-lines-container">
-        <div class="edith-row">
-          <div class="edith-row-label" id="hud-r1-label">🔗 RÉSEAUX SOCIAUX & IDENTITÉ (IG · FB · LI · X · WEB)</div>
-          <div class="edith-row-val" id="hud-r1-val">Prenez une photo ou ouvrez 📹 VISEUR pour cadrer comme sur Meta.</div>
-        </div>
-        <div class="edith-row">
-          <div class="edith-row-label" id="hud-r2-label">📋 CE QUE VOIT ALERIA / SYNTHÈSE EXÉCUTIVE</div>
-          <div class="edith-row-val" id="hud-r2-val">La photo exacte prise par vos lunettes s'affiche ci-dessus en direct.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- VIEW 3: META-STYLE FULL-SCREEN CAMERA / VIDEO VIEWFINDER (600x600) -->
-  <section id="view-video" class="view-panel" aria-label="Viseur Photo et Vidéo en Direct">
-    <div class="viewfinder-box">
+  <!-- =======================================================================
+       ÉCRAN 2 & 3 : PHOTO FIGÉE DANS LE HUD + LANCER RECHERCHE OSINT
+       ======================================================================= -->
+  <section id="view-hud" class="view-panel" aria-label="Photo Prise et Recherche OSINT">
+    <!-- FROZEN CAPTURED PHOTO (NEVER SCROLLS OR AUTO-OVERWRITES WITH LIVE VIDEO) -->
+    <div class="hud-photo-stage">
       <div class="vf-corner vf-tl"></div>
       <div class="vf-corner vf-tr"></div>
       <div class="vf-corner vf-bl"></div>
       <div class="vf-corner vf-br"></div>
-      <div class="vf-reticle"></div>
 
-      <img id="viewfinder-img" class="viewfinder-img" src="icon-192.png" alt="Viseur Caméra 0098 en Direct">
+      <span class="hud-photo-pill" id="hud-photo-pill">📸 PHOTO PRISE (FIGÉE DANS LE HUD)</span>
+      <img id="hud-captured-img" class="hud-captured-img" src="icon-192.png" alt="Photo Prise 0098">
 
-      <div class="vf-top-hud">
-        <button type="button" class="back-btn" id="vf-back-btn" onclick="stopLiveViewfinderAndBack()">☰ MENU 6 ACTIONS</button>
-        <div class="vf-live-badge" id="vf-status-badge">
-          <span class="vf-rec-dot"></span>
-          <span id="vf-status-text">🟢 RETOUR VIDÉO 0098 LIVE</span>
+      <div class="hud-photo-bottom-banner">
+        <div style="min-width:0; flex:1;">
+          <div class="hud-target-title" id="hud-title">📸 PHOTO 0098 PRÊTE POUR ANALYSE</div>
+          <div class="hud-target-sub" id="hud-subtitle">Pincez « 🎯 LANCER RECHERCHE OSINT » ci-dessous</div>
         </div>
-      </div>
-
-      <div class="vf-bottom-controls">
-        <div class="vf-caption-bar" id="vf-caption-bar">🟢 Flux vidéo 0098 en direct — Cadrez puis pincez pour capturer :</div>
-        <div class="vf-action-row">
-          <button type="button" class="vf-shutter-btn spatial-focus" id="vf-btn-0"
-                  onclick="triggerHermesAction('scan_face', 'Qui est devant moi ? Identifie cette personne.')">
-            📸 ID VISAGE
-          </button>
-          <button type="button" class="vf-shutter-btn" id="vf-btn-1"
-                  onclick="triggerHermesAction('look_around', 'Qu\'est-ce que je vois autour de moi ? Décris la scène.')">
-            👁️ DÉCRIRE SCÈNE
-          </button>
-          <button type="button" class="vf-shutter-btn" id="vf-btn-2"
-                  onclick="triggerHermesAction('read_text', 'Lis tout le texte, badge, écran ou document devant moi.')">
-            📄 LIRE TEXTE
-          </button>
-        </div>
+        <span class="hud-conf-badge" id="hud-badge">Photo Figée</span>
       </div>
     </div>
-  </section>
 
-  <!-- VIEW 4: DIRECT OSINT / NAME SEARCH & VOICE INPUT -->
-  <section id="view-targets" class="view-panel" aria-label="Recherche OSINT Directe">
-    <div class="search-bar-row">
-      <button type="button" class="back-btn" onclick="switchView('menu')">← MENU</button>
-      <input type="text" id="osint-search-input" class="search-input"
-             placeholder="Nom ou question à Aleria…"
-             onkeydown="if(event.key==='Enter'){event.preventDefault();submitOsintSearch();}">
-      <button type="button" class="search-go-btn" onclick="submitOsintSearch()">GO</button>
+    <!-- 3 BUTTONS ON THE CAPTURED PHOTO HUD -->
+    <div class="hud-actions-row">
+      <button type="button" class="big-action-btn primary spatial-focus" id="hud-btn-0" onclick="launchOsintFromHudPhoto()">
+        <span class="btn-main-label">🎯 LANCER OSINT</span>
+        <span class="btn-sub-label">Identifier sur cette photo</span>
+      </button>
+
+      <button type="button" class="big-action-btn secondary" id="hud-btn-1" onclick="describeHudPhoto()">
+        <span class="btn-main-label">👁️ DÉCRIRE</span>
+        <span class="btn-sub-label">Scène / Texte</span>
+      </button>
+
+      <button type="button" class="big-action-btn amber" id="hud-btn-2" onclick="showLiveVideoScreen()">
+        <span class="btn-main-label">📹 FLUX VIDÉO</span>
+        <span class="btn-sub-label">Nouvelle photo</span>
+      </button>
     </div>
-    <div class="radar-grid" id="osint-quick-grid"></div>
+
+    <!-- OSINT DOSSIER RESULT ON THE CAPTURED PHOTO -->
+    <div class="hud-osint-box">
+      <div class="osint-social-line" id="hud-social-line">🔗 IDENTITÉ & RÉSEAUX SOCIAUX (ARC-FACE 512-D · WEB · LINKEDIN · IG · X)</div>
+      <div class="osint-summary-text" id="hud-summary-text">La photo prise par vos lunettes est figée ci-dessus. Pincez « 🎯 LANCER OSINT » avec le Neural Band pour lancer la recherche biométrique et OSINT.</div>
+    </div>
   </section>
 
   <!-- FOOTER BAR -->
   <footer class="footer-bar">
-    <div class="footer-status-text" id="footer-status">⚡ Flèches / Glisser : Naviguer · Pincer / Entrée : Lancer</div>
-    <div class="footer-link-pill" id="footer-conn-pill">STUDIO 0098</div>
+    <div class="footer-status-text" id="footer-status">🟢 1) Flux vidéo 0098 · 2) Pincez 📸 Prendre la photo · 3) 🎯 Lancer OSINT</div>
+    <div class="footer-link-pill" id="footer-conn-pill">0098 LIVE</div>
   </footer>
 </div>
 
@@ -829,36 +528,23 @@
   const ENDPOINTS = {
     httpsApi: "https://sweet-bibliographic-bread-forever.trycloudflare.com",
     wssBridge: "wss://lowest-kijiji-rehabilitation-champion.trycloudflare.com/voice",
-    lanApi: "http://192.168.1.116:8766",
     tailscaleApi: "http://100.78.112.92:8766",
-    lanWs: "ws://192.168.1.116:8765/voice"
+    lanApi: "http://192.168.1.116:8766"
   };
 
-  let currentView = "menu"; // "menu" | "video" | "hud" | "targets"
-  let focusedShortcutIdx = 0;
-  let focusedVfBtnIdx = 0;
-  let currentHudTab = 0;
-  let lastResultTimestamp = "";
-  let lastCaptureTs = 0;
-  let lastActionStartUnix = 0;
-  let lastTriggeredActionId = "scan_face";
-  let lastTriggeredQuery = "Qui est devant moi ? Identifie cette personne.";
-  let activeSubject = null;
-  let bridgeSocket = null;
-  let activeSpeechRec = null;
-  let liveViewfinderInterval = null;
-  let imageLoadInFlight = false;
-  let isCapturingPhoto = false;
-  let hasCapturedPhotoOnHud = false;
+  let currentScreen = "live"; // "live" | "hud"
+  let liveFocusIdx = 0;
+  let hudFocusIdx = 0;
 
-  const QUICK_ACTIONS = [
-    { label: "📹 Ouvrir le Viseur Caméra Live", cmd: "start_video_return", query: "Ouvre le retour vidéo en direct des lunettes." },
-    { label: "🎯 Scanner le visage devant moi", cmd: "scan_face", query: "Qui est devant moi ? Identifie cette personne." },
-    { label: "👁️ Décrire ce que je vois (12 MP)", cmd: "look_around", query: "Qu'est-ce que je vois autour de moi ?" },
-    { label: "📄 Lire le document ou écran", cmd: "read_text", query: "Lis tout le texte, badge, écran ou document devant moi." },
-    { label: "📋 Briefing exécutif ICO", cmd: "briefing", query: "Donne-moi mon briefing exécutif rapide en 2 phrases." },
-    { label: "🔄 Nouvelle session Aleria", cmd: "new_session", query: "new_session" }
-  ];
+  // Live video state (ONLY updates #live-video-img, NEVER overwrites #hud-captured-img!)
+  let latestLiveFrameDataUrl = "";
+  let lastLiveFrameTs = 0;
+  let liveFrameCount = 0;
+
+  // Frozen captured photo state in HUD
+  let frozenPhotoDataUrl = "";
+  let isOsintRunning = false;
+  let bridgeSocket = null;
 
   function setFooter(msg) {
     const el = document.getElementById("footer-status");
@@ -872,225 +558,8 @@
     setTimeout(function() { fl.classList.remove("flash"); }, 220);
   }
 
-  function updateCameraImages(srcDataUrl, pillLabel, isCapturedStill) {
-    if (!srcDataUrl) return;
-    const menuImg = document.getElementById("menu-camera-img");
-    const hudImg = document.getElementById("hud-camera-img");
-    const vfImg = document.getElementById("viewfinder-img");
-    const menuPill = document.getElementById("menu-cam-pill");
-    const hudPill = document.getElementById("hud-cam-pill");
-    const vfText = document.getElementById("vf-status-text");
-    if (menuImg) menuImg.src = srcDataUrl;
-    if (vfImg) vfImg.src = srcDataUrl;
-    if (hudImg) hudImg.src = srcDataUrl;
-    if (menuPill) menuPill.textContent = pillLabel || "🟢 VISEUR CAMÉRA 0098 EN DIRECT";
-    if (vfText) vfText.textContent = pillLabel || "🟢 VISEUR CAMÉRA 0098 LIVE";
-    if (hudPill) hudPill.textContent = pillLabel || "🟢 RETOUR VIDÉO 0098 EN DIRECT";
-    if (isCapturedStill) {
-      hasCapturedPhotoOnHud = true;
-      isCapturingPhoto = false;
-    }
-  }
-
-  async function loadDynamicConfig() {
-    try {
-      const r = await fetch("config.json?t=" + Date.now(), { cache: "no-store" });
-      if (r.ok) {
-        const cfg = await r.json();
-        if (cfg.https_api) ENDPOINTS.httpsApi = cfg.https_api;
-        if (cfg.wss_bridge) ENDPOINTS.wssBridge = cfg.wss_bridge;
-        if (cfg.lan_api) ENDPOINTS.lanApi = cfg.lan_api;
-        if (cfg.tailscale_api) ENDPOINTS.tailscaleApi = cfg.tailscale_api;
-      }
-    } catch (_) {}
-  }
-
-  window.switchView = function(viewName) {
-    currentView = viewName;
-    ["menu", "video", "hud", "targets"].forEach(function(v) {
-      const panel = document.getElementById("view-" + v);
-      const nav = document.getElementById("nav-" + v);
-      if (panel) panel.classList.toggle("active", v === viewName);
-      if (nav) nav.classList.toggle("active", v === viewName);
-    });
-    if (viewName === "menu") {
-      focusShortcut(focusedShortcutIdx);
-      setFooter("🟢 Viseur 0098 actif en haut — Cadrez puis pincez une action");
-      startLiveViewfinderPolling();
-    } else if (viewName === "video") {
-      focusVfButton(focusedVfBtnIdx);
-      setFooter("📹 Viseur Caméra 0098 en direct — Pincez pour prendre la photo");
-      startLiveViewfinderPolling();
-    } else if (viewName === "hud") {
-      const retakeBtn = document.getElementById("btn-retake-photo");
-      if (retakeBtn) retakeBtn.focus();
-    } else if (viewName === "targets") {
-      renderQuickGrid();
-      const inp = document.getElementById("osint-search-input");
-      if (inp) inp.focus();
-    }
-  };
-
-  window.openLiveViewfinder = function() {
-    switchView("video");
-    sendActionToStudio("start_video_return", "Active le retour vidéo en direct des lunettes 0098");
-  };
-
-  window.stopLiveViewfinderAndBack = function() {
-    switchView("menu");
-  };
-
-  function preloadLiveFrameFromHttp(tsHint, pillLabel, isCapturedStill) {
-    if (imageLoadInFlight) return;
-    const base = ENDPOINTS.httpsApi;
-    if (!base) return;
-    imageLoadInFlight = true;
-    const stamp = (tsHint || Date.now()) + "_" + Math.floor(Math.random() * 9999);
-    const url = base + "/api/live_frame.jpg?t=" + stamp;
-    const img = new Image();
-    const timer = setTimeout(function() {
-      imageLoadInFlight = false;
-    }, 2800);
-    img.onload = function() {
-      clearTimeout(timer);
-      imageLoadInFlight = false;
-      updateCameraImages(url, pillLabel || "🟢 VISEUR CAMÉRA 0098 EN DIRECT", Boolean(isCapturedStill));
-      const avatar = document.getElementById("hud-avatar");
-      if (avatar && (isCapturedStill || !activeSubject || !activeSubject.photo || activeSubject.photo === "icon-192.png")) {
-        avatar.src = url;
-      }
-    };
-    img.onerror = function() {
-      clearTimeout(timer);
-      imageLoadInFlight = false;
-    };
-    img.src = url;
-  }
-
-  function startLiveViewfinderPolling() {
-    if (liveViewfinderInterval) return;
-    preloadLiveFrameFromHttp(Date.now(), "🟢 VISEUR CAMÉRA 0098 EN DIRECT", false);
-    liveViewfinderInterval = setInterval(function() {
-      preloadLiveFrameFromHttp(Date.now(), isCapturingPhoto ? "📸 NOUVELLE PHOTO PRISE PAR ALERIA (0098)" : "🟢 VISEUR CAMÉRA 0098 EN DIRECT", false);
-    }, 550);
-  }
-
-  function focusShortcut(idx) {
-    focusedShortcutIdx = (idx + 6) % 6;
-    for (let i = 0; i < 6; i++) {
-      const btn = document.getElementById("sc-" + i);
-      if (btn) {
-        btn.classList.toggle("spatial-focus", i === focusedShortcutIdx);
-        if (i === focusedShortcutIdx) {
-          try { btn.focus(); } catch (_) {}
-        }
-      }
-    }
-  }
-
-  function focusVfButton(idx) {
-    focusedVfBtnIdx = (idx + 3) % 3;
-    for (let i = 0; i < 3; i++) {
-      const btn = document.getElementById("vf-btn-" + i);
-      if (btn) {
-        btn.classList.toggle("spatial-focus", i === focusedVfBtnIdx);
-        if (i === focusedVfBtnIdx) {
-          try { btn.focus(); } catch (_) {}
-        }
-      }
-    }
-  }
-
-  window.switchHudSubTab = function(tabIdx) {
-    currentHudTab = (tabIdx + 3) % 3;
-    for (let i = 0; i < 3; i++) {
-      const b = document.getElementById("hud-tab-" + i);
-      if (b) b.classList.toggle("active", i === currentHudTab);
-    }
-    if (currentHudTab === 2) {
-      openLiveViewfinder();
-      return;
-    }
-    renderHudSubject();
-  };
-
-  function renderHudSubject() {
-    if (!activeSubject) return;
-    const s = activeSubject;
-    const avatar = document.getElementById("hud-avatar");
-    const title = document.getElementById("hud-title");
-    const subtitle = document.getElementById("hud-subtitle");
-    const badge = document.getElementById("hud-badge");
-    const r1Label = document.getElementById("hud-r1-label");
-    const r1Val = document.getElementById("hud-r1-val");
-    const r2Label = document.getElementById("hud-r2-label");
-    const r2Val = document.getElementById("hud-r2-val");
-    const vfCap = document.getElementById("vf-caption-bar");
-
-    if (avatar && s.photo) avatar.src = s.photo;
-    if (title) title.textContent = "🎯 " + (s.name || "Aleria · Caméra 0098");
-    if (subtitle) subtitle.textContent = "💼 " + (s.role || "Photo prise par vos lunettes Meta Display");
-    if (badge) badge.textContent = s.badge || (s.confidence || "12MP Live");
-    if (vfCap && s.summary) vfCap.textContent = s.summary;
-
-    const socialLine = [
-      s.instagram ? ("IG " + s.instagram) : "",
-      s.facebook ? ("FB " + s.facebook) : "",
-      s.linkedin ? ("LI " + s.linkedin) : "",
-      s.twitter ? ("X " + s.twitter) : "",
-      s.website ? ("Web " + s.website) : ""
-    ].filter(Boolean).join(" · ") || "Photo 0098 analysée par Aleria Sovereign Vision";
-
-    if (currentHudTab === 0) {
-      r1Label.textContent = "🔗 RÉSEAUX SOCIAUX & IDENTITÉ";
-      r1Val.textContent = socialLine;
-      r2Label.textContent = "📋 RÉPONSE ALERIA SUR LA PHOTO PRISE";
-      r2Val.textContent = s.summary || s.edith_card || "Analyse terminée.";
-    } else if (currentHudTab === 1) {
-      r1Label.textContent = "📸 INSTAGRAM · FACEBOOK · LINKEDIN";
-      r1Val.textContent = "IG: " + (s.instagram || "-") + "  |  FB: " + (s.facebook || "-") + "  |  LI: " + (s.linkedin || "-");
-      r2Label.textContent = "🐦 X / TWITTER · 🌐 SITE WEB · SOURCE";
-      r2Val.textContent = "X: " + (s.twitter || "-") + "  |  Web: " + (s.website || "-") + "  |  " + (s.source || "ArcFace 512-D");
-    }
-  }
-
-  function applyLiveOsintPayload(osint, responseText, captureB64, captureTs) {
-    if (captureB64) {
-      updateCameraImages("data:image/jpeg;base64," + captureB64, "📸 PHOTO PRISE PAR ALERIA (0098)", true);
-    } else {
-      imageLoadInFlight = false;
-      preloadLiveFrameFromHttp(captureTs || Date.now(), "📸 PHOTO PRISE PAR ALERIA (0098)", true);
-    }
-    if (!osint && !responseText) return;
-    const d = osint || {};
-    const hasPerson = Boolean(d.name);
-    const name = d.name || "Photo Caméra 0098";
-    const role = [d.role, d.company].filter(Boolean).join(" · ") || d.description || (hasPerson ? "Profil identifié" : "Capture optique 12MP analysée");
-    const conf = d.confidence ? (String(d.confidence).replace(/%$/, "") + "%") : "12MP Live";
-    const summary = responseText || d.summary || d.edith_card || "Prêt.";
-    const freshFrameUrl = ENDPOINTS.httpsApi ? (ENDPOINTS.httpsApi + "/api/live_frame.jpg?t=" + (captureTs || Date.now())) : "icon-192.png";
-    const portraitUrl = d.photo_b64
-      ? ("data:image/jpeg;base64," + d.photo_b64)
-      : (d.photo || (captureB64 ? ("data:image/jpeg;base64," + captureB64) : freshFrameUrl));
-
-    activeSubject = {
-      name: name,
-      role: role,
-      confidence: conf,
-      badge: hasPerson ? ((d.recognition_source || "E.D.I.T.H. 512-D") + " · " + conf) : "Caméra 0098 · Live",
-      instagram: d.instagram || d.ig || "",
-      facebook: d.facebook || d.fb || "",
-      linkedin: d.linkedin || d.li || "",
-      twitter: d.twitter || d.tw || "",
-      website: d.website || d.web || "",
-      summary: summary,
-      edith_card: d.edith_card || summary,
-      source: d.recognition_source || "Aleria Sovereign Vision",
-      photo: portraitUrl
-    };
-    currentHudTab = 0;
-    renderHudSubject();
-    setFooter("✓ " + name + " — " + summary.slice(0, 65));
+  function getApiBases() {
+    return [ENDPOINTS.httpsApi, ENDPOINTS.tailscaleApi, ENDPOINTS.lanApi].filter(Boolean);
   }
 
   function fetchTimeout(url, opts, ms) {
@@ -1112,428 +581,335 @@
     });
   }
 
-  function getApiBases() {
-    return [ENDPOINTS.httpsApi, ENDPOINTS.lanApi, ENDPOINTS.tailscaleApi].filter(Boolean);
+  // Update ONLY the Step 1 Live Video Viewfinder image (never touches the HUD frozen photo!)
+  function renderLiveVideoFrame(dataUrl) {
+    if (!dataUrl) return;
+    latestLiveFrameDataUrl = dataUrl;
+    liveFrameCount += 1;
+    const liveImg = document.getElementById("live-video-img");
+    if (liveImg) liveImg.src = dataUrl;
+    const pill = document.getElementById("live-video-pill");
+    if (pill) {
+      pill.textContent = "🟢 FLUX VIDÉO LUNETTES 0098 EN DIRECT (#" + liveFrameCount + ")";
+    }
   }
 
-  async function sendActionToStudio(actionId, queryText) {
+  // Update ONLY the Step 2/3 Frozen Photo in the HUD
+  function setFrozenHudPhoto(dataUrl, pillText) {
+    if (!dataUrl) return;
+    frozenPhotoDataUrl = dataUrl;
+    const hudImg = document.getElementById("hud-captured-img");
+    if (hudImg) hudImg.src = dataUrl;
+    const hudPill = document.getElementById("hud-photo-pill");
+    if (hudPill && pillText) hudPill.textContent = pillText;
+  }
+
+  function updateSpatialHighlight() {
+    for (let i = 0; i < 2; i++) {
+      const b = document.getElementById("live-btn-" + i);
+      if (b) b.classList.toggle("spatial-focus", currentScreen === "live" && i === liveFocusIdx);
+    }
+    for (let i = 0; i < 3; i++) {
+      const b = document.getElementById("hud-btn-" + i);
+      if (b) b.classList.toggle("spatial-focus", currentScreen === "hud" && i === hudFocusIdx);
+    }
+  }
+
+  // =========================================================================
+  // STEP 1: SHOW LIVE VIDEO VIEWFINDER IN GLASSES DISPLAY
+  // =========================================================================
+  window.showLiveVideoScreen = function() {
+    currentScreen = "live";
+    document.getElementById("view-live").classList.add("active");
+    document.getElementById("view-hud").classList.remove("active");
+    document.getElementById("tab-live").classList.add("active");
+    document.getElementById("tab-hud").classList.remove("active");
+    liveFocusIdx = 0;
+    updateSpatialHighlight();
+    setFooter("📹 Flux vidéo 0098 en direct — Pincez 📸 PRENDRE LA PHOTO");
+    requestStartVideoStreamOnGlasses();
+  };
+
+  window.showPhotoHudScreen = function() {
+    currentScreen = "hud";
+    document.getElementById("view-live").classList.remove("active");
+    document.getElementById("view-hud").classList.add("active");
+    document.getElementById("tab-live").classList.remove("active");
+    document.getElementById("tab-hud").classList.add("active");
+    if (!frozenPhotoDataUrl && latestLiveFrameDataUrl) {
+      setFrozenHudPhoto(latestLiveFrameDataUrl, "📸 PHOTO 0098 FIGÉE DANS LE HUD");
+    }
+    hudFocusIdx = 0;
+    updateSpatialHighlight();
+  };
+
+  // =========================================================================
+  // STEP 2: TAKE PHOTO WITH GLASSES ONLY (FREEZE IN HUD, NO OSINT YET)
+  // =========================================================================
+  window.takePhotoFromGlasses = async function() {
+    flashShutter();
+
+    // Immediately freeze the current live video frame into the HUD so there is zero delay and zero scrolling
+    if (latestLiveFrameDataUrl) {
+      setFrozenHudPhoto(latestLiveFrameDataUrl, "📸 PHOTO PRISE PAR VOS LUNETTES 0098 (FIGÉE)");
+    }
+
+    document.getElementById("hud-title").textContent = "📸 PHOTO PRISE AVEC LES LUNETTES 0098";
+    document.getElementById("hud-subtitle").textContent = "Photo figée — Pincez « 🎯 LANCER OSINT » pour identifier";
+    document.getElementById("hud-badge").textContent = "Prête · 12MP";
+    document.getElementById("hud-social-line").textContent = "🔗 PRÊT POUR RECHERCHE OSINT & BIOMÉTRIE 512-D";
+    document.getElementById("hud-summary-text").textContent = "Votre photo est figée ci-dessus. Pincez « 🎯 LANCER OSINT » pour lancer la reconnaissance faciale et OSINT, ou « 📹 FLUX VIDÉO » pour reprendre une photo.";
+
+    showPhotoHudScreen();
+    setFooter("📸 Photo figée dans le HUD — Pincez 🎯 LANCER OSINT");
+
+    // Persist the frozen still photo on Mac Studio (and trigger 0098 snap_photo if needed) WITHOUT running OSINT yet
+    const rawB64 = latestLiveFrameDataUrl.startsWith("data:image")
+      ? (latestLiveFrameDataUrl.split(",")[1] || "")
+      : "";
+
+    const bases = getApiBases();
+    for (let base of bases) {
+      try {
+        const res = await fetchTimeout(base + "/api/capture_still", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image_b64: rawB64 })
+        }, 4000);
+        if (res && res.ok) {
+          const data = await res.json();
+          if (data && data.capture_b64 && !rawB64) {
+            setFrozenHudPhoto("data:image/jpeg;base64," + data.capture_b64, "📸 PHOTO PRISE PAR VOS LUNETTES 0098 (FIGÉE)");
+          }
+          break;
+        }
+      } catch (_) {}
+    }
+  };
+
+  // =========================================================================
+  // STEP 3: LAUNCH OSINT SEARCH FROM THE CAPTURED PHOTO IN THE HUD
+  // =========================================================================
+  window.launchOsintFromHudPhoto = async function() {
+    if (isOsintRunning) return;
+    isOsintRunning = true;
+
+    document.getElementById("hud-title").textContent = "🎯 RECHERCHE OSINT EN COURS…";
+    document.getElementById("hud-subtitle").textContent = "Biométrie ArcFace 512-D + Bases Mondiales + Aleria Vision…";
+    document.getElementById("hud-badge").textContent = "Scan OSINT…";
+    document.getElementById("hud-social-line").textContent = "🔎 INTERROGATION E.D.I.T.H. · LINKEDIN · IG · X · WEB…";
+    document.getElementById("hud-summary-text").textContent = "Analyse de la photo figée dans le HUD en cours…";
+    setFooter("🎯 Recherche OSINT lancée sur la photo du HUD…");
+
+    const rawB64 = frozenPhotoDataUrl.startsWith("data:image")
+      ? (frozenPhotoDataUrl.split(",")[1] || "")
+      : "";
+
+    try {
+      const bases = getApiBases();
+      for (let base of bases) {
+        try {
+          const res = await fetchTimeout(base + "/api/run_osint", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              image_b64: rawB64,
+              query: "Qui est devant moi sur cette photo ? Identifie cette personne (nom, rôle, entreprise, réseaux sociaux)."
+            })
+          }, 18000);
+          if (res && res.ok) {
+            const data = await res.json();
+            renderOsintResultOnHud(data.osint || data.live_osint || {}, data.response || data.result || "", data.capture_b64);
+            isOsintRunning = false;
+            return;
+          }
+        } catch (_) {}
+      }
+      document.getElementById("hud-title").textContent = "⚠️ DÉLAI OSINT DÉPASSÉ";
+      document.getElementById("hud-summary-text").textContent = "Pincez à nouveau « 🎯 LANCER OSINT » pour réessayer.";
+    } finally {
+      isOsintRunning = false;
+    }
+  };
+
+  window.describeHudPhoto = async function() {
+    if (isOsintRunning) return;
+    isOsintRunning = true;
+
+    document.getElementById("hud-title").textContent = "👁️ ANALYSE DE LA PHOTO EN COURS…";
+    document.getElementById("hud-subtitle").textContent = "Description de la scène et lecture du texte (OCR)…";
+    document.getElementById("hud-badge").textContent = "Vision 12MP…";
+    document.getElementById("hud-summary-text").textContent = "Analyse visuelle Aleria Sovereign Vision en cours…";
+    setFooter("👁️ Analyse de la photo du HUD en cours…");
+
+    const rawB64 = frozenPhotoDataUrl.startsWith("data:image")
+      ? (frozenPhotoDataUrl.split(",")[1] || "")
+      : "";
+
+    try {
+      const bases = getApiBases();
+      for (let base of bases) {
+        try {
+          const res = await fetchTimeout(base + "/api/run_osint", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              image_b64: rawB64,
+              query: "Qu'est-ce que je vois sur cette photo ? Décris la scène et lis tout texte visible en 2 phrases courtes."
+            })
+          }, 15000);
+          if (res && res.ok) {
+            const data = await res.json();
+            renderOsintResultOnHud(data.osint || data.live_osint || {}, data.response || data.result || "", data.capture_b64);
+            isOsintRunning = false;
+            return;
+          }
+        } catch (_) {}
+      }
+    } finally {
+      isOsintRunning = false;
+    }
+  };
+
+  function renderOsintResultOnHud(osint, responseText, overlayB64) {
+    if (overlayB64) {
+      setFrozenHudPhoto("data:image/jpeg;base64," + overlayB64, "🎯 PHOTO ANALYSÉE PAR E.D.I.T.H. (FIGÉE)");
+    }
+    const d = osint || {};
+    const hasName = Boolean(d.name && !String(d.name).includes("CAMÉRA 0098"));
+    const name = hasName ? d.name : "Analyse Photo 0098";
+    const role = [d.role, d.company].filter(Boolean).join(" · ") || d.description || "Aleria Sovereign Vision · 12MP";
+    const conf = d.confidence ? String(d.confidence) : "12MP";
+    const summary = responseText || d.summary || d.edith_card || "Analyse terminée.";
+
+    const socials = [
+      d.instagram ? ("IG " + d.instagram) : "",
+      d.linkedin ? ("LI " + d.linkedin) : "",
+      d.twitter ? ("X " + d.twitter) : "",
+      d.facebook ? ("FB " + d.facebook) : "",
+      d.website ? ("Web " + d.website) : ""
+    ].filter(Boolean).join(" · ") || (d.recognition_source ? ("Source : " + d.recognition_source) : "Aleria Sovereign Vision & OSINT");
+
+    document.getElementById("hud-title").textContent = "🎯 " + name;
+    document.getElementById("hud-subtitle").textContent = "💼 " + role;
+    document.getElementById("hud-badge").textContent = conf;
+    document.getElementById("hud-social-line").textContent = "🔗 " + socials;
+    document.getElementById("hud-summary-text").textContent = summary;
+    setFooter("✓ " + name + " — " + summary.slice(0, 60));
+  }
+
+  // =========================================================================
+  // CONTINUOUS LIVE VIDEO POLLING FOR STEP 1 VIEWFINDER ONLY
+  // =========================================================================
+  let pollBusy = false;
+  async function pollLiveVideoStream() {
+    if (pollBusy) return;
+    pollBusy = true;
+    try {
+      const bases = getApiBases();
+      for (let base of bases) {
+        try {
+          const res = await fetchTimeout(base + "/api/latest_result?t=" + Date.now(), { cache: "no-store" }, 2200);
+          if (res && res.ok) {
+            const data = await res.json();
+            const lTs = Number(data.live_frame_ts || 0);
+            if (data.live_frame_b64 && (lTs > lastLiveFrameTs || lastLiveFrameTs === 0)) {
+              lastLiveFrameTs = lTs;
+              renderLiveVideoFrame("data:image/jpeg;base64," + data.live_frame_b64);
+            }
+            return;
+          }
+        } catch (_) {}
+      }
+    } finally {
+      pollBusy = false;
+    }
+  }
+
+  let lastStreamRequestAt = 0;
+  async function requestStartVideoStreamOnGlasses() {
+    const now = Date.now();
+    if (now - lastStreamRequestAt < 10000) return;
+    lastStreamRequestAt = now;
     const bases = getApiBases();
     for (let base of bases) {
       try {
         const res = await fetchTimeout(base + "/api/glasses_action", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: actionId, query: queryText })
-        }, 4500);
-        if (res && res.ok) return await res.json();
+          body: JSON.stringify({ action: "start_video_return", query: "Active le retour vidéo en direct des lunettes 0098" })
+        }, 3000);
+        if (res && res.ok) return;
       } catch (_) {}
     }
-    sendViaWebSocketBridge(actionId, queryText);
-    return null;
   }
-
-  window.retakeCurrentPhoto = function() {
-    triggerHermesAction(lastTriggeredActionId || "scan_face", lastTriggeredQuery || "Qui est devant moi ? Identifie cette personne.");
-  };
-
-  window.triggerHermesAction = async function(actionId, queryText) {
-    if (actionId === "start_video_return") {
-      openLiveViewfinder();
-      return;
-    }
-    if (actionId === "scan_face" || actionId === "look_around" || actionId === "read_text") {
-      lastTriggeredActionId = actionId;
-      lastTriggeredQuery = queryText;
-    }
-    isCapturingPhoto = true;
-    hasCapturedPhotoOnHud = false;
-    lastActionStartUnix = (Date.now() / 1000) - 0.25;
-    flashShutter();
-    switchView("hud");
-
-    const title = document.getElementById("hud-title");
-    const subtitle = document.getElementById("hud-subtitle");
-    const badge = document.getElementById("hud-badge");
-    const r1Val = document.getElementById("hud-r1-val");
-    const r2Val = document.getElementById("hud-r2-val");
-    const hudPill = document.getElementById("hud-cam-pill");
-
-    const labels = {
-      scan_face: "🎯 NOUVELLE PHOTO & SCAN VISAGE…",
-      look_around: "👁️ NOUVELLE PHOTO & ANALYSE SCÈNE…",
-      read_text: "📄 NOUVELLE PHOTO & LECTURE OCR…",
-      lookup_live: "🔍 LOOKUP OSINT & BIOMÉTRIE…",
-      briefing: "📋 BRIEFING EXÉCUTIF ICO…",
-      status: "🕐 INTERROGATION ALERIA…"
-    };
-
-    if (title) title.textContent = labels[actionId] || "⚡ EXÉCUTION ALERIA EN COURS…";
-    if (subtitle) subtitle.textContent = queryText;
-    if (badge) badge.textContent = "Obturateur 0098…";
-    if (hudPill) hudPill.textContent = "📸 PRISE D'UNE NOUVELLE PHOTO 0098 EN COURS…";
-    if (r1Val) r1Val.textContent = "Déclenchement d'une nouvelle prise de vue sur les lunettes 0098…";
-    if (r2Val) r2Val.textContent = "La nouvelle photo prise va remplacer cet affichage dès l'ouverture de l'obturateur.";
-    setFooter("📸 Nouvelle photo 0098 en cours : " + queryText);
-
-    const data = await sendActionToStudio(actionId, queryText);
-    if (data && data.status === "done" && (data.response || data.live_osint || data.osint)) {
-      if (data.timestamp) lastResultTimestamp = String(data.timestamp);
-      if (data.capture_ts) lastCaptureTs = Number(data.capture_ts);
-      applyLiveOsintPayload(data.live_osint || data.osint, data.response || data.edith_card, data.capture_b64, data.capture_ts);
-      return;
-    }
-
-    for (let i = 0; i < 32; i++) {
-      await new Promise(function(r) { setTimeout(r, 450); });
-      const updated = await pollStudioState(true);
-      if (updated) return;
-    }
-    isCapturingPhoto = false;
-  };
 
   function connectWebSocketBridge() {
     try {
-      const wsUrl = ENDPOINTS.wssBridge;
-      if (!wsUrl) return;
-      const ws = new WebSocket(wsUrl);
+      const ws = new WebSocket(ENDPOINTS.wssBridge);
       ws.onopen = function() {
         bridgeSocket = ws;
         const pill = document.getElementById("footer-conn-pill");
-        if (pill) pill.textContent = "🟢 LIVE 0098";
-        try {
-          ws.send(JSON.stringify({
-            type: "trigger_action",
-            action: "start_video_return",
-            query: "Active le retour vidéo en direct des lunettes 0098"
-          }));
-        } catch (_) {}
+        if (pill) pill.textContent = "🟢 0098 LIVE";
       };
       ws.onmessage = function(ev) {
         if (typeof ev.data !== "string") return;
         try {
           const msg = JSON.parse(ev.data);
           if (msg.type === "live_frame" && msg.frame_b64) {
-            updateCameraImages("data:image/jpeg;base64," + msg.frame_b64, "🟢 VISEUR CAMÉRA 0098 EN DIRECT", false);
-          } else if (msg.type === "captured_photo" && msg.frame_b64) {
-            flashShutter();
-            if (msg.ts) lastCaptureTs = Number(msg.ts);
-            updateCameraImages("data:image/jpeg;base64," + msg.frame_b64, "📸 NOUVELLE PHOTO PRISE PAR ALERIA · ANALYSE…", true);
-            const r2Val = document.getElementById("hud-r2-val");
-            if (r2Val) r2Val.textContent = "Nouvelle photo reçue des lunettes 0098 ! Analyse Aleria en cours…";
-          } else if (msg.type === "response" && msg.text) {
-            if (msg.timestamp) lastResultTimestamp = String(msg.timestamp);
-            if (msg.capture_ts) lastCaptureTs = Number(msg.capture_ts);
-            lastActionStartUnix = Date.now() / 1000;
-            applyLiveOsintPayload(msg.live_osint || null, msg.text, msg.capture_b64, msg.capture_ts);
-          } else if (msg.type === "osint_update" && msg.live_osint) {
-            if (msg.timestamp) lastResultTimestamp = String(msg.timestamp);
-            if (msg.capture_ts) lastCaptureTs = Number(msg.capture_ts);
-            applyLiveOsintPayload(msg.live_osint, msg.text || "", msg.capture_b64, msg.capture_ts);
+            renderLiveVideoFrame("data:image/jpeg;base64," + msg.frame_b64);
           }
         } catch (_) {}
       };
       ws.onclose = function() {
         bridgeSocket = null;
-        setTimeout(connectWebSocketBridge, 3500);
+        setTimeout(connectWebSocketBridge, 4000);
       };
     } catch (_) {}
   }
 
-  function sendViaWebSocketBridge(actionId, queryText) {
-    if (bridgeSocket && bridgeSocket.readyState === 1) {
-      if (actionId === "new_session") {
-        bridgeSocket.send(JSON.stringify({ type: "new_session" }));
-      } else {
-        bridgeSocket.send(JSON.stringify({
-          type: "trigger_action",
-          action: actionId,
-          query: queryText
-        }));
-      }
-    }
-  }
-
-  window.triggerVoiceOrPrompt = function() {
-    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const sub = document.getElementById("voice-btn-sub");
-    if (typeof SpeechRec === "function") {
-      try {
-        if (activeSpeechRec) {
-          activeSpeechRec.stop();
-          activeSpeechRec = null;
-        }
-        const rec = new SpeechRec();
-        activeSpeechRec = rec;
-        rec.lang = "fr-FR";
-        rec.interimResults = false;
-        rec.maxAlternatives = 1;
-        if (sub) sub.textContent = "🎙️ Écoute en cours… Parlez !";
-        setFooter("🎙️ Parlez maintenant : posez une question ou dites un nom…");
-        rec.onresult = function(e) {
-          activeSpeechRec = null;
-          if (sub) sub.textContent = "Commande Vocale Directe";
-          const txt = (e.results && e.results[0] && e.results[0][0] && e.results[0][0].transcript) || "";
-          if (txt.trim()) {
-            triggerHermesAction("voice_query", txt.trim());
-          }
-        };
-        rec.onerror = function() {
-          activeSpeechRec = null;
-          if (sub) sub.textContent = "Commande Vocale Directe";
-          switchView("targets");
-        };
-        rec.start();
-        return;
-      } catch (_) {}
-    }
-    switchView("targets");
-  };
-
-  async function lookupPersonWikipediaWikidata(personName) {
-    switchView("hud");
-    const title = document.getElementById("hud-title");
-    const subtitle = document.getElementById("hud-subtitle");
-    if (title) title.textContent = "🔎 RECHERCHE OSINT : " + personName.toUpperCase();
-    if (subtitle) subtitle.textContent = "Interrogation Wikipedia, Wikidata (IG/FB/LI/X/Web) & Mac Studio…";
-
-    triggerHermesAction("osint_person", "Qui est " + personName + " ? Donne son rôle et ses réseaux.");
-
-    try {
-      const sUrl = "https://fr.wikipedia.org/w/api.php?action=query&list=search&srsearch=" +
-                   encodeURIComponent(personName) + "&utf8=&format=json&origin=*";
-      const sRes = await fetchTimeout(sUrl, {}, 4000);
-      const sData = await sRes.json();
-      const topTitle = sData && sData.query && sData.query.search && sData.query.search[0] && sData.query.search[0].title;
-      if (!topTitle) return;
-
-      const sumUrl = "https://fr.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(topTitle);
-      const sumRes = await fetchTimeout(sumUrl, {}, 4000);
-      const wiki = await sumRes.json();
-      const qid = wiki.wikibase_item || "";
-      let ig = "", fb = "", li = "", tw = "", web = "";
-
-      if (qid) {
-        const wdUrl = "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=" + qid + "&props=claims&format=json&origin=*";
-        const wdRes = await fetchTimeout(wdUrl, {}, 4000);
-        const wd = await wdRes.json();
-        const claims = (wd.entities && wd.entities[qid] && wd.entities[qid].claims) || {};
-        const claimVal = function(p) {
-          return claims[p] && claims[p][0] && claims[p][0].mainsnak && claims[p][0].mainsnak.datavalue && claims[p][0].mainsnak.datavalue.value;
-        };
-        if (claimVal("P2003")) ig = "@" + claimVal("P2003");
-        if (claimVal("P2013")) fb = "fb.com/" + claimVal("P2013");
-        if (claimVal("P6634")) li = "/in/" + claimVal("P6634");
-        if (claimVal("P2002")) tw = "@" + claimVal("P2002");
-        if (claimVal("P856")) web = String(claimVal("P856")).replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
-      }
-
-      applyLiveOsintPayload({
-        name: wiki.title || personName,
-        role: wiki.description || "Profil OSINT Vérifié",
-        confidence: "99.4%",
-        recognition_source: "Wikipedia · Wikidata",
-        instagram: ig,
-        facebook: fb,
-        linkedin: li,
-        twitter: tw,
-        website: web,
-        summary: wiki.extract || "",
-        photo: (wiki.thumbnail && wiki.thumbnail.source) || "icon-192.png"
-      });
-    } catch (_) {}
-  }
-
-  window.submitOsintSearch = function() {
-    const inp = document.getElementById("osint-search-input");
-    const val = inp ? inp.value.trim() : "";
-    if (!val) return;
-    if (val.split(/\s+/).length <= 3 && !val.includes("?")) {
-      lookupPersonWikipediaWikidata(val);
-    } else {
-      triggerHermesAction("custom_query", val);
-    }
-  };
-
-  function renderQuickGrid() {
-    const grid = document.getElementById("osint-quick-grid");
-    if (!grid) return;
-    grid.innerHTML = "";
-    QUICK_ACTIONS.forEach(function(item) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "radar-chip";
-      btn.innerHTML =
-        '<div class="radar-chip-name">' + item.label + '</div>' +
-        '<div class="radar-chip-sub">' + item.query + '</div>';
-      btn.onclick = function() {
-        triggerHermesAction(item.cmd, item.query);
-      };
-      grid.appendChild(btn);
-    });
-  }
-
-  let pollInFlight = false;
-  async function pollStudioState(waitingForAction) {
-    if (!waitingForAction && pollInFlight) return false;
-    if (!waitingForAction) pollInFlight = true;
-    try {
-      const bases = getApiBases();
-      for (let base of bases) {
-        try {
-          const res = await fetchTimeout(base + "/api/latest_result?t=" + Date.now(), { cache: "no-store" }, 3500);
-          if (res && res.ok) {
-            const data = await res.json();
-            const pill = document.getElementById("footer-conn-pill");
-            if (pill) {
-              const clients = Number(data.connected_clients || 0);
-              pill.textContent = clients > 0 ? ("🟢 0098 LIVE (" + clients + ")") : "🟢 STUDIO 0098";
-            }
-
-            const frameB64 = data.live_frame_b64 || data.capture_b64 || "";
-            const frameTs = Number(data.live_frame_ts || data.capture_ts || 0);
-            if (frameB64 && (frameTs > lastCaptureTs || lastCaptureTs === 0)) {
-              lastCaptureTs = frameTs;
-              updateCameraImages("data:image/jpeg;base64," + frameB64, "🟢 VISEUR CAMÉRA 0098 EN DIRECT", false);
-            } else if (frameTs > lastCaptureTs || lastCaptureTs === 0) {
-              lastCaptureTs = frameTs;
-              preloadLiveFrameFromHttp(frameTs, "🟢 VISEUR CAMÉRA 0098 EN DIRECT", false);
-            }
-
-            const st = data.status || "idle";
-            const ts = String(data.timestamp || "");
-            const unixTs = Number(data.unix_ts || 0);
-            if (waitingForAction && (st === "scanning" || st === "thinking")) {
-              const badge = document.getElementById("hud-badge");
-              if (badge) badge.textContent = st === "scanning" ? "Caméra 0098 12MP…" : "Analyse Aleria…";
-              return false;
-            }
-            if (waitingForAction && lastActionStartUnix > 0 && unixTs > 0 && unixTs < lastActionStartUnix) {
-              return false;
-            }
-            const osint = data.live_osint || data.osint || {};
-            const respText = data.response || data.edith_card || osint.summary || "";
-            if (st === "done" && (respText || osint.name) && ts && ts !== lastResultTimestamp) {
-              const isFirstSeed = (lastResultTimestamp === "" && !waitingForAction);
-              lastResultTimestamp = ts;
-              if (!isFirstSeed || waitingForAction) {
-                applyLiveOsintPayload(osint, respText, data.capture_b64 || data.live_frame_b64, data.capture_ts || data.live_frame_ts);
-                return true;
-              }
-            }
-            return false;
-          }
-        } catch (_) {}
-      }
-      return false;
-    } finally {
-      if (!waitingForAction) pollInFlight = false;
-    }
-  }
-
+  // Meta Neural Band Keyboard / D-Pad Navigation (NO timer .focus() hijacking!)
   window.addEventListener("keydown", function(e) {
-    if (document.activeElement && document.activeElement.tagName === "INPUT") {
-      if (e.key === "Escape") {
-        document.activeElement.blur();
-        switchView("menu");
-      }
-      return;
-    }
-
-    if (currentView === "menu") {
-      if (e.key === "ArrowRight") {
+    if (currentScreen === "live") {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowUp") {
         e.preventDefault();
-        focusShortcut(focusedShortcutIdx + 1);
-      } else if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        focusShortcut(focusedShortcutIdx - 1);
-      } else if (e.key === "ArrowDown") {
-        e.preventDefault();
-        focusShortcut(focusedShortcutIdx + 2);
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        focusShortcut(focusedShortcutIdx - 2);
+        liveFocusIdx = (liveFocusIdx + 1) % 2;
+        updateSpatialHighlight();
+        const btn = document.getElementById("live-btn-" + liveFocusIdx);
+        if (btn) { try { btn.focus(); } catch (_) {} }
       } else if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        const btn = document.getElementById("sc-" + focusedShortcutIdx);
+        const btn = document.getElementById("live-btn-" + liveFocusIdx);
         if (btn) btn.click();
       }
-    } else if (currentView === "video") {
-      if (e.key === "Backspace" || e.key === "Escape" || e.key === "ArrowUp") {
+    } else if (currentScreen === "hud") {
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
         e.preventDefault();
-        stopLiveViewfinderAndBack();
-      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        hudFocusIdx = (hudFocusIdx + 1) % 3;
+        updateSpatialHighlight();
+        const btn = document.getElementById("hud-btn-" + hudFocusIdx);
+        if (btn) { try { btn.focus(); } catch (_) {} }
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
         e.preventDefault();
-        focusVfButton(focusedVfBtnIdx + 1);
-      } else if (e.key === "ArrowLeft") {
+        hudFocusIdx = (hudFocusIdx + 2) % 3;
+        updateSpatialHighlight();
+        const btn = document.getElementById("hud-btn-" + hudFocusIdx);
+        if (btn) { try { btn.focus(); } catch (_) {} }
+      } else if (e.key === "Backspace" || e.key === "Escape") {
         e.preventDefault();
-        focusVfButton(focusedVfBtnIdx - 1);
+        showLiveVideoScreen();
       } else if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        const btn = document.getElementById("vf-btn-" + focusedVfBtnIdx);
+        const btn = document.getElementById("hud-btn-" + hudFocusIdx);
         if (btn) btn.click();
-      }
-    } else if (currentView === "hud") {
-      if (e.key === "Backspace" || e.key === "Escape") {
-        e.preventDefault();
-        switchView("menu");
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
-        switchHudSubTab(currentHudTab + 1);
-      } else if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        switchHudSubTab(currentHudTab - 1);
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        const backBtn = document.getElementById("btn-back-menu");
-        if (backBtn) backBtn.focus();
-      } else if (e.key === "ArrowDown") {
-        e.preventDefault();
-        const retakeBtn = document.getElementById("btn-retake-photo");
-        if (retakeBtn) retakeBtn.focus();
       }
     }
   });
 
-  function registerMrbdWebMCP() {
-    try {
-      if (!document.modelContext || typeof document.modelContext.registerTool !== "function") return;
-      document.modelContext.registerTool({
-        name: "hermes_scan_face",
-        description: "Capture a 12MP photo from Meta Ray-Ban Display glasses, display the photo in the HUD, and identify the person.",
-        inputSchema: { type: "object", properties: {} },
-        execute: async function() {
-          await triggerHermesAction("scan_face", "Qui est devant moi ? Identifie cette personne.");
-          return { ok: true, subject: activeSubject };
-        }
-      });
-      document.modelContext.registerTool({
-        name: "hermes_open_viewfinder",
-        description: "Open the live Meta-style camera viewfinder in the 600x600 glasses display.",
-        inputSchema: { type: "object", properties: {} },
-        execute: async function() {
-          openLiveViewfinder();
-          return { ok: true };
-        }
-      });
-    } catch (_) {}
-  }
-
-  loadDynamicConfig().then(function() {
-    connectWebSocketBridge();
-    startLiveViewfinderPolling();
-    sendActionToStudio("start_video_return", "Active le retour vidéo en direct des lunettes 0098");
-    pollStudioState(false);
-    setInterval(function() { pollStudioState(false); }, 450);
-  });
-  registerMrbdWebMCP();
-  focusShortcut(0);
-
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("action")) {
-    triggerHermesAction(params.get("action"), params.get("q") || "Exécute l'action " + params.get("action"));
-  } else if (params.get("name")) {
-    lookupPersonWikipediaWikidata(params.get("name"));
-  }
+  connectWebSocketBridge();
+  requestStartVideoStreamOnGlasses();
+  pollLiveVideoStream();
+  setInterval(pollLiveVideoStream, 280);
 })();
 </script>
 </body>
