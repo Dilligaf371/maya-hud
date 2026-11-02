@@ -643,15 +643,15 @@
       <span>⚡ ALERIA · 0098</span>
     </div>
     <nav class="nav-pills" aria-label="Modes Hermes">
-      <button type="button" class="nav-btn active" id="nav-video" onclick="switchView('video')">📹 VISEUR</button>
-      <button type="button" class="nav-btn" id="nav-menu" onclick="switchView('menu')">MENU</button>
+      <button type="button" class="nav-btn active" id="nav-menu" onclick="switchView('menu')">MENU</button>
+      <button type="button" class="nav-btn" id="nav-video" onclick="openLiveViewfinder()">📹 VISEUR</button>
       <button type="button" class="nav-btn" id="nav-hud" onclick="switchView('hud')">HUD</button>
       <button type="button" class="nav-btn" id="nav-targets" onclick="switchView('targets')">OSINT</button>
     </nav>
   </header>
 
   <!-- VIEW 1: ALWAYS-ON CAMERA VIEWFINDER + 6-BUTTON INTERACTIVE SHORTCUTS LAUNCHER -->
-  <main id="view-menu" class="view-panel" aria-label="Viseur Caméra & Raccourcis Hermes Glasses">
+  <main id="view-menu" class="view-panel active" aria-label="Viseur Caméra & Raccourcis Hermes Glasses">
     <div class="menu-camera-stage" id="menu-camera-stage">
       <div class="vf-corner vf-tl"></div>
       <div class="vf-corner vf-tr"></div>
@@ -765,7 +765,7 @@
   </section>
 
   <!-- VIEW 3: META-STYLE FULL-SCREEN CAMERA / VIDEO VIEWFINDER (600x600) -->
-  <section id="view-video" class="view-panel active" aria-label="Viseur Photo et Vidéo en Direct">
+  <section id="view-video" class="view-panel" aria-label="Viseur Photo et Vidéo en Direct">
     <div class="viewfinder-box">
       <div class="vf-corner vf-tl"></div>
       <div class="vf-corner vf-tr"></div>
@@ -834,7 +834,7 @@
     lanWs: "ws://192.168.1.116:8765/voice"
   };
 
-  let currentView = "video"; // "video" | "menu" | "hud" | "targets"
+  let currentView = "menu"; // "menu" | "video" | "hud" | "targets"
   let focusedShortcutIdx = 0;
   let focusedVfBtnIdx = 0;
   let currentHudTab = 0;
@@ -847,6 +847,7 @@
   let bridgeSocket = null;
   let activeSpeechRec = null;
   let liveViewfinderInterval = null;
+  let imageLoadInFlight = false;
   let isCapturingPhoto = false;
   let hasCapturedPhotoOnHud = false;
 
@@ -939,13 +940,39 @@
     switchView("menu");
   };
 
+  function preloadLiveFrameFromHttp(tsHint, pillLabel, isCapturedStill) {
+    if (imageLoadInFlight) return;
+    const base = ENDPOINTS.httpsApi;
+    if (!base) return;
+    imageLoadInFlight = true;
+    const stamp = (tsHint || Date.now()) + "_" + Math.floor(Math.random() * 9999);
+    const url = base + "/api/live_frame.jpg?t=" + stamp;
+    const img = new Image();
+    const timer = setTimeout(function() {
+      imageLoadInFlight = false;
+    }, 2800);
+    img.onload = function() {
+      clearTimeout(timer);
+      imageLoadInFlight = false;
+      updateCameraImages(url, pillLabel || "🟢 VISEUR CAMÉRA 0098 EN DIRECT", Boolean(isCapturedStill));
+      const avatar = document.getElementById("hud-avatar");
+      if (avatar && (isCapturedStill || !activeSubject || !activeSubject.photo || activeSubject.photo === "icon-192.png")) {
+        avatar.src = url;
+      }
+    };
+    img.onerror = function() {
+      clearTimeout(timer);
+      imageLoadInFlight = false;
+    };
+    img.src = url;
+  }
+
   function startLiveViewfinderPolling() {
-    // Live frames are pushed in real time via WebSocket (`live_frame` base64)
-    // and polled via `pollStudioState` (`live_frame_b64` base64) so `<img>.src`
-    // only ever receives decoded `data:image/jpeg;base64,...` strings and never
-    // aborts in-flight image loads in WebKit.
     if (liveViewfinderInterval) return;
-    liveViewfinderInterval = true;
+    preloadLiveFrameFromHttp(Date.now(), "🟢 VISEUR CAMÉRA 0098 EN DIRECT", false);
+    liveViewfinderInterval = setInterval(function() {
+      preloadLiveFrameFromHttp(Date.now(), isCapturingPhoto ? "📸 NOUVELLE PHOTO PRISE PAR ALERIA (0098)" : "🟢 VISEUR CAMÉRA 0098 EN DIRECT", false);
+    }, 550);
   }
 
   function focusShortcut(idx) {
@@ -1030,6 +1057,9 @@
   function applyLiveOsintPayload(osint, responseText, captureB64, captureTs) {
     if (captureB64) {
       updateCameraImages("data:image/jpeg;base64," + captureB64, "📸 PHOTO PRISE PAR ALERIA (0098)", true);
+    } else {
+      imageLoadInFlight = false;
+      preloadLiveFrameFromHttp(captureTs || Date.now(), "📸 PHOTO PRISE PAR ALERIA (0098)", true);
     }
     if (!osint && !responseText) return;
     const d = osint || {};
@@ -1038,9 +1068,10 @@
     const role = [d.role, d.company].filter(Boolean).join(" · ") || d.description || (hasPerson ? "Profil identifié" : "Capture optique 12MP analysée");
     const conf = d.confidence ? (String(d.confidence).replace(/%$/, "") + "%") : "12MP Live";
     const summary = responseText || d.summary || d.edith_card || "Prêt.";
+    const freshFrameUrl = ENDPOINTS.httpsApi ? (ENDPOINTS.httpsApi + "/api/live_frame.jpg?t=" + (captureTs || Date.now())) : "icon-192.png";
     const portraitUrl = d.photo_b64
       ? ("data:image/jpeg;base64," + d.photo_b64)
-      : (d.photo || (captureB64 ? ("data:image/jpeg;base64," + captureB64) : "icon-192.png"));
+      : (d.photo || (captureB64 ? ("data:image/jpeg;base64," + captureB64) : freshFrameUrl));
 
     activeSubject = {
       name: name,
@@ -1349,7 +1380,7 @@
       const bases = getApiBases();
       for (let base of bases) {
         try {
-          const res = await fetchTimeout(base + "/api/latest_result?t=" + Date.now(), { cache: "no-store" }, 2200);
+          const res = await fetchTimeout(base + "/api/latest_result?t=" + Date.now(), { cache: "no-store" }, 3500);
           if (res && res.ok) {
             const data = await res.json();
             const pill = document.getElementById("footer-conn-pill");
@@ -1363,6 +1394,9 @@
             if (frameB64 && (frameTs > lastCaptureTs || lastCaptureTs === 0)) {
               lastCaptureTs = frameTs;
               updateCameraImages("data:image/jpeg;base64," + frameB64, "🟢 VISEUR CAMÉRA 0098 EN DIRECT", false);
+            } else if (frameTs > lastCaptureTs || lastCaptureTs === 0) {
+              lastCaptureTs = frameTs;
+              preloadLiveFrameFromHttp(frameTs, "🟢 VISEUR CAMÉRA 0098 EN DIRECT", false);
             }
 
             const st = data.status || "idle";
@@ -1424,10 +1458,10 @@
         if (btn) btn.click();
       }
     } else if (currentView === "video") {
-      if (e.key === "Backspace" || e.key === "Escape") {
+      if (e.key === "Backspace" || e.key === "Escape" || e.key === "ArrowUp") {
         e.preventDefault();
         stopLiveViewfinderAndBack();
-      } else if (e.key === "ArrowRight") {
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
         e.preventDefault();
         focusVfButton(focusedVfBtnIdx + 1);
       } else if (e.key === "ArrowLeft") {
@@ -1489,10 +1523,10 @@
     startLiveViewfinderPolling();
     sendActionToStudio("start_video_return", "Active le retour vidéo en direct des lunettes 0098");
     pollStudioState(false);
-    setInterval(function() { pollStudioState(false); }, 320);
+    setInterval(function() { pollStudioState(false); }, 450);
   });
   registerMrbdWebMCP();
-  focusVfButton(0);
+  focusShortcut(0);
 
   const params = new URLSearchParams(window.location.search);
   if (params.get("action")) {
