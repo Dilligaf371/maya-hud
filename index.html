@@ -1182,6 +1182,13 @@
         bridgeSocket = ws;
         const pill = document.getElementById("footer-conn-pill");
         if (pill) pill.textContent = "🟢 LIVE 0098";
+        try {
+          ws.send(JSON.stringify({
+            type: "trigger_action",
+            action: "start_video_return",
+            query: "Active le retour vidéo en direct des lunettes 0098"
+          }));
+        } catch (_) {}
       };
       ws.onmessage = function(ev) {
         if (typeof ev.data !== "string") return;
