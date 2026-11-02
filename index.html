@@ -739,7 +739,7 @@
         <div class="vf-corner vf-br"></div>
         <div class="vf-reticle"></div>
         <span class="hud-cam-pill" id="hud-cam-pill">📸 DERNIÈRE PHOTO PRISE PAR ALERIA</span>
-        <button type="button" class="hud-cam-snap-btn" onclick="triggerHermesAction('scan_face', 'Qui est devant moi ? Identifie cette personne.')">📸 REPRENDRE PHOTO</button>
+        <button type="button" class="hud-cam-snap-btn" id="btn-retake-photo" onclick="retakeCurrentPhoto()">📸 NOUVELLE PHOTO</button>
         <img id="hud-camera-img" class="hud-camera-img" src="icon-192.png" alt="Retour Caméra Lunettes 0098">
         <div class="hud-cam-overlay-bottom">
           <img id="hud-avatar" class="target-avatar" src="icon-192.png" alt="Portrait">
@@ -840,6 +840,9 @@
   let currentHudTab = 0;
   let lastResultTimestamp = "";
   let lastCaptureTs = 0;
+  let lastActionStartUnix = 0;
+  let lastTriggeredActionId = "scan_face";
+  let lastTriggeredQuery = "Qui est devant moi ? Identifie cette personne.";
   let activeSubject = null;
   let bridgeSocket = null;
   let activeSpeechRec = null;
@@ -920,8 +923,8 @@
       setFooter("📹 Viseur Caméra 0098 en direct — Pincez pour prendre la photo");
       startLiveViewfinderPolling();
     } else if (viewName === "hud") {
-      const backBtn = document.getElementById("btn-back-menu");
-      if (backBtn) backBtn.focus();
+      const retakeBtn = document.getElementById("btn-retake-photo");
+      if (retakeBtn) retakeBtn.focus();
     } else if (viewName === "targets") {
       renderQuickGrid();
       const inp = document.getElementById("osint-search-input");
@@ -1107,14 +1110,30 @@
     return null;
   }
 
+  window.retakeCurrentPhoto = function() {
+    triggerHermesAction(lastTriggeredActionId || "scan_face", lastTriggeredQuery || "Qui est devant moi ? Identifie cette personne.");
+  };
+
   window.triggerHermesAction = async function(actionId, queryText) {
     if (actionId === "start_video_return") {
       openLiveViewfinder();
       return;
     }
+    if (actionId === "scan_face" || actionId === "look_around" || actionId === "read_text") {
+      lastTriggeredActionId = actionId;
+      lastTriggeredQuery = queryText;
+    }
     isCapturingPhoto = true;
+    hasCapturedPhotoOnHud = false;
+    lastActionStartUnix = (Date.now() / 1000) - 0.25;
     flashShutter();
     switchView("hud");
+
+    const base = ENDPOINTS.httpsApi || ENDPOINTS.lanApi;
+    const hudImg = document.getElementById("hud-camera-img");
+    if (hudImg && base) {
+      hudImg.src = base + "/api/live_frame.jpg?t=" + Date.now();
+    }
 
     const title = document.getElementById("hud-title");
     const subtitle = document.getElementById("hud-subtitle");
@@ -1124,9 +1143,9 @@
     const hudPill = document.getElementById("hud-cam-pill");
 
     const labels = {
-      scan_face: "🎯 PRISE DE PHOTO & SCAN VISAGE…",
-      look_around: "👁️ PRISE DE PHOTO & ANALYSE SCÈNE…",
-      read_text: "📄 PRISE DE PHOTO & LECTURE OCR…",
+      scan_face: "🎯 NOUVELLE PHOTO & SCAN VISAGE…",
+      look_around: "👁️ NOUVELLE PHOTO & ANALYSE SCÈNE…",
+      read_text: "📄 NOUVELLE PHOTO & LECTURE OCR…",
       lookup_live: "🔍 LOOKUP OSINT & BIOMÉTRIE…",
       briefing: "📋 BRIEFING EXÉCUTIF ICO…",
       status: "🕐 INTERROGATION ALERIA…"
@@ -1135,23 +1154,25 @@
     if (title) title.textContent = labels[actionId] || "⚡ EXÉCUTION ALERIA EN COURS…";
     if (subtitle) subtitle.textContent = queryText;
     if (badge) badge.textContent = "Obturateur 0098…";
-    if (hudPill) hudPill.textContent = "📸 CAPTURE PHOTO LUNETTES 0098 EN COURS…";
-    if (r1Val) r1Val.textContent = "Déclenchement de la caméra 12MP des lunettes Meta Display…";
-    if (r2Val) r2Val.textContent = "La photo prise va s'afficher ici dès l'ouverture de l'obturateur.";
-    setFooter("📸 Prise de photo 0098 : " + queryText);
+    if (hudPill) hudPill.textContent = "📸 PRISE D'UNE NOUVELLE PHOTO 0098 EN COURS…";
+    if (r1Val) r1Val.textContent = "Déclenchement d'une nouvelle prise de vue sur les lunettes 0098…";
+    if (r2Val) r2Val.textContent = "La nouvelle photo prise va remplacer cet affichage dès l'ouverture de l'obturateur.";
+    setFooter("📸 Nouvelle photo 0098 en cours : " + queryText);
 
     const data = await sendActionToStudio(actionId, queryText);
     if (data && data.status === "done" && (data.response || data.live_osint || data.osint)) {
       if (data.timestamp) lastResultTimestamp = String(data.timestamp);
+      if (data.capture_ts) lastCaptureTs = Number(data.capture_ts);
       applyLiveOsintPayload(data.live_osint || data.osint, data.response || data.edith_card, data.capture_b64, data.capture_ts);
       return;
     }
 
-    for (let i = 0; i < 28; i++) {
-      await new Promise(function(r) { setTimeout(r, 500); });
+    for (let i = 0; i < 32; i++) {
+      await new Promise(function(r) { setTimeout(r, 450); });
       const updated = await pollStudioState(true);
       if (updated) return;
     }
+    isCapturingPhoto = false;
   };
 
   function connectWebSocketBridge() {
@@ -1172,12 +1193,18 @@
             updateCameraImages("data:image/jpeg;base64," + msg.frame_b64, "🟢 VISEUR CAMÉRA 0098 EN DIRECT", false);
           } else if (msg.type === "captured_photo" && msg.frame_b64) {
             flashShutter();
-            updateCameraImages("data:image/jpeg;base64," + msg.frame_b64, "📸 PHOTO PRISE PAR ALERIA · ANALYSE…", true);
+            if (msg.ts) lastCaptureTs = Number(msg.ts);
+            updateCameraImages("data:image/jpeg;base64," + msg.frame_b64, "📸 NOUVELLE PHOTO PRISE PAR ALERIA · ANALYSE…", true);
             const r2Val = document.getElementById("hud-r2-val");
-            if (r2Val) r2Val.textContent = "Photo reçue des lunettes 0098 ! Analyse Aleria en cours…";
+            if (r2Val) r2Val.textContent = "Nouvelle photo reçue des lunettes 0098 ! Analyse Aleria en cours…";
           } else if (msg.type === "response" && msg.text) {
+            if (msg.timestamp) lastResultTimestamp = String(msg.timestamp);
+            if (msg.capture_ts) lastCaptureTs = Number(msg.capture_ts);
+            lastActionStartUnix = Date.now() / 1000;
             applyLiveOsintPayload(msg.live_osint || null, msg.text, msg.capture_b64, msg.capture_ts);
           } else if (msg.type === "osint_update" && msg.live_osint) {
+            if (msg.timestamp) lastResultTimestamp = String(msg.timestamp);
+            if (msg.capture_ts) lastCaptureTs = Number(msg.capture_ts);
             applyLiveOsintPayload(msg.live_osint, msg.text || "", msg.capture_b64, msg.capture_ts);
           }
         } catch (_) {}
@@ -1335,16 +1362,20 @@
             pill.textContent = clients > 0 ? ("🟢 0098 LIVE (" + clients + ")") : "🟢 STUDIO 0098";
           }
 
-          if (data.capture_b64 && data.capture_ts && Number(data.capture_ts) !== lastCaptureTs) {
+          if (data.capture_b64 && data.capture_ts && Number(data.capture_ts) > lastCaptureTs) {
             lastCaptureTs = Number(data.capture_ts);
             updateCameraImages("data:image/jpeg;base64," + data.capture_b64, "📸 PHOTO PRISE PAR ALERIA (0098)", true);
           }
 
           const st = data.status || "idle";
           const ts = String(data.timestamp || "");
+          const unixTs = Number(data.unix_ts || 0);
           if (waitingForAction && (st === "scanning" || st === "thinking")) {
             const badge = document.getElementById("hud-badge");
             if (badge) badge.textContent = st === "scanning" ? "Caméra 0098 12MP…" : "Analyse Aleria…";
+            return false;
+          }
+          if (waitingForAction && lastActionStartUnix > 0 && unixTs > 0 && unixTs < lastActionStartUnix) {
             return false;
           }
           const osint = data.live_osint || data.osint || {};
@@ -1416,6 +1447,14 @@
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
         switchHudSubTab(currentHudTab - 1);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        const backBtn = document.getElementById("btn-back-menu");
+        if (backBtn) backBtn.focus();
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        const retakeBtn = document.getElementById("btn-retake-photo");
+        if (retakeBtn) retakeBtn.focus();
       }
     }
   });
