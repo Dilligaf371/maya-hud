@@ -881,12 +881,10 @@
     const vfText = document.getElementById("vf-status-text");
     if (menuImg) menuImg.src = srcDataUrl;
     if (vfImg) vfImg.src = srcDataUrl;
-    if (menuPill && !isCapturedStill) menuPill.textContent = pillLabel || "🟢 VISEUR CAMÉRA 0098 EN DIRECT";
-    if (vfText && !isCapturedStill) vfText.textContent = pillLabel || "🟢 VISEUR CAMÉRA 0098 LIVE";
-    if (isCapturedStill || !hasCapturedPhotoOnHud || isCapturingPhoto) {
-      if (hudImg) hudImg.src = srcDataUrl;
-      if (pillLabel && hudPill) hudPill.textContent = pillLabel;
-    }
+    if (hudImg) hudImg.src = srcDataUrl;
+    if (menuPill) menuPill.textContent = pillLabel || "🟢 VISEUR CAMÉRA 0098 EN DIRECT";
+    if (vfText) vfText.textContent = pillLabel || "🟢 VISEUR CAMÉRA 0098 LIVE";
+    if (hudPill) hudPill.textContent = pillLabel || "🟢 RETOUR VIDÉO 0098 EN DIRECT";
     if (isCapturedStill) {
       hasCapturedPhotoOnHud = true;
       isCapturingPhoto = false;
@@ -1349,50 +1347,59 @@
     });
   }
 
+  let pollInFlight = false;
   async function pollStudioState(waitingForAction) {
-    const bases = getApiBases();
-    for (let base of bases) {
-      try {
-        const res = await fetchTimeout(base + "/api/latest_result?t=" + Date.now(), { cache: "no-store" }, 2200);
-        if (res && res.ok) {
-          const data = await res.json();
-          const pill = document.getElementById("footer-conn-pill");
-          if (pill) {
-            const clients = Number(data.connected_clients || 0);
-            pill.textContent = clients > 0 ? ("🟢 0098 LIVE (" + clients + ")") : "🟢 STUDIO 0098";
-          }
-
-          if (data.capture_b64 && data.capture_ts && Number(data.capture_ts) > lastCaptureTs) {
-            lastCaptureTs = Number(data.capture_ts);
-            updateCameraImages("data:image/jpeg;base64," + data.capture_b64, "📸 PHOTO PRISE PAR ALERIA (0098)", true);
-          }
-
-          const st = data.status || "idle";
-          const ts = String(data.timestamp || "");
-          const unixTs = Number(data.unix_ts || 0);
-          if (waitingForAction && (st === "scanning" || st === "thinking")) {
-            const badge = document.getElementById("hud-badge");
-            if (badge) badge.textContent = st === "scanning" ? "Caméra 0098 12MP…" : "Analyse Aleria…";
-            return false;
-          }
-          if (waitingForAction && lastActionStartUnix > 0 && unixTs > 0 && unixTs < lastActionStartUnix) {
-            return false;
-          }
-          const osint = data.live_osint || data.osint || {};
-          const respText = data.response || data.edith_card || osint.summary || "";
-          if (st === "done" && (respText || osint.name) && ts && ts !== lastResultTimestamp) {
-            const isFirstSeed = (lastResultTimestamp === "" && !waitingForAction);
-            lastResultTimestamp = ts;
-            if (!isFirstSeed || waitingForAction || !activeSubject) {
-              applyLiveOsintPayload(osint, respText, data.capture_b64, data.capture_ts);
-              return true;
+    if (!waitingForAction && pollInFlight) return false;
+    if (!waitingForAction) pollInFlight = true;
+    try {
+      const bases = getApiBases();
+      for (let base of bases) {
+        try {
+          const res = await fetchTimeout(base + "/api/latest_result?t=" + Date.now(), { cache: "no-store" }, 2200);
+          if (res && res.ok) {
+            const data = await res.json();
+            const pill = document.getElementById("footer-conn-pill");
+            if (pill) {
+              const clients = Number(data.connected_clients || 0);
+              pill.textContent = clients > 0 ? ("🟢 0098 LIVE (" + clients + ")") : "🟢 STUDIO 0098";
             }
+
+            const frameB64 = data.live_frame_b64 || data.capture_b64 || "";
+            const frameTs = Number(data.live_frame_ts || data.capture_ts || 0);
+            if (frameB64 && (frameTs > lastCaptureTs || lastCaptureTs === 0)) {
+              lastCaptureTs = frameTs;
+              updateCameraImages("data:image/jpeg;base64," + frameB64, "🟢 VISEUR CAMÉRA 0098 EN DIRECT", false);
+            }
+
+            const st = data.status || "idle";
+            const ts = String(data.timestamp || "");
+            const unixTs = Number(data.unix_ts || 0);
+            if (waitingForAction && (st === "scanning" || st === "thinking")) {
+              const badge = document.getElementById("hud-badge");
+              if (badge) badge.textContent = st === "scanning" ? "Caméra 0098 12MP…" : "Analyse Aleria…";
+              return false;
+            }
+            if (waitingForAction && lastActionStartUnix > 0 && unixTs > 0 && unixTs < lastActionStartUnix) {
+              return false;
+            }
+            const osint = data.live_osint || data.osint || {};
+            const respText = data.response || data.edith_card || osint.summary || "";
+            if (st === "done" && (respText || osint.name) && ts && ts !== lastResultTimestamp) {
+              const isFirstSeed = (lastResultTimestamp === "" && !waitingForAction);
+              lastResultTimestamp = ts;
+              if (!isFirstSeed || waitingForAction || !activeSubject) {
+                applyLiveOsintPayload(osint, respText, data.capture_b64 || data.live_frame_b64, data.capture_ts || data.live_frame_ts);
+                return true;
+              }
+            }
+            return false;
           }
-          return false;
-        }
-      } catch (_) {}
+        } catch (_) {}
+      }
+      return false;
+    } finally {
+      if (!waitingForAction) pollInFlight = false;
     }
-    return false;
   }
 
   window.addEventListener("keydown", function(e) {
@@ -1488,7 +1495,7 @@
     startLiveViewfinderPolling();
     sendActionToStudio("start_video_return", "Active le retour vidéo en direct des lunettes 0098");
     pollStudioState(false);
-    setInterval(function() { pollStudioState(false); }, 1800);
+    setInterval(function() { pollStudioState(false); }, 450);
   });
   registerMrbdWebMCP();
   focusShortcut(0);
