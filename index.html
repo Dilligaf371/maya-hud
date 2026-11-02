@@ -731,6 +731,7 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+              use_raw_capture: true,
               image_b64: rawB64,
               query: "Qui est devant moi sur cette photo ? Identifie cette personne (nom, rôle, entreprise, réseaux sociaux)."
             })
