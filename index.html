@@ -286,6 +286,83 @@
     display: block;
     background: #02050a;
   }
+  .hud-two-faces-split {
+    position: absolute;
+    inset: 0;
+    bottom: 48px;
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 6px 8px 4px 8px;
+    background: #02060d;
+    z-index: 3;
+  }
+  .hud-two-faces-split.active {
+    display: grid;
+  }
+  .hud-face-card {
+    position: relative;
+    border-radius: 10px;
+    border: 2px solid var(--cyan);
+    background: #040b16;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hud-face-card.right-card {
+    border-color: var(--emerald);
+  }
+  .hud-face-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: #02050a;
+  }
+  .hud-face-tag {
+    position: absolute;
+    top: 5px;
+    left: 6px;
+    right: 6px;
+    background: rgba(2, 8, 16, 0.88);
+    border: 1.5px solid var(--cyan);
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--cyan);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 4;
+  }
+  .hud-face-card.right-card .hud-face-tag {
+    border-color: var(--emerald);
+    color: var(--emerald);
+  }
+  .hud-vs-pill {
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #041510;
+    border: 2.5px solid var(--emerald);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--emerald);
+    z-index: 5;
+    box-shadow: 0 0 14px rgba(0, 0, 0, 0.9);
+    white-space: nowrap;
+  }
+  .hud-vs-pill.rejected {
+    background: #1f1403;
+    border-color: var(--amber);
+    color: var(--amber);
+  }
   .hud-photo-pill {
     position: absolute;
     top: 10px;
@@ -484,6 +561,19 @@
 
       <span class="hud-photo-pill" id="hud-photo-pill">📸 PHOTO PRISE (FIGÉE DANS LE HUD)</span>
       <img id="hud-captured-img" class="hud-captured-img" src="icon-192.png" alt="Photo Prise 0098">
+
+      <!-- 2-FACE SIDE-BY-SIDE BIOMETRIC COMPARISON IN HUD -->
+      <div class="hud-two-faces-split" id="hud-two-faces-split">
+        <div class="hud-face-card left-card">
+          <div class="hud-face-tag" id="hud-face-left-tag">📸 VISAGE EXTRAIT (0098)</div>
+          <img id="hud-face-left-img" src="icon-192.png" alt="Visage Extrait 0098">
+        </div>
+        <div class="hud-face-card right-card" id="hud-face-right-card">
+          <div class="hud-face-tag" id="hud-face-right-tag">🔎 COMPARAISON (DB)</div>
+          <img id="hud-face-right-img" src="icon-192.png" alt="Visage Comparaison DB">
+        </div>
+        <div class="hud-vs-pill" id="hud-vs-pill">VS · 512-D</div>
+      </div>
 
       <div class="hud-photo-bottom-banner">
         <div style="min-width:0; flex:1;">
@@ -797,10 +887,42 @@
   };
 
   function renderOsintResultOnHud(osint, responseText, overlayB64) {
-    if (overlayB64) {
-      setFrozenHudPhoto("data:image/jpeg;base64," + overlayB64, "🎯 PHOTO ANALYSÉE PAR E.D.I.T.H. (FIGÉE)");
-    }
     const d = osint || {};
+    const hasExtractedFace = Boolean(d.face_crop_b64 && d.face_crop_b64.length > 100);
+    const hasCompFace = Boolean(d.comparison_face_b64 && d.comparison_face_b64.length > 100);
+    if (overlayB64) {
+      setFrozenHudPhoto("data:image/jpeg;base64," + overlayB64, "🎯 PHOTO ANALYSÉE PAR E.D.I.T.H. (FIGÉE)", hasExtractedFace);
+    }
+    const splitEl = document.getElementById("hud-two-faces-split");
+    const pillEl = document.getElementById("hud-photo-pill");
+    if (splitEl && hasExtractedFace) {
+      splitEl.classList.add("active");
+      if (pillEl) pillEl.style.display = "none";
+      const leftImg = document.getElementById("hud-face-left-img");
+      const rightImg = document.getElementById("hud-face-right-img");
+      const leftTag = document.getElementById("hud-face-left-tag");
+      const rightTag = document.getElementById("hud-face-right-tag");
+      const vsPill = document.getElementById("hud-vs-pill");
+      const bio = d.biometrics || {};
+      const bioLabel = (bio.gender_estimate && bio.age_estimate) ? (" (" + bio.gender_estimate + ", ~" + bio.age_estimate + "a)") : "";
+      if (leftTag) leftTag.textContent = "📸 EXTRAIT 0098" + bioLabel;
+      if (leftImg) leftImg.src = "data:image/jpeg;base64," + d.face_crop_b64;
+      if (hasCompFace && rightImg) {
+        rightImg.src = "data:image/jpeg;base64," + d.comparison_face_b64;
+      } else if (rightImg) {
+        rightImg.src = "data:image/jpeg;base64," + d.face_crop_b64;
+      }
+      if (rightTag) {
+        rightTag.textContent = "🔎 " + (d.comparison_label || (d.name ? d.name : "COMPARAISON DB"));
+      }
+      const simPct = typeof d.comparison_sim_pct === "number" ? d.comparison_sim_pct : (d.status === "identified" ? 96 : 0);
+      const isMatch = d.status === "identified" || simPct >= 35;
+      if (vsPill) {
+        vsPill.textContent = isMatch ? ("✓ MATCH " + simPct + "%") : ("⚠️ " + simPct + "% DIFFÉRENT");
+        if (isMatch) vsPill.classList.remove("rejected");
+        else vsPill.classList.add("rejected");
+      }
+    }
     const hasName = Boolean(d.name && !String(d.name).includes("CAMÉRA 0098"));
     const name = hasName ? d.name : "Analyse Photo 0098";
     const role = [d.role, d.company].filter(Boolean).join(" · ") || d.description || "Aleria Sovereign Vision · 12MP";
