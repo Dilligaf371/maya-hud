@@ -672,11 +672,17 @@
       let capturedNew = false;
       for (let base of bases) {
         try {
+          const currentLiveB64 = latestLiveFrameDataUrl.startsWith("data:image")
+            ? (latestLiveFrameDataUrl.split(",")[1] || "")
+            : "";
           const res = await fetchTimeout(base + "/api/capture_still", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ trigger_glasses_shutter: true })
-          }, 7500);
+            body: JSON.stringify({
+              trigger_glasses_shutter: true,
+              live_frame_b64: currentLiveB64
+            })
+          }, 8500);
           if (res && res.ok) {
             const data = await res.json();
             if (data && data.capture_b64) {
@@ -735,7 +741,7 @@
               image_b64: rawB64,
               query: "Qui est devant moi sur cette photo ? Identifie cette personne (nom, rôle, entreprise, réseaux sociaux)."
             })
-          }, 18000);
+          }, 35000);
           if (res && res.ok) {
             const data = await res.json();
             renderOsintResultOnHud(data.osint || data.live_osint || {}, data.response || data.result || "", data.capture_b64);
@@ -776,7 +782,7 @@
               image_b64: rawB64,
               query: "Qu'est-ce que je vois sur cette photo ? Décris la scène et lis tout texte visible en 2 phrases courtes."
             })
-          }, 15000);
+          }, 30000);
           if (res && res.ok) {
             const data = await res.json();
             renderOsintResultOnHud(data.osint || data.live_osint || {}, data.response || data.result || "", data.capture_b64);
@@ -801,13 +807,19 @@
     const conf = d.confidence ? String(d.confidence) : "12MP";
     const summary = responseText || d.summary || d.edith_card || "Analyse terminée.";
 
+    const hitDomains = Array.isArray(d.globalDbHits)
+      ? d.globalDbHits.slice(0, 3).map(function(h) {
+          try { return new URL(h.url).hostname.replace(/^www\./, ""); } catch (_) { return h.source || ""; }
+        }).filter(Boolean).join(" · ")
+      : "";
     const socials = [
       d.instagram ? ("IG " + d.instagram) : "",
       d.linkedin ? ("LI " + d.linkedin) : "",
       d.twitter ? ("X " + d.twitter) : "",
       d.facebook ? ("FB " + d.facebook) : "",
-      d.website ? ("Web " + d.website) : ""
-    ].filter(Boolean).join(" · ") || (d.recognition_source ? ("Source : " + d.recognition_source) : "Aleria Sovereign Vision & OSINT");
+      d.website ? ("Web " + d.website) : "",
+      hitDomains ? ("Hits: " + hitDomains) : ""
+    ].filter(Boolean).join(" · ") || (d.recognition_source ? ("Source : " + d.recognition_source) : "PimEyes Open Plus · SerpApi · Exa · ArcFace 512-D");
 
     document.getElementById("hud-title").textContent = "🎯 " + name;
     document.getElementById("hud-subtitle").textContent = "💼 " + role;
