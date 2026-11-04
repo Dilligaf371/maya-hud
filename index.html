@@ -1638,10 +1638,12 @@
   "use strict";
 
   const ENDPOINTS = {
-    httpsApi: "https://sweet-bibliographic-bread-forever.trycloudflare.com",
-    wssBridge: "wss://lowest-kijiji-rehabilitation-champion.trycloudflare.com/voice",
+    httpsApi: "https://hud.bre4ch.com",
+    httpsFallbackApi: "https://said-dos-welcome-retail.trycloudflare.com",
+    wssBridge: "wss://hud-voice.bre4ch.com/voice",
+    wssFallbackBridge: "wss://locator-extreme-heads-tribune.trycloudflare.com/voice",
     tailscaleApi: "http://100.78.112.92:8766",
-    lanApi: "http://192.168.1.116:8766"
+    lanApi: "http://192.168.1.163:8766"
   };
 
   const VAULT_STORAGE_KEY = "imf_vault_profiles_v1";
@@ -1708,7 +1710,13 @@
   }
 
   function getApiBases() {
-    return [ENDPOINTS.httpsApi, ENDPOINTS.tailscaleApi, ENDPOINTS.lanApi].filter(Boolean);
+    const origin = (window.location && window.location.origin) ? window.location.origin : "";
+    const list = [];
+    if (origin && !origin.includes("github.io") && origin.startsWith("http")) {
+      list.push(origin);
+    }
+    list.push(ENDPOINTS.httpsApi, ENDPOINTS.httpsFallbackApi, ENDPOINTS.tailscaleApi, ENDPOINTS.lanApi);
+    return list.filter(Boolean);
   }
 
   function fetchTimeout(url, opts, ms) {
@@ -2775,9 +2783,11 @@
   };
 
   // =========================================================================
-  // CONTINUOUS LIVE VIDEO POLLING FOR STEP 1 VIEWFINDER ONLY
+  // CONTINUOUS LIVE VIDEO & OSINT STATE POLLING
   // =========================================================================
   let pollBusy = false;
+  let lastResultTs = 0;
+  let initialSyncDone = false;
   async function pollLiveVideoStream() {
     if (pollBusy) return;
     pollBusy = true;
@@ -2785,13 +2795,39 @@
       const bases = getApiBases();
       for (let base of bases) {
         try {
-          const res = await fetchTimeout(base + "/api/latest_result?t=" + Date.now(), { cache: "no-store" }, 2200);
+          const res = await fetchTimeout(base + "/api/latest_result?t=" + Date.now(), { cache: "no-store" }, 2400);
           if (res && res.ok) {
             const data = await res.json();
             const lTs = Number(data.live_frame_ts || 0);
             if (data.live_frame_b64 && (lTs > lastLiveFrameTs || lastLiveFrameTs === 0)) {
               lastLiveFrameTs = lTs;
               renderLiveVideoFrame("data:image/jpeg;base64," + data.live_frame_b64);
+            } else if (!latestLiveFrameDataUrl && data.capture_b64) {
+              renderLiveVideoFrame("data:image/jpeg;base64," + data.capture_b64);
+            }
+
+            const rTs = Number(data.timestamp || 0);
+            if (!initialSyncDone) {
+              initialSyncDone = true;
+              lastResultTs = rTs;
+              if (data.capture_b64 && !frozenPhotoDataUrl) {
+                setFrozenHudPhoto("data:image/jpeg;base64," + data.capture_b64, "CAPTURE OPTIQUE 0098 // VERROUILLÉE");
+              }
+              const initOsint = data.live_osint || data.osint;
+              if (initOsint && (initOsint.face_crop_b64 || initOsint.name)) {
+                renderOsintResultOnHud(initOsint, data.response || data.result || "", data.capture_b64);
+              }
+            } else if (rTs > lastResultTs && !isTakingPhoto && !isOsintRunning) {
+              lastResultTs = rTs;
+              const srvOsint = data.live_osint || data.osint;
+              if (srvOsint && (srvOsint.face_crop_b64 || srvOsint.name)) {
+                renderOsintResultOnHud(srvOsint, data.response || data.result || "", data.capture_b64);
+                if (currentScreen === "live") {
+                  showPhotoHudScreen();
+                }
+              } else if (data.capture_b64) {
+                setFrozenHudPhoto("data:image/jpeg;base64," + data.capture_b64, "CAPTURE OPTIQUE 0098 // VERROUILLÉE");
+              }
             }
             return;
           }
@@ -2830,9 +2866,11 @@
     }
   };
 
+  let wsUseFallback = false;
   function connectWebSocketBridge() {
     try {
-      const ws = new WebSocket(ENDPOINTS.wssBridge);
+      const wsUrl = wsUseFallback ? ENDPOINTS.wssFallbackBridge : ENDPOINTS.wssBridge;
+      const ws = new WebSocket(wsUrl);
       ws.onopen = function() {
         bridgeSocket = ws;
         const pill = document.getElementById("footer-conn-pill");
@@ -2844,12 +2882,18 @@
           const msg = JSON.parse(ev.data);
           if (msg.type === "live_frame" && msg.frame_b64) {
             renderLiveVideoFrame("data:image/jpeg;base64," + msg.frame_b64);
+          } else if (msg.type === "osint_dossier" && msg.dossier) {
+            renderOsintResultOnHud(msg.dossier, msg.dossier.summary || msg.dossier.edith_card || "");
+            if (currentScreen === "live") {
+              showPhotoHudScreen();
+            }
           }
         } catch (_) {}
       };
       ws.onclose = function() {
         bridgeSocket = null;
-        setTimeout(connectWebSocketBridge, 4000);
+        wsUseFallback = !wsUseFallback;
+        setTimeout(connectWebSocketBridge, 3500);
       };
     } catch (_) {}
   }

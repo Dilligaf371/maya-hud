@@ -1,8 +1,10 @@
 {
-  "https_api": "https://sweet-bibliographic-bread-forever.trycloudflare.com",
-  "wss_bridge": "wss://lowest-kijiji-rehabilitation-champion.trycloudflare.com/voice",
-  "lan_api": "http://192.168.1.116:8766",
+  "https_api": "https://hud.bre4ch.com",
+  "https_fallback_api": "https://said-dos-welcome-retail.trycloudflare.com",
+  "wss_bridge": "wss://hud-voice.bre4ch.com/voice",
+  "wss_fallback_bridge": "wss://locator-extreme-heads-tribune.trycloudflare.com/voice",
+  "lan_api": "http://192.168.1.163:8766",
   "tailscale_api": "http://100.78.112.92:8766",
-  "lan_ws": "ws://192.168.1.116:8765/voice",
-  "updated_at": 1793547050
+  "lan_ws": "ws://192.168.1.163:8765/voice",
+  "updated_at": 1793804160
 }
